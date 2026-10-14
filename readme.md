@@ -9,22 +9,21 @@ App changes
 
 1) ~~When clock goes past half time and the game is still in the first half then the clock should turn red. Again when the game clock hits full time and the game is in the 2nd half then the clock should turn red - Complete~~
 
-2) Add an new option to reset game - Complete
+2) ~~Add an new option to reset game - Complete~~
 
-3) Better football design - Complete
+3) ~~Better football design - Complete~~
 
-4) Rename "Official Match Summary Ledger Report" to "Match Summary" and instead of "Home Team Roster Stats" and "Away Team Roster Stats" please use the actual team names - Complete
+4) ~~Rename "Official Match Summary Ledger Report" to "Match Summary" and instead of "Home Team Roster Stats" and "Away Team Roster Stats" please use the actual team names - Complete~~
 
 5) Ability to save previous game summary's in the app itself and it does not get wiped when clicking "Reset Squads", however we should be able to select and delete individual ones when needed.
 
 
 6) Ability to add Red/Yellow cards, these should actually show on the Match Summary.
 
-7) We need the D drawn on the edge of the 18 yard box
 
-8) Check name change to CoachCalc has been applied
+7) Check name change to CoachCalc has been applied
 
-9) Scale pitch:
+8) Scale pitch:
 
 I want to make sure the pitch scale is correct, these standard sizes exist for a pitch.
 
