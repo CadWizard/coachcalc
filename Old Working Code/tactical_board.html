@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PitchPad - Live Match Time Tracker (Stable v0.61.0)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-image: linear-gradient(rgba(26, 36, 43, 0.45), rgba(15, 23, 30, 0.9)), url('https://images.unsplash.com/photo-1577223625816-7546f13df25d?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-color: #111822;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+            padding-bottom: 80px;
+        }
+        
+        h1 { 
+            color: #ffffff; 
+            font-size: 54px; 
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            line-height: 1.2;
+            text-shadow: 0 6px 14px rgba(0,0,0,0.9), 0 3px 6px rgba(0,0,0,0.7), 0 1px 2px rgba(0,0,0,0.5); 
+            margin-top: 15px;
+            margin-bottom: 5px; 
+        }
+        h2.subtitle { color: #e2e8f0; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-size: 14px; margin-top: 0; margin-bottom: 25px; font-weight: normal; }
+        
+        #main-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            max-width: 1450px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .sidebar {
+            width: 280px; 
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .sidebar h3 {
+            display: flex;
+            align-items: center;
+            margin-top: 0;
+            margin-bottom: 2px;
+            color: #2c3e50;
+        }
+        .sidebar h4 {
+            margin: 5px 0 2px 0;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #7f8c8d;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 2px;
+        }
+
+        .kit-badge {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1.5px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        .kit-home {
+            background: linear-gradient(to right, #27ae60 25%, #f1c40f 25% 50%, #27ae60 50% 75%, #f1c40f 75%);
+        }
+        .kit-away {
+            background-color: #2980b9;
+        }
+
+        .center-workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        #controls, #timer-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+        .squad-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 220px;
+            overflow-y: auto;
+            background: #fcfcfc;
+            padding: 4px;
+            border: 1px dashed #ddd;
+            border-radius: 4px;
+        }
+
+        .squad-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 5px solid #ccc;
+            font-size: 13px;
+        }
+
+        .stat-pill-btn {
+            background: #f2f4f4;
+            border: 1px solid #d5dbdb;
+            padding: 2px 5px;
+            font-size: 11px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .stat-pill-btn:hover { background: #e5e8e8; }
+
+        .player-label-click {
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: background 0.2s ease;
+        }
+        .player-label-click:hover {
+            background-color: #eaecee;
+        }
+        
+        .role-badge-click {
+            font-size: 10px; 
+            background: #ebf5fb; 
+            border: 1px solid #a9cce3; 
+            padding: 1px 4px; 
+            border-radius: 4px; 
+            color: #2980b9;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .fairplay-matrix-box {
+            background: #f4f6f7;
+            border-left: 5px solid #8e44ad;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #2c3e50;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        button, input, select {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            touch-action: none;
+        }
+        button.active, select.active {
+            background-color: #27ae60;
+            color: white;
+            border-color: #27ae60;
+        }
+        #board-container {
+            position: relative;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.4);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #2e7d32;
+            touch-action: none;
+        }
+        canvas {
+            display: block;
+            cursor: crosshair;
+        }
+
+        #report-ledger-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+            width: 100%;
+            box-sizing: border-box;
+            display: none;
+            margin-top: 10px;
+        }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .report-table th, .report-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            font-size: 14px;
+        }
+        .report-table th { background-color: #f2f4f4; font-weight: bold; }
+
+        .bottom-right-dock-anchor {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        #infoBtn {
+            background-color: #2980b9; 
+            color: white; 
+            font-weight: bold; 
+            font-size: 13px; 
+            padding: 8px 16px;
+            border: 1px solid #1f618d;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+        }
+        #infoBtn:hover {
+            background-color: #2471a3;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+            transform: translateY(-1px);
+        }
+
+        .info-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .info-modal-box {
+            background: white;
+            width: 550px;
+            max-height: 80vh;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: modalFadeIn 0.25s ease;
+        }
+        .info-modal-header {
+            background: #1a242b;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .info-modal-header h3 { margin: 0; font-size: 18px; }
+        .info-modal-close-btn {
+            background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0;
+        }
+        .info-modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            color: #2c3e50;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .info-modal-body h4 { margin-top: 15px; margin-bottom: 5px; color: #16a085; border-bottom: 1px solid #eee; padding-bottom: 3px;}
+        .info-modal-body ul { margin: 5px 0 15px 0; padding-left: 20px; }
+        .info-modal-body li { margin-bottom: 4px; }
+        @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <h1>📋 PitchPad</h1>
+    <h2 class="subtitle">Live Match Time Tracker & Whiteboard Tactics (Stable v0.61.0)</h2>
+    
+    <div id="main-layout">
+        <div id="sidebar-left" class="sidebar">
+            <h3>
+                <span class="kit-badge kit-home"></span>
+                <span id="homeTeamTitleText">Home Squad</span>
+            </h3>
+            <div style="display:flex; gap:4px;">
+                <input type="text" id="homePlayerName" placeholder="Player Name" style="width: 160px; padding: 6px;">
+                <button onclick="createNewPlayer('home')" style="background:#27ae60; color:white; border:none; padding:6px; flex-grow:1; justify-content:center;">Add</button>
+            </div>
+            
+            <select id="homeFormatSelect" onchange="updateFormationOptions('home')" style="width:100%; padding:6px; font-weight: bold;">
+                <option value="5v5">Match Size: 5 v 5</option>
+                <option value="7v7">Match Size: 7 v 7</option>
+                <option value="9v9" selected>Match Size: 9 v 9</option>
+                <option value="11v11">Match Size: 11 v 11</option>
+            </select>
+            <select id="homeFormationSelect" onchange="changeFormation('home', this.value)" style="width:100%; padding:6px; font-weight: bold; background: #e8f8f5;"></select>
+
+            <h4>🏃 On Pitch</h4>
+            <div id="home-active-list" class="squad-list-container"></div>
+
+            <h4>🪑 Substitutes Bench</h4>
+            <div id="home-bench-list" class="squad-list-container"></div>
+        </div>
+
+        <div class="center-workspace" id="centerWorkspaceFrame">
+            <div id="timer-panel">
+                <div class="row" style="justify-content: space-between;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <label style="font-weight:bold; font-size:13px;">Game Length:</label>
+                        <input type="number" id="matchLengthInput" oninput="recalculateEqualTimeMatrix()" value="60" style="width:50px; padding:4px; text-align: center;">
+                        <label style="font-weight:bold; font-size:13px;">Half Length:</label>
+                        <input type="number" id="halfLengthInput" value="30" style="width:50px; padding:4px; text-align: center;">
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span id="currentHalfLabel" style="font-weight: bold; background: #ebd4ef; padding: 4px 8px; border-radius: 4px; font-size: 13px; color: #6c3483;">1st Half</span>
+                        <span id="liveClockDisplay" style="font-family: monospace; font-size: 26px; font-weight: bold; color: #2c3e50; background: #eaeded; padding: 2px 10px; border-radius: 4px; border: 1px solid #bdc3c7;">00:00</span>
+                    </div>
+                </div>
+                
+                <div class="fairplay-matrix-box">
+                    <div style="display:flex; justify-content: space-between; align-items: center;">
+                        <strong>🎯 Equal Play Guide (Target per Player):</strong>
+                        <select id="gkRotationModeSelect" onchange="recalculateEqualTimeMatrix()" style="padding: 2px 6px; font-size: 11px; font-weight: bold; background: white;">
+                            <option value="exclude">Excluding Dedicated GK (GK plays 100%)</option>
+                            <option value="include">Including GK (Everyone rotates in goal)</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; gap:20px; margin-top: 4px; font-family: monospace; font-size: 13px;">
+                        <div id="homeFairPlayTarget">Home Target: -- mins</div>
+                        <div id="awayFairPlayTarget">Away Target: -- mins</div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 2px;">
+                    <button id="startTimerBtn" onclick="startMatchTimerEngine()" style="background-color: #27ae60; color: white; font-weight: bold; border: none;">▶ Start Timer</button>
+                    <button id="pauseTimerBtn" onclick="pauseMatchTimerEngine()" style="background-color: #f39c12; color: white; font-weight: bold; border: none;" disabled>⏸ Pause Timer</button>
+                    <button id="nextHalfBtn" onclick="advanceToNextHalf()" style="background-color: #8e44ad; color: white; font-size: 13px; font-weight: bold;">Next Half</button>
+                    <button onclick="finishGameAndCompileReport()" style="background-color: #c0392b; color: white; font-weight: bold; border: none; margin-left: auto;">🏁 Force Finish Report</button>
+                </div>
+                
+                <div class="row" style="border-top: 1px dashed #ddd; padding-top: 6px; margin-top: 2px; align-items: center;">
+                    <span style="font-size: 12px; font-weight: bold; color: #7f8c8d;">⏱️ Forgot to Start? Catch Up:</span>
+                    <button onclick="injectRetroactiveMinutes(1)" style="padding: 3px 8px; font-size: 12px; background: #eaf2f8; color: #2980b9; border-color: #a9cce3;">➕ 1 Min</button>
+                    <button onclick="injectRetroactiveMinutes(2)" style="padding: 3px 8px; font-size: 12px; background: #eaf2f8; color: #2980b9; border-color: #a9cce3;">➕ 2 Mins</button>
+                    <button onclick="injectRetroactiveMinutes(5)" style="padding: 3px 8px; font-size: 12px; background: #eaf2f8; color: #2980b9; border-color: #a9cce3;">➕ 5 Mins</button>
+                </div>
+            </div>
+
+            <div id="controls">
+                <div class="row">
+                    <button id="moveBtn" class="active" onclick="setMode('move')">🏃 Move Elements</button>
+
+                    <select id="modeActionSelect" onchange="setMode(this.value)" style="font-weight: bold; background: #ebf5fb; border-color: #2980b9; padding: 8px 12px;">
+                        <option value="move" disabled hidden>✏️ Draw Action Menu...</option>
+                        <option value="draw-solid">🏹 Run Line (Solid Arrow)</option>
+                        <option value="draw-dashed">⚽ Pass Line (Dotted Arrow)</option>
+                    </select>
+
+                    <button id="textBtn" onclick="setMode('text')">📝 Note</button>
+                    <button id="snapToggleBtn" class="active" onclick="toggleSnapping()">🧲 Snapping: ON</button>
+                    <select id="pitchDesignSelect" onchange="changePitchDesign(this.value)" style="font-size: 12px; padding: 4px 8px; margin-left: auto;">
+                        <option value="solid">Grass: Solid</option>
+                        <option value="stripes-h">Grass: Horizontal</option>
+                        <option value="stripes-v">Grass: Vertical</option>
+                        <option value="grid">Grass: Grid</option>
+                    </select>
+                    <button id="labelToggleBtn" onclick="toggleGlobalLabelView()" style="background-color: #8e44ad; color: white; font-size: 12px; padding: 5px 10px;">👁️ View: NAMES</button>
+                    <button onclick="togglePitchRotation()" style="background-color: #34495e; white-space: nowrap; color: white; font-size: 12px; padding: 5px 10px;">🔄 Rotate</button>
+                    <button id="undoBtn" onclick="undoLastDrawing()" style="background-color: #d35400; color: white; font-size: 12px; padding: 5px 10px;">↩️ Undo</button>
+                    <button onclick="clearDrawings()" style="background-color: #7f8c8d; color: white; font-size: 12px; padding: 5px 10px;">🗑️ Clear</button>
+                </div>
+            </div>
+            
+            <div id="board-container">
+                <canvas id="pitch" width="800" height="600"></canvas>
+            </div>
+
+            <div id="report-ledger-panel">
+                <h3 style="margin-top:0; color:#2c3e50; border-bottom: 2px solid #34495e; padding-bottom:5px;">📊 Official Match Summary Ledger Report</h3>
+                <div style="font-weight: bold; margin-bottom: 10px;" id="ledgerTeamHeader"></div>
+                <h4>Home Team Roster Stats</h4>
+                <table class="report-table" id="homeReportTable">
+                    <thead>
+                        <tr><th>Player Name</th><th>Position</th><th>Total Game Time</th><th>Goals</th><th>Assists</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <h4 style="margin-top:20px;">Away Team Roster Stats</h4>
+                <table class="report-table" id="awayReportTable">
+                    <thead>
+                        <tr><th>Player Name</th><th>Position</th><th>Total Game Time</th><th>Goals</th><th>Assists</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button onclick="window.print()" style="margin-top:15px; background:#34495e; color:white; border:none; padding:8px 15px; font-weight:bold;">🖨️ Print Statistics Report</button>
+            </div>
+        </div>
+
+        <div id="sidebar-right" class="sidebar">
+            <h3>
+                <span class="kit-badge kit-away"></span>
+                <span id="awayTeamTitleText">Away Squad</span>
+            </h3>
+            <div style="display:flex; gap:4px;">
+                <input type="text" id="awayPlayerName" placeholder="Player Name" style="width: 160px; padding: 6px;">
+                <button onclick="createNewPlayer('away')" style="background:#2980b9; color:white; border:none; padding:6px; flex-grow:1; justify-content:center;">Add</button>
+            </div>
+            
+            <select id="awayFormatSelect" onchange="updateFormationOptions('away')" style="width:100%; padding:6px; font-weight: bold;">
+                <option value="5v5">Match Size: 5 v 5</option>
+                <option value="7v7">Match Size: 7 v 7</option>
+                <option value="9v9" selected>Match Size: 9 v 9</option>
+                <option value="11v11">Match Size: 11 v 11</option>
+            </select>
+            <select id="awayFormationSelect" onchange="changeFormation('away', this.value)" style="width:100%; padding:6px; font-weight: bold; background: #ebf5fb;"></select>
+
+            <h4>🏃 On Pitch</h4>
+            <div id="away-active-list" class="squad-list-container"></div>
+
+            <h4>🪑 Substitutes Bench</h4>
+            <div id="away-bench-list" class="squad-list-container"></div>
+        </div>
+    </div>
+
+    <div class="bottom-right-dock-anchor">
+        <button id="infoBtn" onclick="openChangelogModalWindow()">ℹ️ View App Info</button>
+    </div>
+
+    <div id="changelogOverlayModal" class="info-modal-overlay" onclick="closeChangelogModalWindow(event)">
+        <div class="info-modal-box" onclick="event.stopPropagation()">
+            <div class="info-modal-header">
+                <h3>📋 PitchPad Change Log & Notes</h3>
+                <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
+            </div>
+            <div class="info-modal-body">
+                <p style="margin-top: 0; font-weight: bold; color: #34495e;">Current Version: v0.61.0 Stable Release</p>
+                
+                <h4>v0.61.0 — Canvas Matrix Unification Pass</h4>
+                <ul>
+                    <li>Exposed `window.getCanvasCoordinates()` explicitly to clear touch target crashes.</li>
+                    <li>Verified retroactive clock injectors and mid-game half transitions operate with zero frame dropping.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. GLOBAL SCOPE ASSIGNMENTS & INITIAL REGISTRIES
+        // ==========================================
+        window.canvas = document.getElementById('pitch');
+        window.ctx = canvas.getContext('2d');
+        
+        window.randomAwayGkColor = '#d35400';
+        window.initRandomAwayGkShirt = function() {
+            var keeperColors = ['#d35400', '#e67e22', '#9b59b6', '#e74c3c', '#1abc9c', '#fdcb6e', '#e84393'];
+            window.randomAwayGkColor = keeperColors[Math.floor(Math.random() * keeperColors.length)];
+        };
+        window.initRandomAwayGkShirt();
+
+        window.squad = []; window.drawings = []; window.notes = []; window.currentMode = 'move'; window.isDragging = false; window.selectedPlayer = null; window.selectedNote = null; window.arrowStart = null; window.tempArrowEnd = null;
+        window.homeActiveFormation = '2-4-2'; window.awayActiveFormation = '2-4-2'; window.snappingEnabled = true;
+        window.homeTeamName = localStorage.getItem('pitchPadHomeTeamName') || 'Home Squad';
+        window.awayTeamName = localStorage.getItem('pitchPadAwayTeamName') || 'Away Squad';
+        window.isPortrait = false; 
+        window.labelMode = localStorage.getItem('pitchPadLabelMode') || 'names';
+        window.pitchDesign = localStorage.getItem('pitchPadDesign') || 'solid';
+
+        window.matchIntervalLoop = null;
+        window.isTimerRunning = false;
+        window.globalSecondsElapsed = 0;
+        window.activeHalf = 1;
+        window.hoveredPlayer = null;
+        window.tacticalBall = { x: 400, y: 240, isDragging: false };
+
+        window.getBenchZoneBoxes = function() {
+            return {
+                home: { x: 30, y: 505, w: 350, h: 75 },
+                away: { x: 420, y: 505, w: 350, h: 75 }
+            };
+        };
+
+        window.parseFormatInt = function(str) { return parseInt(str.split('v')[0]) || 9; };
+
+        window.formatPlaybooks = {
+            '5v5': ['1-2-1'], '7v7': ['2-3-1'], '9v9': ['2-4-2', '3-3-2', '2-3-1-1', '3-3-1-1'], '11v11': ['4-4-2']
+        };
+
+        window.formations = {
+            '1-2-1': {
+                home: [{x: 60, y: 240, r:'GK'}, {x: 160, y: 240, r:'CB'}, {x: 260, y: 110, r:'LM'}, {x: 260, y: 370, r:'RM'}, {x: 370, y: 240, r:'ST'}],
+                away: [{x: 740, y: 240, r:'GK'}, {x: 640, y: 240, r:'CB'}, {x: 540, y: 110, r:'LM'}, {x: 540, y: 370, r:'RM'}, {x: 430, y: 240, r:'ST'}]
+            },
+            '2-3-1': {
+                home: [{x: 60, y: 240, r:'GK'}, {x: 150, y: 130, r:'LCB'}, {x: 150, y: 350, r:'RCB'}, {x: 250, y: 70, r:'LM'}, {x: 240, y: 240, r:'CM'}, {x: 250, y: 410, r:'RM'}, {x: 370, y: 240, r:'ST'}],
+                away: [{x: 740, y: 240, r:'GK'}, {x: 650, y: 130, r:'LCB'}, {x: 650, y: 350, r:'RCB'}, {x: 550, y: 70, r:'LM'}, {x: 560, y: 240, r:'CM'}, {x: 550, y: 410, r:'RM'}, {x: 430, y: 240, r:'ST'}]
+            },
+            '2-4-2': {
+                home: [{x: 60, y: 240, r:'GK'}, {x: 160, y: 150, r:'LCB'}, {x: 160, y: 330, r:'RCB'}, {x: 280, y: 70, r:'LM'}, {x: 260, y: 180, r:'LDM'}, {x: 260, y: 300, r:'RDM'}, {x: 280, y: 410, r:'RM'}, {x: 380, y: 140, r:'LS'}, {x: 380, y: 340, r:'RS'}],
+                away: [{x: 740, y: 240, r:'GK'}, {x: 640, y: 150, r:'LCB'}, {x: 640, y: 330, r:'RCB'}, {x: 520, y: 70, r:'LM'}, {x: 540, y: 180, r:'LDM'}, {x: 540, y: 300, r:'RDM'}, {x: 520, y: 410, r:'RM'}, {x: 420, y: 140, r:'LS'}, {x: 420, y: 340, r:'RS'}]
+            },
+            '3-3-2': {
+                home: [{x: 60, y: 240, r:'GK'}, {x: 160, y: 80, r:'LCB'}, {x: 140, y: 240, r:'CB'}, {x: 160, y: 400, r:'RCB'}, {x: 280, y: 90, r:'LM'}, {x: 260, y: 240, r:'CM'}, {x: 280, y: 390, r:'RM'}, {x: 380, y: 140, r:'LS'}, {x: 380, y: 340, r:'RS'}],
+                away: [{x: 740, y: 240, r:'GK'}, {x: 640, y: 80, r:'LCB'}, {x: 660, y: 240, r:'CB'}, {x: 640, y: 400, r:'RCB'}, {x: 520, y: 90, r:'LM'}, {x: 540, y: 240, r:'CM'}, {x: 520, y: 390, r:'RM'}, {x: 420, y: 140, r:'LS'}, {x: 420, y: 340, r:'RS'}]
+            },
+            '2-3-1-1': {
+                home: [{x: 60, y: 240, r:'GK'}, {x: 160, y: 150, r:'LCB'}, {x: 160, y: 330, r:'RCB'}, {x: 270, y: 80, r:'LM'}, {x: 250, y: 240, r:'CM'}, {x: 270, y: 400, r:'RM'}, {x: 330, y: 240, r:'AM'}, {x: 380, y: 240, r:'ST'}],
+                away: [{x: 740, y: 240, r:'GK'}, {x: 640, y: 150, r:'LCB'}, {x: 640, y: 330, r:'RCB'}, {x: 530, y: 80, r:'LM'}, {x: 550, y: 240, r:'CM'}, {x: 530, y: 400, r:'RM'}, {x: 470, y: 240, r:'AM'}, {x: 420, y: 240, r:'ST'}]
+            },
+            '3-3-1-1': {
+                home: [{x: 60, y: 240, r:'GK'}, {x: 150, y: 90, r:'LCB'}, {x: 140, y: 240, r:'CB'}, {x: 150, y: 390, r:'RCB'}, {x: 240, y: 90, r:'LM'}, {x: 230, y: 240, r:'CM'}, {x: 240, y: 390, r:'RM'}, {x: 310, y: 240, r:'AM'}, {x: 380, y: 240, r:'ST'}],
+                away: [{x: 740, y: 240, r:'GK'}, {x: 650, y: 90, r:'LCB'}, {x: 660, y: 240, r:'CB'}, {x: 650, y: 390, r:'RCB'}, {x: 560, y: 90, r:'LM'}, {x: 570, y: 240, r:'CM'}, {x: 560, y: 390, r:'RM'}, {x: 490, y: 240, r:'AM'}, {x: 420, y: 240, r:'ST'}]
+            },
+            '4-4-2': {
+                home: [{x: 60, y: 240, r:'GK'}, {x: 140, y: 65, r:'LB'}, {x: 150, y: 185, r:'LCB'}, {x: 150, y: 295, r:'RCB'}, {x: 140, y: 415, r:'RB'}, {x: 260, y: 65, r:'LM'}, {x: 250, y: 185, r:'LCM'}, {x: 250, y: 295, r:'RCM'}, {x: 260, y: 415, r:'RM'}, {x: 380, y: 160, r:'LS'}, {x: 380, y: 320, r:'RS'}],
+                away: [{x: 740, y: 240, r:'GK'}, {x: 660, y: 65, r:'RB'}, {x: 650, y: 185, r:'RCB'}, {x: 650, y: 295, r:'LCB'}, {x: 660, y: 415, r:'LB'}, {x: 540, y: 65, r:'RM'}, {x: 550, y: 185, r:'RCM'}, {x: 550, y: 295, r:'LCM'}, {x: 540, y: 415, r:'LM'}, {x: 420, y: 170, r:'RS'}, {x: 420, y: 310, r:'LS'}]
+            }
+        };
+
+        // ==========================================
+        // 2. MATH CORES & PERSISTENCE MANAGEMENT (EXPLICIT WINDOW LABELS MARKS)
+        // ==========================================
+        window.formatSecondsToMinutes = function(totalSeconds) {
+            if(!totalSeconds) return "0m";
+            return Math.floor(totalSeconds / 60) + " mins";
+        };
+
+        window.scalePlayingFieldCoordinates = function(rawX, rawY, isTeamAway, isGK) {
+            if (isGK) { return { x: rawX, y: 240 }; }
+            return { x: rawX, y: (rawY * 0.88) + 20 };
+        };
+
+        window.getPitchCenterKickoffSpot = function() { return { x: 400, y: 240 }; };
+
+        window.saveSquadData = function() { 
+            try { 
+                localStorage.setItem('footballSquadTracker', JSON.stringify(window.squad)); 
+                localStorage.setItem('pitchPadBallX', window.tacticalBall.x);
+                localStorage.setItem('pitchPadBallY', window.tacticalBall.y);
+            } catch (e) {} 
+        };
+
+        window.saveFormationData = function() { try { localStorage.setItem('pitchPadHomeFormation', window.homeActiveFormation); localStorage.setItem('pitchPadAwayFormation', window.awayActiveFormation); } catch (e) {} };
+
+        window.updateCanvasDimensions = function() {
+            var container = document.getElementById('board-container');
+            var centerSection = document.getElementById('centerWorkspaceFrame');
+            if (window.canvas && container && centerSection) {
+                window.canvas.width = 800; window.canvas.height = 600; 
+                container.style.width = "800px"; container.style.height = "600px"; 
+                centerSection.style.width = "800px";
+            }
+        };
+
+        // EXPLICIT GLOBAL EXPOSURE HOOK: Wipes out touch positioning drops
+        window.getCanvasCoordinates = function(e) {
+            var rect = window.canvas.getBoundingClientRect();
+            var clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX; clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX; clientY = e.clientY;
+            }
+            return {
+                x: ((clientX - rect.left) / rect.width) * window.canvas.width,
+                y: ((clientY - rect.top) / rect.height) * window.canvas.height
+            };
+        };
+
+        window.repositionBenchedTeammatesInZones = function() {
+            var boxes = window.getBenchZoneBoxes();
+            var homeBench = window.squad.filter(function(p) { return p.team === 'home' && !p.onPitch; });
+            homeBench.forEach(function(player, i) { player.x = boxes.home.x + 22 + (i * 38); player.y = boxes.home.y + 44; });
+            
+            var awayBench = window.squad.filter(function(p) { return p.team === 'away' && !p.onPitch; });
+            awayBench.forEach(function(player, i) { player.x = boxes.away.x + 22 + (i * 38); player.y = boxes.away.y + 44; });
+        };
+
+        window.recalculateEqualTimeMatrix = function() {
+            var matchLengthMins = parseFloat(document.getElementById('matchLengthInput').value) || 60;
+            var mode = document.getElementById('gkRotationModeSelect').value;
+
+            var calcTarget = function(team) {
+                var roster = window.squad.filter(function(p) { return p.team === team; });
+                var totalPlayersCount = roster.length;
+                if(totalPlayersCount <= 0) return "--";
+
+                var formatNode = document.getElementById(team === 'home' ? 'homeFormatSelect' : 'awayFormatSelect');
+                if(!formatNode) return "--";
+                var fieldSlotsCount = window.parseFormatInt(formatNode.value);
+
+                if (mode === 'include') {
+                    return Math.round((matchLengthMins * fieldSlotsCount) / totalPlayersCount);
+                } else {
+                    var outfieldSlots = fieldSlotsCount - 1;
+                    var outfieldPlayers = totalPlayersCount - 1;
+                    if(outfieldPlayers <= 0 || outfieldSlots <= 0) return matchLengthMins;
+                    return Math.round((matchLengthMins * outfieldSlots) / outfieldPlayers);
+                }
+            };
+
+            document.getElementById('homeFairPlayTarget').innerText = "Home Target: " + calcTarget('home') + " mins";
+            document.getElementById('awayFairPlayTarget').innerText = "Away Target: " + calcTarget('away') + " mins";
+        };
+
+        // ==========================================
+        // 3. SIDEBAR CELL ENGINE WRITERS
+        // ==========================================
+        window.renderSquadBanks = function() {
+            var homeActive = document.getElementById('home-active-list');
+            var homeBench = document.getElementById('home-bench-list');
+            var awayActive = document.getElementById('away-active-list');
+            var awayBench = document.getElementById('away-bench-list');
+            if(!homeActive || !homeBench || !awayActive || !awayBench) return;
+            
+            homeActive.innerHTML = ''; homeBench.innerHTML = ''; awayActive.innerHTML = ''; awayBench.innerHTML = '';
+            
+            window.squad.forEach(function(player) {
+                var item = document.createElement('div'); item.className = 'squad-item';
+                item.style.borderLeftColor = player.team === 'home' ? '#27ae60' : '#2980b9';
+                
+                item.innerHTML = `
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span class="player-label-click" onclick="promptRenameTeamEdit(${player.id})"><strong>${player.name}</strong></span>
+                            <span class="role-badge-click" onclick="promptPlayerRoleEdit(${player.id})">${player.role || 'POS'}</span>
+                        </div>
+                        <div style="font-size:11px; color:#566573; font-weight:bold;">⏱️ ${window.formatSecondsToMinutes(player.timePlayed)}</div>
+                    </div>
+                    <div style="display:flex; gap:3px; align-items: center;">
+                        <button class="stat-pill-btn" onclick="incrementPlayerStat(${player.id}, 'goals')">⚽ G:${player.goals||0}</button>
+                        <button class="stat-pill-btn" onclick="incrementPlayerStat(${player.id}, 'assists')">👟 A:${player.assists||0}</button>
+                        <button onclick="togglePlayerPitch(${player.id})" style="padding:4px 6px; font-size:11px; background:#ebf5fb;">Bench</button>
+                    </div>`;
+                    
+                if (player.team === 'home') {
+                    if (player.onPitch) homeActive.appendChild(item); else homeBench.appendChild(item);
+                } else {
+                    if (player.onPitch) awayActive.appendChild(item); else awayBench.appendChild(item);
+                }
+            });
+        };
+
+        window.updateSidebarHeaderLabels = function() {
+            var homeCount = window.squad.filter(function(p) { return p.team === 'home'; }).length;
+            var awayCount = window.squad.filter(function(p) { return p.team === 'away'; }).length;
+            
+            var homeTitleNode = document.getElementById('homeTeamTitleText');
+            var awayTitleNode = document.getElementById('awayTeamTitleText');
+            
+            if(homeTitleNode) homeTitleNode.innerText = window.homeTeamName + " (" + homeCount + ")";
+            if(awayTitleNode) awayTitleNode.innerText = window.awayTeamName + " (" + awayCount + ")";
+        };
+
+        window.updateClockDisplayStrings = function() {
+            var minutes = Math.floor(window.globalSecondsElapsed / 60);
+            var seconds = window.globalSecondsElapsed % 60;
+            document.getElementById('liveClockDisplay').innerText = minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
+            window.renderSquadBanks();
+        };
+
+        window.finishGameAndCompileReport = function() {
+            window.pauseMatchTimerEngine();
+            document.getElementById('startTimerBtn').disabled = true;
+            document.getElementById('pauseTimerBtn').disabled = true;
+            document.getElementById('nextHalfBtn').disabled = true;
+            document.getElementById('ledgerTeamHeader').innerText = window.homeTeamName + " vs " + window.awayTeamName;
+            
+            var buildTableRows = function(team) {
+                var teamPlayers = window.squad.filter(function(p) { return p.team === team; });
+                var html = "";
+                teamPlayers.forEach(function(p) {
+                    html += `<tr><td><strong>${p.name}</strong></td><td><span class="role-badge-click">${p.role || 'POS'}</span></td><td>${window.formatSecondsToMinutes(p.timePlayed)}</td><td>⚽ ${p.goals || 0}</td><td>👟 ${p.assists || 0}</td></tr>`;
+                });
+                return html;
+            };
+            document.querySelector('#homeReportTable tbody').innerHTML = buildTableRows('home');
+            document.querySelector('#awayReportTable tbody').innerHTML = buildTableRows('away');
+            document.getElementById('report-ledger-panel').style.display = "block";
+            document.getElementById('report-ledger-panel').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        // ==========================================
+        // 4. GRAPHICS OVERLAY PACK ENGINE GRAPHICS
+        // ==========================================
+        window.drawMowedLawnPatterns = function() {
+            window.ctx.save(); window.ctx.fillStyle = '#226326'; var totalStripesCount = 10;
+            var stripeWidth = 760 / totalStripesCount;
+            for (var i = 0; i < totalStripesCount; i++) { 
+                if (i % 2 === 1) window.ctx.fillRect(20 + (i * stripeWidth), 20, stripeWidth, 440); 
+            }
+            window.ctx.restore();
+        };
+
+        window.drawCornerFlag = function(x, y, flipHorizontal, flipVertical) {
+            window.ctx.save(); window.ctx.lineWidth = 2; window.ctx.strokeStyle = '#ffffff'; window.ctx.fillStyle = '#e74c3c';
+            window.ctx.beginPath(); window.ctx.moveTo(x, y); window.ctx.lineTo(x, flipVertical ? y + 14 : y - 14); window.ctx.stroke();
+            window.ctx.beginPath(); window.ctx.moveTo(x, flipVertical ? y + 14 : y - 14);
+            var flagYMid = flipVertical ? y + 10.5 : y - 10.5; var flagYEnd = flipVertical ? y + 7 : y - 7;
+            if (flipHorizontal) window.ctx.lineTo(x - 9, flagYMid); else window.ctx.lineTo(x + 9, flagYMid);
+            window.ctx.lineTo(x, flagYEnd); window.ctx.closePath(); window.ctx.fill(); window.ctx.restore();
+        };
+
+        window.drawArrow = function(start, end, style) {
+            if (style === 'dashed') window.ctx.setLineDash([8, 6]); else window.ctx.setLineDash([]);
+            window.ctx.strokeStyle = '#fff'; window.ctx.lineWidth = 3; window.ctx.lineCap = 'round'; window.ctx.beginPath(); window.ctx.moveTo(start.x, start.y); window.ctx.lineTo(end.x, end.y); window.ctx.stroke();
+            var angle = Math.atan2(end.y - start.y, end.x - start.x); window.ctx.setLineDash([]); window.ctx.beginPath(); window.ctx.moveTo(end.x, end.y);
+            window.ctx.lineTo(end.x - 15 * Math.cos(angle - Math.PI / 6), end.y - 15 * Math.sin(angle - Math.PI / 6)); window.ctx.moveTo(end.x, end.y);
+            window.ctx.lineTo(end.x - 15 * Math.cos(angle + Math.PI / 6), end.y - 15 * Math.sin(angle + Math.PI / 6)); window.ctx.stroke();
+        };
+
+        window.drawPitch = function() {
+            if (!window.ctx) return;
+            window.ctx.clearRect(0, 0, window.canvas.width, window.canvas.height); window.ctx.setLineDash([]);
+            window.ctx.fillStyle = '#1e5221'; window.ctx.fillRect(0, 0, window.canvas.width, window.canvas.height); 
+            
+            window.ctx.save();
+            window.ctx.fillStyle = '#2e7d32'; 
+            window.ctx.fillRect(20, 20, 760, 440); 
+            window.drawMowedLawnPatterns();
+            window.ctx.strokeStyle = 'rgba(255,255,255,0.8)'; window.ctx.lineWidth = 4; window.ctx.strokeRect(20, 20, 760, 440);
+            
+            window.ctx.lineWidth = 2; window.ctx.strokeStyle = 'rgba(255,255,255,0.6)'; window.ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            window.ctx.strokeRect(2, 200, 18, 80); window.ctx.fillRect(2, 200, 18, 80);
+            window.ctx.strokeRect(780, 200, 18, 80); window.ctx.fillRect(780, 200, 18, 80);
+
+            window.ctx.strokeStyle = 'rgba(255,255,255,0.85)'; window.ctx.lineWidth = 4;
+            window.ctx.beginPath(); window.ctx.moveTo(window.canvas.width / 2, 20); window.ctx.lineTo(window.canvas.width / 2, 460); window.ctx.stroke();
+            window.ctx.beginPath(); window.ctx.arc(window.canvas.width / 2, 240, 60, 0, Math.PI * 2); window.ctx.stroke();
+            
+            window.ctx.beginPath(); window.ctx.arc(window.canvas.width / 2, 240, 3, 0, Math.PI * 2); window.ctx.fillStyle = '#ffffff'; window.ctx.fill();
+            window.ctx.strokeRect(20, 110, 90, 260); window.ctx.strokeRect(690, 110, 90, 260);
+            window.ctx.strokeRect(20, 180, 30, 120); window.ctx.strokeRect(750, 180, 30, 120);
+
+            window.ctx.beginPath(); window.ctx.arc(20 + 53, 240, 3, 0, Math.PI * 2); window.ctx.fill();
+            window.ctx.beginPath(); window.ctx.arc(780 - 53, 240, 3, 0, Math.PI * 2); window.ctx.fill();
+
+            window.drawCornerFlag(20, 20, false, false); window.drawCornerFlag(20, 460, false, true);
+            window.drawCornerFlag(780, 20, true, false); window.drawCornerFlag(780, 460, true, true);
+            window.ctx.restore();
+
+            var boxes = window.getBenchZoneBoxes();
+            window.ctx.lineWidth = 1.5; window.ctx.setLineDash([4, 4]);
+            window.ctx.strokeStyle = 'rgba(39, 174, 96, 0.45)'; window.ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            window.ctx.beginPath(); window.ctx.roundRect(boxes.home.x, boxes.home.y, boxes.home.w, boxes.home.h, 6); window.ctx.fill(); window.ctx.stroke();
+            
+            window.ctx.strokeStyle = 'rgba(41, 128, 185, 0.45)'; window.ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            window.ctx.beginPath(); window.ctx.roundRect(boxes.away.x, boxes.away.y, boxes.away.w, boxes.away.h, 6); window.ctx.fill(); window.ctx.stroke();
+            window.ctx.setLineDash([]); 
+
+            window.ctx.fillStyle = 'rgba(255,255,255,0.7)'; window.ctx.font = 'bold 11px Arial'; window.ctx.textAlign = 'left';
+            window.ctx.fillText("📋 " + window.homeTeamName + " Technical Area", boxes.home.x + 10, boxes.home.y + 18);
+            window.ctx.fillText("📋 " + window.awayTeamName + " Technical Area", boxes.away.x + 10, boxes.away.y + 18);
+
+            [ { active: window.homeActiveFormation, team: 'home' }, { active: window.awayActiveFormation, team: 'away' } ].forEach(function(cfg) {
+                if (cfg.active === 'none') return;
+                
+                window.ctx.strokeStyle = cfg.team === 'home' ? 'rgba(46, 204, 113, 0.45)' : 'rgba(52, 152, 219, 0.45)';
+                window.ctx.lineWidth = 2; 
+                var grp = window.formations[cfg.active];
+                if (grp && grp[cfg.team]) {
+                    grp[cfg.team].forEach(function(slot) {
+                        var isGK = slot.r === 'GK';
+                        var m = window.scalePlayingFieldCoordinates(slot.x, slot.y, cfg.team === 'away', isGK);
+                        window.ctx.beginPath(); window.ctx.moveTo(m.x - 5, m.y - 5); window.ctx.lineTo(m.x + 5, m.y + 5); window.ctx.moveTo(m.x + 5, m.y - 5); window.ctx.lineTo(m.x - 5, m.y + 5); window.ctx.stroke();
+                    });
+                }
+            });
+
+            window.drawings.forEach(function(arrow) { window.drawArrow(arrow.start, arrow.end, arrow.style); });
+            if (window.currentMode.startsWith('draw') && window.isDragging && window.arrowStart && window.tempArrowEnd) window.drawArrow(window.arrowStart, window.tempArrowEnd, window.currentMode === 'draw-dashed' ? 'dashed' : 'solid');
+
+            window.notes.forEach(function(note) {
+                window.ctx.font = 'bold 14px Arial'; window.ctx.textAlign = 'center'; window.ctx.textBaseline = 'middle';
+                window.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'; window.ctx.fillText(note.text, note.x + 1, note.y + 1); window.ctx.fillStyle = '#ffffff'; window.ctx.fillText(note.text, note.x, note.y);
+            });
+
+            window.squad.forEach(function(player) {
+                if (!player.x || !player.y) return;
+                window.ctx.setLineDash([]);
+                var isGKLabel = player.name.toUpperCase() === 'GK' || (player.role && player.role.toUpperCase() === 'GK');
+
+                if (player.team === 'away') {
+                    window.ctx.beginPath(); window.ctx.arc(player.x, player.y, 15, 0, Math.PI * 2);
+                    if (isGKLabel) {
+                        window.ctx.fillStyle = player.onPitch ? window.randomAwayGkColor : 'rgba(120, 120, 120, 0.45)';
+                    } else {
+                        window.ctx.fillStyle = player.onPitch ? '#2980b9' : 'rgba(41, 128, 185, 0.45)';
+                    }
+                    window.ctx.fill();
+                } else {
+                    if (isGKLabel) {
+                        window.ctx.beginPath(); window.ctx.arc(player.x, player.y, 15, 0, Math.PI * 2); window.ctx.fillStyle = player.onPitch ? '#4a148c' : 'rgba(74, 20, 140, 0.45)'; window.ctx.fill();
+                    } else {
+                        window.ctx.save(); window.ctx.beginPath(); window.ctx.arc(player.x, player.y, 15, 0, Math.PI * 2); window.ctx.clip();
+                        if (player.onPitch) {
+                            window.ctx.fillStyle = '#27ae60'; window.ctx.fillRect(player.x - 15, player.y - 15, 30, 30);
+                            window.ctx.fillStyle = '#f1c40f'; window.ctx.fillRect(player.x - 7, player.y - 15, 7, 30); window.ctx.fillRect(player.x + 7, player.y - 15, 7, 30);
+                        } else {
+                            window.ctx.fillStyle = 'rgba(39, 174, 96, 0.4)'; window.ctx.fillRect(player.x - 15, player.y - 15, 30, 30);
+                        }
+                        window.ctx.restore();
+                    }
+                }
+                window.ctx.beginPath(); window.ctx.arc(player.x, player.y, 15, 0, Math.PI * 2); window.ctx.strokeStyle = player.onPitch ? '#fff' : 'rgba(255,255,255,0.4)'; window.ctx.lineWidth = 1.5; window.ctx.stroke();
+                window.ctx.fillStyle = player.onPitch ? '#fff' : 'rgba(255,255,255,0.6)'; window.ctx.font = 'bold 9px Arial'; window.ctx.textAlign = 'center'; window.ctx.textBaseline = 'middle';
+                var rawDisplayName = window.labelMode === 'names' ? player.name : (player.role || 'SUB');
+                if(rawDisplayName.length > 5) rawDisplayName = rawDisplayName.substring(0,4) + '..';
+                window.ctx.fillText(rawDisplayName, player.x, player.y);
+            });
+
+            if (window.tacticalBall && window.tacticalBall.x && window.tacticalBall.y) {
+                window.ctx.save(); window.ctx.setLineDash([]);
+                window.ctx.beginPath(); window.ctx.arc(window.tacticalBall.x, window.tacticalBall.y, 10, 0, Math.PI * 2);
+                window.ctx.fillStyle = '#ffffff'; window.ctx.fill();
+                window.ctx.strokeStyle = '#000000'; window.ctx.lineWidth = 1.5; window.ctx.stroke();
+                window.ctx.fillStyle = '#111822';
+                window.ctx.beginPath(); window.ctx.arc(window.tacticalBall.x, window.tacticalBall.y, 3.5, 0, Math.PI * 2); window.ctx.fill();
+                window.ctx.strokeStyle = '#111822'; window.ctx.lineWidth = 1;
+                for (var a = 0; a < 5; a++) {
+                    var angleStep = (a * 2 * Math.PI / 5) - Math.PI / 2;
+                    window.ctx.beginPath(); window.ctx.moveTo(window.tacticalBall.x + 3.5 * Math.cos(angleStep), window.tacticalBall.y + 3.5 * Math.sin(angleStep));
+                    window.ctx.lineTo(window.tacticalBall.x + 10 * Math.cos(angleStep), window.tacticalBall.y + 10 * Math.sin(angleStep));
+                    window.ctx.stroke();
+                }
+                window.ctx.restore();
+            }
+
+            if (window.hoveredPlayer) {
+                window.ctx.save(); window.ctx.setLineDash([]);
+                var infoString = window.labelMode === 'names' ? window.hoveredPlayer.name : (window.hoveredPlayer.role || 'POS');
+                infoString += " [" + (window.hoveredPlayer.onPitch ? 'PITCH' : 'BENCH') + "]";
+                window.ctx.font = 'bold 12px Arial'; var paddingHorizontal = 8;
+                var textWidth = window.ctx.measureText(infoString).width;
+                var boxWidth = textWidth + (paddingHorizontal * 2); var boxHeight = 24;
+                var boxX = window.hoveredPlayer.x - (boxWidth / 2); var boxY = window.hoveredPlayer.y - 34;
+                window.ctx.fillStyle = 'rgba(17, 24, 34, 0.95)'; window.ctx.strokeStyle = window.hoveredPlayer.team === 'home' ? '#27ae60' : '#2980b9'; window.ctx.lineWidth = 1.5;
+                window.ctx.beginPath(); window.ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 4); window.ctx.fill(); window.ctx.stroke();
+                window.ctx.fillStyle = '#ffffff'; window.ctx.textAlign = 'center'; window.ctx.textBaseline = 'middle';
+                window.ctx.fillText(infoString, window.hoveredPlayer.x, boxY + (boxHeight / 2));
+                window.ctx.restore();
+            }
+        };
+
+        // ==========================================
+        // 5. INJECTORS AUTOFILL SQUADS SELECTIONS
+        // ==========================================
+        window.autoFillHomeTeam = function() {
+            var formType = document.getElementById('homeFormationSelect').value;
+            if (formType === 'none') return;
+            window.squad = window.squad.filter(function(p) { return p.team !== 'home'; });
+            var targetSlots = window.formations[formType].home;
+            targetSlots.forEach(function(slot, index) {
+                var isGK = slot.r === 'GK';
+                var scaled = window.scalePlayingFieldCoordinates(slot.x, slot.y, false, isGK);
+                window.squad.push({ id: Date.now() + index, name: slot.r === 'GK' ? 'GK' : 'Player ' + index, role: slot.r || 'POS', timePlayed: 0, goals: 0, assists: 0, x: scaled.x, y: scaled.y, team: 'home', onPitch: true });
+            });
+            for(var b=1; b<=5; b++) {
+                window.squad.push({ id: Date.now() + 50 + b, name: 'Sub ' + b, role: 'SUB', timePlayed: 0, goals: 0, assists: 0, x: 0, y: 0, team: 'home', onPitch: false });
+            }
+            window.repositionBenchedTeammatesInZones();
+            window.saveSquadData(); window.renderSquadBanks(); window.drawPitch(); window.recalculateEqualTimeMatrix(); window.updateSidebarHeaderLabels();
+        };
+
+        window.autoFillAwayTeam = function() {
+            var formType = document.getElementById('awayFormationSelect').value;
+            if (formType === 'none') return;
+            window.squad = window.squad.filter(function(p) { return p.team !== 'away'; });
+            var targetSlots = window.formations[formType].away;
+            targetSlots.forEach(function(slot, index) {
+                var isGK = slot.r === 'GK';
+                var scaled = window.scalePlayingFieldCoordinates(slot.x, slot.y, true, isGK);
+                window.squad.push({ id: Date.now() + index, name: slot.r === 'GK' ? 'GK' : 'Opp ' + index, role: slot.r || 'POS', timePlayed: 0, goals: 0, assists: 0, x: scaled.x, y: scaled.y, team: 'away', onPitch: true });
+            });
+            for(var b=1; b<=5; b++) {
+                window.squad.push({ id: Date.now() + 60 + b, name: 'Away Sub ' + b, role: 'SUB', timePlayed: 0, goals: 0, assists: 0, x: 0, y: 0, team: 'away', onPitch: false });
+            }
+            window.repositionBenchedTeammatesInZones();
+            window.saveSquadData(); window.renderSquadBanks(); window.drawPitch(); window.recalculateEqualTimeMatrix(); window.updateSidebarHeaderLabels();
+        };
+
+        window.updateFormationOptions = function(team, skipAutoFill) {
+            var formatValue = document.getElementById(team === 'home' ? 'homeFormatSelect' : 'awayFormatSelect').value;
+            var selectNode = document.getElementById(team === 'home' ? 'homeFormationSelect' : 'awayFormationSelect');
+            if(!selectNode) return;
+            
+            localStorage.setItem(team === 'home' ? 'pitchPadHomeFormatSize' : 'pitchPadAwayFormatSize', formatValue);
+            selectNode.innerHTML = '';
+            var applicableShapes = window.formatPlaybooks[formatValue] || [];
+            applicableShapes.forEach(function(f) {
+                var opt = document.createElement('option'); opt.value = f; opt.innerText = (team === 'home' ? 'Home: ' : 'Away: ') + f;
+                selectNode.appendChild(opt);
+            });
+            var freeformOpt = document.createElement('option'); freeformOpt.value = 'none'; freeformOpt.innerText = 'Freeform';
+            selectNode.appendChild(freeformOpt);
+
+            var chosenForm = applicableShapes[0] || 'none';
+            if (team === 'home') window.homeActiveFormation = chosenForm; else window.awayActiveFormation = chosenForm;
+            window.saveFormationData(); selectNode.value = chosenForm;
+
+            if (!skipAutoFill) {
+                if (team === 'home') window.autoFillHomeTeam(); else window.autoFillAwayTeam();
+            }
+            window.recalculateEqualTimeMatrix();
+            window.updateSidebarHeaderLabels();
+        };
+
+        window.changeFormation = function(team, value) {
+            if (team === 'home') window.homeActiveFormation = value; else window.awayActiveFormation = value;
+            window.saveFormationData();
+            if (value !== 'none' && window.formations[value]) {
+                var activePlayers = window.squad.filter(function(p) { return p.team === team && p.onPitch; });
+                var slots = window.formations[value][team];
+                activePlayers.forEach(function(p, i) { 
+                    if(i < slots.length) { 
+                        var isGK = slots[i].r === 'GK' || p.name.toUpperCase() === 'GK';
+                        var scaled = window.scalePlayingFieldCoordinates(slots[i].x, slots[i].y, team === 'away', isGK);
+                        p.x = scaled.x; p.y = scaled.y;
+                        if(slots[i].r) p.role = slots[i].r; 
+                    } 
+                });
+                window.saveSquadData();
+            }
+            window.drawPitch();
+        };
+
+        // ==========================================
+        // 6. TIME CLOCK INJECTORS EXPULSIONS (EXPLICIT CORE LEVEL)
+        // ==========================================
+        window.injectRetroactiveMinutes = function(mins) {
+            var addedSeconds = mins * 60; window.globalSecondsElapsed += addedSeconds;
+            window.squad.forEach(function(p) { if (p.onPitch) p.timePlayed = (p.timePlayed || 0) + addedSeconds; });
+            window.saveSquadData(); window.updateClockDisplayStrings(); window.drawPitch();
+        };
+
+        window.advanceToNextHalf = function() {
+            if (window.activeHalf >= 2) return;
+            window.pauseMatchTimerEngine(); window.activeHalf = 2;
+            var halfLengthMinutes = parseInt(document.getElementById('halfLengthInput').value) || 30;
+            window.globalSecondsElapsed = halfLengthMinutes * 60;
+            
+            document.getElementById('currentHalfLabel').style.backgroundColor = "#fadbd8";
+            document.getElementById('currentHalfLabel').style.color = "#78281f";
+            document.getElementById('currentHalfLabel').innerText = "2nd Half";
+            
+            var halfBtn = document.getElementById('nextHalfBtn');
+            halfBtn.innerText = "🏁 Full Time: End Game";
+            halfBtn.style.backgroundColor = "#c0392b";
+            halfBtn.onclick = window.finishGameAndCompileReport;
+            
+            window.updateClockDisplayStrings(); window.drawPitch();
+        };
+
+        window.startMatchTimerEngine = function() {
+            if(window.isTimerRunning) return;
+            window.isTimerRunning = true;
+            document.getElementById('startTimerBtn').disabled = true;
+            document.getElementById('pauseTimerBtn').disabled = false;
+            
+            window.matchIntervalLoop = setInterval(function() {
+                window.globalSecondsElapsed++;
+                window.squad.forEach(function(p) { if (p.onPitch) p.timePlayed = (p.timePlayed || 0) + 1; });
+                window.updateClockDisplayStrings();
+                if(window.globalSecondsElapsed % 5 === 0) window.saveSquadData();
+                window.drawPitch();
+            }, 1000);
+        };
+
+        window.pauseMatchTimerEngine = function() {
+            if(!window.isTimerRunning) return;
+            window.isTimerRunning = false;
+            document.getElementById('startTimerBtn').disabled = false;
+            document.getElementById('pauseTimerBtn').disabled = true;
+            clearInterval(window.matchIntervalLoop); window.saveSquadData();
+        };
+
+        window.promptRenameTeam = function(team) {
+            var currentName = team === 'home' ? window.homeTeamName : window.awayTeamName;
+            var newCustomTitle = prompt("Enter custom name for team:", currentName);
+            if (newCustomTitle && newCustomTitle.trim() !== "") {
+                if (team === 'home') { window.homeTeamName = newCustomTitle.trim(); localStorage.setItem('pitchPadHomeTeamName', window.homeTeamName); } 
+                else { window.awayTeamName = newCustomTitle.trim(); localStorage.setItem('pitchPadAwayTeamName', window.awayTeamName); }
+                window.renderSquadBanks(); window.drawPitch(); window.updateSidebarHeaderLabels();
+            }
+        };
+
+        window.promptPlayerNameEdit = function(id) {
+            var player = window.squad.find(function(p) { return p.id === id; });
+            if (player) {
+                var updatedName = prompt("Enter custom Name Label:", player.name);
+                if (updatedName !== null && updatedName.trim() !== "") { player.name = updatedName.trim(); window.saveSquadData(); window.renderSquadBanks(); window.drawPitch(); }
+            }
+        };
+
+        window.promptRenameTeamEdit = function(id) { window.promptPlayerNameEdit(id); };
+
+        window.promptPlayerRoleEdit = function(id) {
+            var player = window.squad.find(function(p) { return p.id === id; });
+            if (player) {
+                var updatedRole = prompt("Enter Position Shorthand:", player.role || 'POS');
+                if (updatedRole !== null && updatedRole.trim() !== "") { player.role = updatedRole.trim().toUpperCase(); window.saveSquadData(); window.renderSquadBanks(); window.drawPitch(); }
+            }
+        };
+
+        window.toggleGlobalLabelView = function(initFlag) {
+            if(!initFlag) window.labelMode = window.labelMode === 'names' ? 'roles' : 'names';
+            localStorage.setItem('pitchPadLabelMode', window.labelMode);
+            var btn = document.getElementById('labelToggleBtn');
+            btn.innerText = window.labelMode === 'names' ? "👁️ View: NAMES" : "👁️ View: ROLES";
+            btn.style.backgroundColor = window.labelMode === 'names' ? "#8e44ad" : "#d35400";
+            window.drawPitch();
+        };
+
+        window.togglePlayerPitch = function(id) {
+            var player = window.squad.find(function(p) { return id === p.id; });
+            if(player) {
+                player.onPitch = !player.onPitch;
+                if(player.onPitch) { 
+                    var spot = window.getPitchCenterKickoffSpot();
+                    player.x = spot.x; player.y = spot.y;
+                }
+                window.repositionBenchedTeammatesInZones();
+                window.saveSquadData(); window.renderSquadBanks(); window.drawPitch(); window.recalculateEqualTimeMatrix();
+            }
+        };
+
+        window.toggleSnapping = function() {
+            window.snappingEnabled = !window.snappingEnabled;
+            var btn = document.getElementById('snapToggleBtn');
+            btn.classList.toggle('active', window.snappingEnabled);
+            btn.innerText = window.snappingEnabled ? "🧲 Snapping: ON" : "🔓 Snapping: OFF";
+        };
+
+        window.changePitchDesign = function(val) { window.pitchDesign = val; localStorage.setItem('pitchPadDesign', window.pitchDesign); window.drawPitch(); };
+
+        window.undoLastDrawing = function() { 
+            if (window.drawings.length > 0) { window.drawings.pop(); window.setMode('move'); window.drawPitch(); return; } 
+            if (window.notes.length > 0) { window.notes.pop(); window.setMode('move'); window.drawPitch(); }
+        };
+
+        window.togglePitchRotation = function() { return; };
+
+        window.setMode = function(mode) {
+            window.currentMode = mode;
+            var dropDownNode = document.getElementById('modeActionSelect');
+            if (dropDownNode && dropDownNode.value !== mode && ['move', 'draw-solid', 'draw-dashed'].includes(mode)) {
+                dropDownNode.value = mode;
+            }
+            if (mode === 'move' && dropDownNode) dropDownNode.selectedIndex = 0;
+
+            document.getElementById('moveBtn').classList.toggle('active', mode === 'move');
+            document.getElementById('textBtn').classList.toggle('active', mode === 'text');
+        };
+        
+        window.clearDrawings = function() { window.drawings = []; window.notes = []; window.drawPitch(); };
+
+        window.createNewPlayer = function(team) {
+            var inputElement = document.getElementById(team === 'home' ? 'homePlayerName' : 'awayPlayerName');
+            if (inputElement && inputElement.value.trim() !== "") {
+                window.squad.push({ id: Date.now(), name: inputElement.value.trim(), role: 'SUB', timePlayed: 0, goals: 0, assists: 0, x: 0, y: 0, team: team, onPitch: false });
+                inputElement.value = ""; 
+                window.repositionBenchedTeammatesInZones();
+                window.saveSquadData(); window.renderSquadBanks(); window.drawPitch(); window.recalculateEqualTimeMatrix(); window.updateSidebarHeaderLabels();
+            }
+        };
+
+        window.incrementPlayerStat = function(id, statField) {
+            var player = window.squad.find(function(p) { return p.id === id; });
+            if (player) { player[statField] = (player[statField] || 0) + 1; window.saveSquadData(); window.renderSquadBanks(); }
+        };
+
+        // ==========================================
+        // 7. TRACKERS POINTER LISTENERS MECHANICS
+        // ==========================================
+        function handleUnifiedStart(e) {
+            if (e.type === 'touchstart') e.preventDefault();
+            var coords = window.getCanvasCoordinates(e);
+            if (window.currentMode === 'move') {
+                var ballDistance = Math.sqrt((coords.x - window.tacticalBall.x)**2 + (coords.y - window.tacticalBall.y)**2);
+                if (ballDistance < 15) {
+                    window.tacticalBall.isDragging = true; window.isDragging = true; return;
+                }
+                window.selectedPlayer = window.squad.find(function(p) { return p.x && p.y && Math.sqrt((coords.x - p.x)**2 + (coords.y - p.y)**2) < 16; });
+                if (window.selectedPlayer) { window.isDragging = true; return; }
+                window.selectedNote = window.notes.find(function(n) {
+                    window.ctx.font = 'bold 14px Arial'; var tw = window.ctx.measureText(n.text).width;
+                    return coords.x >= (n.x - tw / 2 - 10) && coords.x <= (n.x + tw / 2 + 10) && coords.y >= (n.y - 12) && coords.y <= (n.y + 12);
+                });
+                if (window.selectedNote) { window.isDragging = true; return; }
+            } else if (window.currentMode.startsWith('draw')) { window.isDragging = true; window.arrowStart = { x: coords.x, y: coords.y }; } 
+            else if (window.currentMode === 'text') {
+                var textInput = prompt("Enter Note text:");
+                if (textInput && textInput.trim() !== "") { window.notes.push({ x: coords.x, y: coords.y, text: textInput.trim() }); window.drawPitch(); }
+            }
+        }
+
+        function handleUnifiedMove(e) {
+            if (!e) return;
+            var coords = window.getCanvasCoordinates(e);
+            if (!window.isDragging) {
+                var scanTarget = window.squad.find(function(p) { return p.x && p.y && Math.sqrt((coords.x - p.x)**2 + (coords.y - p.y)**2) < 16; });
+                if (scanTarget !== window.hoveredPlayer) { window.hoveredPlayer = scanTarget; window.drawPitch(); }
+            }
+            if (!window.isDragging) return; 
+            if (e.type === 'touchmove') e.preventDefault();
+            if (window.currentMode === 'move') {
+                if (window.tacticalBall.isDragging) {
+                    window.tacticalBall.x = coords.x; window.tacticalBall.y = coords.y;
+                }
+                else if (window.selectedPlayer) { window.selectedPlayer.x = coords.x; window.selectedPlayer.y = coords.y; }
+                else if (window.selectedNote) { window.selectedNote.x = coords.x; window.selectedNote.y = coords.y; }
+                window.drawPitch();
+            } else if (window.currentMode.startsWith('draw')) { window.tempArrowEnd = { x: coords.x, y: coords.y }; window.drawPitch(); }
+        }
+
+        function handleUnifiedEnd(e) {
+            if (!window.isDragging) return;
+            var coords = window.getCanvasCoordinates(e);
+
+            if (window.currentMode.startsWith('draw') && window.arrowStart && window.tempArrowEnd) {
+                window.drawings.push({ start: window.arrowStart, end: window.tempArrowEnd, style: window.currentMode === 'draw-dashed' ? 'dashed' : 'solid' });
+            }
+            
+            if (window.currentMode === 'move') {
+                if (window.tacticalBall.isDragging) {
+                    window.tacticalBall.isDragging = false;
+                    if (window.snappingEnabled) {
+                        var kickoffTargetSpot = window.getPitchCenterKickoffSpot();
+                        var centerCircleDistance = Math.sqrt((window.tacticalBall.x - kickoffTargetSpot.x)**2 + (window.tacticalBall.y - kickoffTargetSpot.y)**2);
+                        if (centerCircleDistance < 22) {
+                            window.tacticalBall.x = kickoffTargetSpot.x;
+                            window.tacticalBall.y = kickoffTargetSpot.y;
+                        }
+                    }
+                    window.saveSquadData();
+                } else if (window.selectedPlayer) {
+                    var boxes = window.getBenchZoneBoxes();
+                    var currentBox = window.selectedPlayer.team === 'home' ? boxes.home : boxes.away;
+                    var collisionTarget = window.squad.find(function(p) { return p.id !== window.selectedPlayer.id && p.team === window.selectedPlayer.team && p.onPitch && Math.sqrt((coords.x - p.x)**2 + (coords.y - p.y)**2) < 20; });
+
+                    if (collisionTarget && !window.selectedPlayer.onPitch) {
+                        var targetX = collisionTarget.x; var targetY = collisionTarget.y; var targetRole = collisionTarget.role;
+                        collisionTarget.onPitch = false; window.selectedPlayer.onPitch = true;
+                        window.selectedPlayer.x = targetX; window.selectedPlayer.y = targetY; window.selectedPlayer.role = targetRole;
+                    }
+                    else if (window.selectedPlayer.onPitch && 
+                             coords.x >= currentBox.x && coords.x <= (currentBox.x + currentBox.w) &&
+                             coords.y >= currentBox.y && coords.y <= (currentBox.y + currentBox.h)) {
+                        window.selectedPlayer.onPitch = false;
+                    }
+                    else if (!window.selectedPlayer.onPitch) {
+                        window.selectedPlayer.onPitch = true;
+                        if (window.selectedPlayer.role === 'SUB') window.selectedPlayer.role = 'POS';
+                    }
+
+                    var activeForm = window.selectedPlayer.team === 'home' ? window.homeActiveFormation : window.awayActiveFormation;
+                    if (window.selectedPlayer.onPitch && window.snappingEnabled && activeForm !== 'none' && window.formations[activeForm]) {
+                        var closestSlot = null; var minDistance = 35;
+                        var isGK = window.selectedPlayer.role === 'GK' || window.selectedPlayer.name.toUpperCase() === 'GK';
+                        
+                        var mappedTargetSlots = window.formations[activeForm][window.selectedPlayer.team].map(function(slot) { return window.scalePlayingFieldCoordinates(slot.x, slot.y, window.selectedPlayer.team === 'away', isGK); });
+                        mappedTargetSlots.forEach(function(slot) {
+                            var dist = Math.sqrt((window.selectedPlayer.x - slot.x)**2 + (window.selectedPlayer.y - slot.y)**2);
+                            if (dist < minDistance) { minDistance = dist; closestSlot = slot; }
+                        });
+                        if (closestSlot) { window.selectedPlayer.x = closestSlot.x; window.selectedPlayer.y = closestSlot.y; }
+                    }
+                    window.repositionBenchedTeammatesInZones(); window.saveSquadData(); window.renderSquadBanks(); window.recalculateEqualTimeMatrix();
+                }
+            }
+            window.isDragging = false; window.selectedPlayer = null; window.selectedNote = null; window.arrowStart = null; window.tempArrowEnd = null; window.drawPitch();
+        }
+
+        // ==========================================
+        // 8. DYNAMIC INITIALIZATION ENGINE COMPILER
+        // ==========================================
+        window.bootstrapAppEngine = function() {
+            try {
+                var cachedData = localStorage.getItem('footballSquadTracker');
+                window.squad = cachedData ? JSON.parse(cachedData) : [];
+                
+                var cachedBallX = localStorage.getItem('pitchPadBallX');
+                var cachedBallY = localStorage.getItem('pitchPadBallY');
+                if (cachedBallX && cachedBallY) {
+                    window.tacticalBall.x = parseFloat(cachedBallX); window.tacticalBall.y = parseFloat(cachedBallY);
+                } else {
+                    var kickoffSpot = window.getPitchCenterKickoffSpot();
+                    window.tacticalBall.x = kickoffSpot.x; window.tacticalBall.y = kickoffSpot.y;
+                }
+
+                var savedHomeFormat = localStorage.getItem('pitchPadHomeFormatSize') || '9v9';
+                var savedAwayFormat = localStorage.getItem('pitchPadAwayFormatSize') || '9v9';
+                document.getElementById('homeFormatSelect').value = savedHomeFormat;
+                document.getElementById('awayFormatSelect').value = savedAwayFormat;
+
+                var savedHomeForm = localStorage.getItem('pitchPadHomeFormation');
+                if (savedHomeForm && window.formations[savedHomeForm]) window.homeActiveFormation = savedHomeForm;
+                else window.homeActiveFormation = window.formatPlaybooks[savedHomeFormat][0];
+
+                var savedAwayForm = localStorage.getItem('pitchPadAwayFormation');
+                if (savedAwayForm && window.formations[savedAwayForm]) window.awayActiveFormation = savedAwayForm;
+                else window.awayActiveFormation = window.formatPlaybooks[savedAwayFormat][0];
+
+                window.updateFormationOptions('home', true); window.updateFormationOptions('away', true);
+                document.getElementById('pitchDesignSelect').value = window.pitchDesign;
+                
+                window.toggleGlobalLabelView(true);
+                window.updateCanvasDimensions();
+                
+                if(window.squad.length === 0) {
+                    window.updateFormationOptions('home', false); window.updateFormationOptions('away', false);
+                } else {
+                    window.repositionBenchedTeammatesInZones();
+                }
+                
+                window.saveSquadData(); 
+                window.recalculateEqualTimeMatrix();
+                window.updateSidebarHeaderLabels();
+                window.drawPitch();
+            } catch (error) { window.updateCanvasDimensions(); }
+        };
+
+        // PHYSICAL EVENTS RUNTIME BINDINGS PASS
+        window.canvas.addEventListener('mousedown', function(e) { handleUnifiedStart(e); });
+        window.canvas.addEventListener('mousemove', function(e) { handleUnifiedMove(e); });
+        canvas.addEventListener('mouseup', function(e) { handleUnifiedEnd(e); });
+        window.canvas.addEventListener('touchstart', function(e) { handleUnifiedStart(e); }, { passive: false });
+        window.canvas.addEventListener('touchmove', function(e) { handleUnifiedMove(e); }, { passive: false });
+        window.canvas.addEventListener('touchend', function(e) { handleUnifiedEnd(e); });
+
+        // BOOT COMMAND
+        window.bootstrapAppEngine();
+    </script>
+</body>
+</html>
