@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.3)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.4)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -25,7 +25,7 @@
         .kit-home { background: linear-gradient(to right, #27ae60 25%, #f1c40f 25% 50%, #27ae60 50% 75%, #f1c40f 75%); }
         .kit-away { background-color: #2980b9; }
         .center-workspace { flex: 1 1 560px; max-width: 800px; min-width: 300px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
-        #controls, #timer-panel { display: flex; flex-direction: column; gap: 10px; background: #fff; padding: 12px 15px; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.3); width: 100%; }
+        #timer-panel { display: flex; flex-direction: column; gap: 9px; background: #fff; padding: 12px 15px; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.3); width: 100%; }
         .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .scoreboard-banner { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #1a242f, #2c3e50); color: #fff; padding: 8px 14px; border-radius: 6px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); gap: 10px; flex-wrap: wrap; }
         .scoreboard-center { display: flex; align-items: center; justify-content: center; gap: 12px; flex: 1; min-width: 220px; }
@@ -93,18 +93,18 @@
             background: #f8f9f9;
         }
 
-        /* Tactics & Drawing Popover Dropdown */
-        .tactics-dropdown {
+        /* Tactics & Settings Popover Dropdowns */
+        .tactics-dropdown, .settings-dropdown {
             position: relative;
             display: inline-block;
         }
-        .tactics-dropdown summary {
-            padding: 7px 11px;
+        .tactics-dropdown summary, .settings-dropdown summary {
+            padding: 6px 11px;
             border-radius: 4px;
             border: 1px solid #2980b9;
             background: #ebf5fb;
             color: #1f618d;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             cursor: pointer;
             display: inline-flex;
@@ -113,7 +113,13 @@
             list-style: none;
             touch-action: manipulation;
         }
-        .tactics-dropdown summary::-webkit-details-marker { display: none; }
+        .settings-dropdown summary {
+            border-color: #bdc3c7;
+            background: #f4f6f7;
+            color: #2c3e50;
+        }
+        .tactics-dropdown summary::-webkit-details-marker,
+        .settings-dropdown summary::-webkit-details-marker { display: none; }
         .tactics-dropdown summary.active-draw-mode {
             background-color: #27ae60 !important;
             color: #fff !important;
@@ -123,7 +129,7 @@
             position: absolute;
             top: calc(100% + 6px);
             left: 0;
-            min-width: 210px;
+            min-width: 215px;
             background: #ffffff;
             border: 1px solid #bdc3c7;
             border-radius: 6px;
@@ -132,6 +138,21 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+            z-index: 200;
+        }
+        .settings-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            min-width: 255px;
+            background: #ffffff;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             z-index: 200;
         }
         .tactics-dropdown-menu button {
@@ -153,6 +174,15 @@
             background: #e5e8e8;
             margin: 3px 0;
         }
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
 
         .squad-list-container { display: flex; flex-direction: column; gap: 6px; max-height: 250px; overflow-y: auto; background: #fcfcfc; padding: 4px; border: 1px dashed #ddd; border-radius: 4px; }
         .squad-item { display: flex; flex-direction: column; padding: 6px 8px; background: #f8f9fa; border-radius: 4px; border-left: 5px solid #ccc; font-size: 13px; gap: 5px; }
@@ -167,7 +197,7 @@
         .player-label-click { cursor: pointer; padding: 2px 4px; border-radius: 3px; transition: background 0.2s ease; }
         .player-label-click:hover { background-color: #eaecee; }
         .role-badge-click { font-size: 10px; background: #ebf5fb; border: 1px solid #a9cce3; padding: 1px 4px; border-radius: 4px; color: #2980b9; font-weight: bold; cursor: pointer; }
-        button { padding: 7px 11px; border-radius: 4px; border: 1px solid #ccc; background: #f8f9fa; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; touch-action: manipulation; }
+        button { padding: 6px 11px; border-radius: 4px; border: 1px solid #ccc; background: #f8f9fa; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; touch-action: manipulation; }
         input, select { padding: 6px 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; cursor: pointer; }
         button.active { background-color: #27ae60 !important; color: #fff !important; border-color: #1e8449 !important; font-weight: bold; }
         #board-container { position: relative; width: 100%; aspect-ratio: 4 / 3; box-shadow: 0 14px 28px rgba(0,0,0,0.4); border-radius: 8px; overflow: hidden; background-color: #2e7d32; touch-action: none; }
@@ -200,7 +230,7 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.3)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.4)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -230,6 +260,7 @@
 
         <div class="center-workspace" id="centerWorkspaceFrame">
             <div id="timer-panel">
+                <!-- 1. Live Match Scoreboard Banner -->
                 <div class="scoreboard-banner">
                     <div class="scoreboard-center">
                         <span class="score-team-label">
@@ -247,7 +278,7 @@
                     <button id="undoLastStatBtn" class="undo-stat-btn" onclick="undoLastStatAction()" disabled title="Undo the most recent Goal, Assist, or Card">↩️ Undo Last Stat/Card</button>
                 </div>
 
-                <!-- Unified Clock & Symbol Transport Bar -->
+                <!-- 2. Unified Clock & Symbol Transport Bar -->
                 <div class="row" style="justify-content:space-between;">
                     <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                         <label style="font-weight:bold; font-size:13px;">Game Length:</label>
@@ -266,7 +297,7 @@
                     </div>
                 </div>
 
-                <!-- Collapsible Equal Play Guide Dropdown -->
+                <!-- 3. Collapsible Equal Play Guide Dropdown -->
                 <details class="fairplay-matrix-box">
                     <summary title="Click to expand or hide Equal Play Guide settings">
                         <span>🎯 Equal Play Guide (Target per Player)</span>
@@ -290,21 +321,11 @@
                     </div>
                 </details>
 
-                <div class="row" style="border-top:1px dashed #ddd; padding-top:6px; margin-top:2px; align-items:center;">
-                    <span style="font-size:12px; font-weight:bold; color:#7f8c8d;">⏱️ Forgot to Start? Catch Up:</span>
-                    <button onclick="injectRetroactiveMinutes(1)" style="padding:3px 8px; font-size:12px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3;">➕ 1 Min</button>
-                    <button onclick="injectRetroactiveMinutes(2)" style="padding:3px 8px; font-size:12px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3;">➕ 2 Mins</button>
-                    <button onclick="injectRetroactiveMinutes(5)" style="padding:3px 8px; font-size:12px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3;">➕ 5 Mins</button>
-                    <button id="whistleToggleBtn" class="active" onclick="toggleWhistleAudio()" style="margin-left:auto; padding:3px 9px; font-size:12px;" title="Toggle automatic referee whistle at Half-Time and Full-Time regulation">🔊 Whistle: ON</button>
-                    <button onclick="playRefereeWhistle('single')" style="padding:3px 8px; font-size:12px; background:#fef9e7; color:#b7950b; border-color:#f9e79f; font-weight:bold;" title="Test referee whistle sound">📣 Test</button>
-                </div>
-            </div>
-
-            <div id="controls">
-                <div class="row">
+                <!-- 4. Unified Action Toolbar: Move, Tactics Dropdown, View Toggle, Catch-Up & Settings Dropdown -->
+                <div class="row" style="border-top:1px dashed #ddd; padding-top:8px; margin-top:2px; align-items:center;">
                     <button id="moveBtn" class="active" onclick="setMode('move')">🏃 Move</button>
 
-                    <!-- Collapsible Tactics & Drawing Dropdown Menu -->
+                    <!-- Tactics & Drawing Dropdown Menu -->
                     <details id="tacticsDropdown" class="tactics-dropdown">
                         <summary id="tacticsDropdownSummary" title="Open tactical drawing &amp; annotation tools">
                             <span id="tacticsDropdownLabel">✏️ Tactics &amp; Drawing</span>
@@ -320,15 +341,46 @@
                         </div>
                     </details>
 
-                    <button id="snapToggleBtn" class="active" onclick="toggleSnapping()">🧲 Snapping: ON</button>
-                    <select id="pitchDesignSelect" onchange="changePitchDesign(this.value)" style="font-size:12px; padding:5px 8px; margin-left:auto;">
-                        <option value="stripes-v">Grass: Vertical</option>
-                        <option value="stripes-h">Grass: Horizontal</option>
-                        <option value="solid">Grass: Solid</option>
-                        <option value="grid">Grass: Grid</option>
-                    </select>
-                    <button id="labelToggleBtn" onclick="toggleGlobalLabelView()" style="background-color:#8e44ad; color:white; font-size:12px; padding:5px 10px; border:none;">👁️ View: NAMES</button>
-                    <button onclick="resetDefaultSquads()" style="background-color:#34495e; color:white; font-size:12px; padding:5px 10px; border:none;">🔄 Reset Squads</button>
+                    <button id="labelToggleBtn" onclick="toggleGlobalLabelView()" style="background-color:#8e44ad; color:white; border:none;" title="Switch player token labels between Names and Positions">👁️ View: NAMES</button>
+
+                    <div style="display:inline-flex; align-items:center; gap:4px; margin-left:auto;">
+                        <span style="font-size:11px; font-weight:bold; color:#7f8c8d;">⏱️ Catch Up:</span>
+                        <button onclick="injectRetroactiveMinutes(1)" style="padding:5px 7px; font-size:11px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3; font-weight:bold;" title="Add 1 retroactive minute">+1m</button>
+                        <button onclick="injectRetroactiveMinutes(2)" style="padding:5px 7px; font-size:11px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3; font-weight:bold;" title="Add 2 retroactive minutes">+2m</button>
+                        <button onclick="injectRetroactiveMinutes(5)" style="padding:5px 7px; font-size:11px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3; font-weight:bold;" title="Add 5 retroactive minutes">+5m</button>
+                    </div>
+
+                    <!-- Settings Dropdown Menu (Grass, Whistle, Snapping, Reset Squads) -->
+                    <details id="settingsDropdown" class="settings-dropdown">
+                        <summary title="Open Pitch, Audio &amp; Squad Settings">
+                            <span>⚙️ Settings</span>
+                            <span style="font-size:10px;">▾</span>
+                        </summary>
+                        <div class="settings-dropdown-menu">
+                            <div class="settings-row">
+                                <span>🌱 Grass Style:</span>
+                                <select id="pitchDesignSelect" onchange="changePitchDesign(this.value)" style="font-size:12px; padding:4px 8px; flex:1; max-width:135px;">
+                                    <option value="stripes-v">Vertical</option>
+                                    <option value="stripes-h">Horizontal</option>
+                                    <option value="solid">Solid</option>
+                                    <option value="grid">Grid</option>
+                                </select>
+                            </div>
+                            <div class="settings-row">
+                                <span>🧲 Slot Snapping:</span>
+                                <button id="snapToggleBtn" class="active" onclick="toggleSnapping()" style="padding:4px 10px; font-size:11px;">🧲 Snapping: ON</button>
+                            </div>
+                            <div class="settings-row">
+                                <span>📣 Ref Whistle:</span>
+                                <div style="display:flex; gap:4px;">
+                                    <button id="whistleToggleBtn" class="active" onclick="toggleWhistleAudio()" style="padding:4px 8px; font-size:11px;">🔊 ON</button>
+                                    <button onclick="playRefereeWhistle('single')" style="padding:4px 8px; font-size:11px; background:#fef9e7; color:#b7950b; border-color:#f9e79f; font-weight:bold;" title="Test referee whistle sound">Test</button>
+                                </div>
+                            </div>
+                            <div class="tactics-menu-divider"></div>
+                            <button onclick="resetDefaultSquads(); closeSettingsDropdown();" style="width:100%; justify-content:center; background:#34495e; color:white; font-size:12px; padding:6px 10px; border:none; font-weight:bold;">🔄 Reset Squads to Default</button>
+                        </div>
+                    </details>
                 </div>
             </div>
             
@@ -391,11 +443,11 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.3 (Tactics &amp; Drawing Dropdown Menu)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.4 (Unified Settings Menu &amp; Single-Panel Header)</p>
                 <ul>
-                    <li><strong>Tactics &amp; Drawing Dropdown:</strong> Consolidated Run Line, Pass Line, Pitch Note, Undo, and Clear Lines inside a compact <code>✏️ Tactics &amp; Drawing ▾</code> popover menu.</li>
-                    <li><strong>Collapsible Equal Play Guide &amp; Symbol Timer Controls:</strong> Streamlined match-day dashboard with symbol buttons and collapsible target calculator.</li>
-                    <li><strong>Referee Whistle &amp; FIFA 105m × 68m Pitch:</strong> Automatic regulation-time whistle alerts and true-scale pitch markings.</li>
+                    <li><strong>Unified Settings Menu (<code>⚙️ Settings ▾</code>):</strong> Tucked Grass Style, Slot Snapping, Referee Whistle toggle/test, and Reset Squads inside a clean Settings popover menu.</li>
+                    <li><strong>Single-Panel Match Dashboard:</strong> Merged the lower pitch controls into the main timer panel so the pitch sits higher on screen.</li>
+                    <li><strong>Tactics Dropdown, Equal Play Dropdown &amp; Symbol Timer Controls:</strong> Complete 4-part UI cleanup for desktop and future mobile/tablet views.</li>
                 </ul>
             </div>
         </div>
@@ -567,7 +619,7 @@
             var btn = document.getElementById('whistleToggleBtn');
             if (btn) {
                 btn.classList.toggle('active', TimerState.whistleEnabled);
-                btn.innerText = TimerState.whistleEnabled ? "🔊 Whistle: ON" : "🔇 Whistle: OFF";
+                btn.innerText = TimerState.whistleEnabled ? "🔊 ON" : "🔇 OFF";
             }
             if (TimerState.whistleEnabled) {
                 getOrCreateAudioContext();
@@ -1260,6 +1312,11 @@
             if (dd) dd.removeAttribute('open');
         }
 
+        function closeSettingsDropdown() {
+            var sd = document.getElementById('settingsDropdown');
+            if (sd) sd.removeAttribute('open');
+        }
+
         function selectTacticTool(mode) {
             setMode(mode);
             closeTacticsDropdown();
@@ -1351,6 +1408,7 @@
 
         function handlePointerStart(e) {
             closeTacticsDropdown();
+            closeSettingsDropdown();
             if (e.type === 'touchstart') e.preventDefault();
             var c = getCanvasCoordinates(e);
             if (BoardState.mode === 'move') {
@@ -1484,11 +1542,15 @@
             toggleGlobalLabelView(true); recalculateEqualTimeMatrix(); updateSidebarHeaderLabels(); drawPitch();
         }
 
-        // Close tactics popover when clicking outside of it
+        // Close popovers when clicking outside of them
         document.addEventListener('click', function(e) {
-            var dd = document.getElementById('tacticsDropdown');
-            if (dd && dd.hasAttribute('open') && !dd.contains(e.target)) {
-                dd.removeAttribute('open');
+            var td = document.getElementById('tacticsDropdown');
+            if (td && td.hasAttribute('open') && !td.contains(e.target)) {
+                td.removeAttribute('open');
+            }
+            var sd = document.getElementById('settingsDropdown');
+            if (sd && sd.hasAttribute('open') && !sd.contains(e.target)) {
+                sd.removeAttribute('open');
             }
         });
 
