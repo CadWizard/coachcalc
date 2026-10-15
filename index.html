@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.1)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.2)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -37,22 +37,61 @@
 
         /* Compact Symbol Timer Transport Buttons */
         .timer-icon-btn {
-            width: 36px;
-            height: 34px;
-            padding: 0;
-            justify-content: center;
-            align-items: center;
-            font-size: 15px;
-            font-weight: bold;
-            border: none;
-            border-radius: 5px;
-            color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+            width: 36px; height: 34px; padding: 0;
+            justify-content: center; align-items: center;
+            font-size: 15px; font-weight: bold; border: none; border-radius: 5px;
+            color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.18);
             transition: transform 0.1s ease, opacity 0.2s ease;
         }
         .timer-icon-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.08); }
         .timer-icon-btn:active:not(:disabled) { transform: translateY(0); }
         .timer-icon-btn:disabled { opacity: 0.32; cursor: not-allowed; box-shadow: none; }
+
+        /* Collapsible Equal Play Dropdown */
+        details.fairplay-matrix-box {
+            background: #f4f6f7;
+            border-left: 5px solid #8e44ad;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #2c3e50;
+            overflow: hidden;
+        }
+        details.fairplay-matrix-box summary {
+            padding: 6px 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            list-style: none;
+            transition: background-color 0.15s ease;
+        }
+        details.fairplay-matrix-box summary::-webkit-details-marker { display: none; }
+        details.fairplay-matrix-box summary:hover { background: #eaecee; }
+        .fairplay-summary-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #6c3483;
+        }
+        .fairplay-chevron {
+            display: inline-block;
+            font-size: 11px;
+            transition: transform 0.2s ease;
+        }
+        details.fairplay-matrix-box[open] .fairplay-chevron {
+            transform: rotate(180deg);
+        }
+        .fairplay-dropdown-body {
+            padding: 8px 12px;
+            border-top: 1px dashed #d5dbdb;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: #f8f9f9;
+        }
 
         .squad-list-container { display: flex; flex-direction: column; gap: 6px; max-height: 250px; overflow-y: auto; background: #fcfcfc; padding: 4px; border: 1px dashed #ddd; border-radius: 4px; }
         .squad-item { display: flex; flex-direction: column; padding: 6px 8px; background: #f8f9fa; border-radius: 4px; border-left: 5px solid #ccc; font-size: 13px; gap: 5px; }
@@ -67,7 +106,6 @@
         .player-label-click { cursor: pointer; padding: 2px 4px; border-radius: 3px; transition: background 0.2s ease; }
         .player-label-click:hover { background-color: #eaecee; }
         .role-badge-click { font-size: 10px; background: #ebf5fb; border: 1px solid #a9cce3; padding: 1px 4px; border-radius: 4px; color: #2980b9; font-weight: bold; cursor: pointer; }
-        .fairplay-matrix-box { background: #f4f6f7; border-left: 5px solid #8e44ad; padding: 8px 12px; border-radius: 4px; font-size: 12px; color: #2c3e50; display: flex; flex-direction: column; gap: 4px; }
         button { padding: 7px 11px; border-radius: 4px; border: 1px solid #ccc; background: #f8f9fa; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; touch-action: manipulation; }
         input, select { padding: 6px 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; cursor: pointer; }
         button.active { background-color: #27ae60 !important; color: #fff !important; border-color: #1e8449 !important; font-weight: bold; }
@@ -101,7 +139,7 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.1)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.2)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -167,19 +205,29 @@
                     </div>
                 </div>
 
-                <div class="fairplay-matrix-box">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
-                        <strong>🎯 Equal Play Guide (Target per Player):</strong>
-                        <select id="gkRotationModeSelect" onchange="recalculateEqualTimeMatrix()" style="padding:2px 6px; font-size:11px; font-weight:bold; background:white;">
-                            <option value="exclude">Excluding Dedicated GK (GK plays 100%)</option>
-                            <option value="include">Including GK (Everyone rotates in goal)</option>
-                        </select>
+                <!-- Collapsible Equal Play Guide Dropdown -->
+                <details class="fairplay-matrix-box">
+                    <summary title="Click to expand or hide Equal Play Guide settings">
+                        <span>🎯 Equal Play Guide (Target per Player)</span>
+                        <span class="fairplay-summary-right">
+                            <span id="fairPlayCompactSummary">Home: --m | Away: --m</span>
+                            <span class="fairplay-chevron">▾</span>
+                        </span>
+                    </summary>
+                    <div class="fairplay-dropdown-body">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                            <span style="font-weight:bold; color:#566573;">Goalkeeper Rotation Rule:</span>
+                            <select id="gkRotationModeSelect" onchange="recalculateEqualTimeMatrix()" style="padding:3px 8px; font-size:11px; font-weight:bold; background:white;">
+                                <option value="exclude">Excluding Dedicated GK (GK plays 100%)</option>
+                                <option value="include">Including GK (Everyone rotates in goal)</option>
+                            </select>
+                        </div>
+                        <div style="display:flex; gap:20px; font-family:monospace; font-size:13px; font-weight:bold;">
+                            <div id="homeFairPlayTarget">Home Target: -- mins</div>
+                            <div id="awayFairPlayTarget">Away Target: -- mins</div>
+                        </div>
                     </div>
-                    <div style="display:flex; gap:20px; margin-top:4px; font-family:monospace; font-size:13px;">
-                        <div id="homeFairPlayTarget">Home Target: -- mins</div>
-                        <div id="awayFairPlayTarget">Away Target: -- mins</div>
-                    </div>
-                </div>
+                </details>
 
                 <div class="row" style="border-top:1px dashed #ddd; padding-top:6px; margin-top:2px; align-items:center;">
                     <span style="font-size:12px; font-weight:bold; color:#7f8c8d;">⏱️ Forgot to Start? Catch Up:</span>
@@ -270,11 +318,11 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.1 (Compact Symbol Timer Controls)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.2 (Collapsible Equal Play Guide)</p>
                 <ul>
-                    <li><strong>Symbol Timer Controls:</strong> Converted Play (<code>▶</code>), Pause (<code>⏸</code>), Next Half (<code>⏭</code>), Finish Report (<code>🏁</code>), and New Game (<code>🆕</code>) into compact icon buttons alongside the live clock.</li>
-                    <li><strong>Referee Whistle Sound (Offline Web Audio):</strong> Automatically blows a two-blast whistle at Half-Time regulation and a three-blast whistle at Full-Time regulation.</li>
-                    <li><strong>True 105m × 68m Pitch Scale &amp; Card Rules:</strong> FIFA-proportioned markings, <code>9.1m</code> penalty "D" arcs, and automatic Red Card benching.</li>
+                    <li><strong>Collapsible Equal Play Guide:</strong> Tucked the GK Rotation Mode selector and detailed target readouts inside a collapsible dropdown bar with a compact summary preview.</li>
+                    <li><strong>Symbol Timer Controls:</strong> Compact icon buttons for Play (<code>▶</code>), Pause (<code>⏸</code>), Next Half (<code>⏭</code>), Finish Report (<code>🏁</code>), and New Game (<code>🆕</code>).</li>
+                    <li><strong>Referee Whistle &amp; FIFA 105m × 68m Pitch:</strong> Automatic regulation-time whistle alerts and true-scale pitch markings.</li>
                 </ul>
             </div>
         </div>
@@ -624,8 +672,14 @@
                 if (outPlayers <= 0 || outSlots <= 0) return matchMins;
                 return Math.round((matchMins * outSlots) / outPlayers);
             }
-            document.getElementById('homeFairPlayTarget').innerText = "Home Target: " + calcForTeam('home') + " mins";
-            document.getElementById('awayFairPlayTarget').innerText = "Away Target: " + calcForTeam('away') + " mins";
+            var homeTarget = calcForTeam('home');
+            var awayTarget = calcForTeam('away');
+            document.getElementById('homeFairPlayTarget').innerText = "Home Target: " + homeTarget + " mins";
+            document.getElementById('awayFairPlayTarget').innerText = "Away Target: " + awayTarget + " mins";
+            var summaryEl = document.getElementById('fairPlayCompactSummary');
+            if (summaryEl) {
+                summaryEl.innerText = "Home: " + homeTarget + "m | Away: " + awayTarget + "m";
+            }
             updateClockDisplayStrings();
         }
 
