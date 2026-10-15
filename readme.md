@@ -25,15 +25,15 @@ App changes
 
 8) ~~Scale pitch:~~
 
-~~I want to make sure the pitch scale is correct, these standard sizes exist for a pitch.
+~~I want to make sure the pitch scale is correct, these standard sizes exist for a pitch.~~
 
-* Pitch Dimensions - 105 metres x 68 metres
-* 6-yard box measures 5.49 metres x 18.29 metres
-* Penalty Spot is 11 metres from the centre of the goal line
-* 18-yard box measures 16.46 metres x 40.23 metres
-* The "D" (penalty arc) on an 18-yard box has a radius of 9.1 metres drawn from the centre of the penalty, however only the portion outside of the 18 yard box is shown.
+~~* Pitch Dimensions - 105 metres x 68 metres~~
+~~* 6-yard box measures 5.49 metres x 18.29 metres~~
+~~* Penalty Spot is 11 metres from the centre of the goal line~~
+~~* 18-yard box measures 16.46 metres x 40.23 metres~~
+~~* The "D" (penalty arc) on an 18-yard box has a radius of 9.1 metres drawn from the centre of the penalty, however only the portion outside of the 18 yard box is shown.~~
 
-I am happy with the current length of the pitch so if we say that is 105 metres and then scale the rest off of that.~~
+~~I am happy with the current length of the pitch so if we say that is 105 metres and then scale the rest off of that.~~
 
 9) Add a button to copy the match report ready for sharing
 
