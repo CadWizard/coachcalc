@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.66.4)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.0)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -81,7 +81,7 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.66.4)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.0)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -168,6 +168,8 @@
                     <button onclick="injectRetroactiveMinutes(1)" style="padding:3px 8px; font-size:12px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3;">➕ 1 Min</button>
                     <button onclick="injectRetroactiveMinutes(2)" style="padding:3px 8px; font-size:12px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3;">➕ 2 Mins</button>
                     <button onclick="injectRetroactiveMinutes(5)" style="padding:3px 8px; font-size:12px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3;">➕ 5 Mins</button>
+                    <button id="whistleToggleBtn" class="active" onclick="toggleWhistleAudio()" style="margin-left:auto; padding:3px 9px; font-size:12px;" title="Toggle automatic referee whistle at Half-Time and Full-Time regulation">🔊 Whistle: ON</button>
+                    <button onclick="playRefereeWhistle('single')" style="padding:3px 8px; font-size:12px; background:#fef9e7; color:#b7950b; border-color:#f9e79f; font-weight:bold;" title="Test referee whistle sound">📣 Test</button>
                 </div>
             </div>
 
@@ -250,10 +252,11 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.66.4 (True FIFA Pitch Scale &amp; Card Rules)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.0 (Referee Whistle Alert Engine)</p>
                 <ul>
-                    <li><strong>True 105m × 68m Pitch Scale:</strong> Scaled pitch width, 18-yard boxes (<code>16.46m × 40.23m</code>), 6-yard boxes (<code>5.49m × 18.29m</code>), penalty spots (<code>11m</code>), and <code>9.1m</code> penalty "D" arcs off the <code>760px = 105m</code> pitch length.</li>
-                    <li><strong>Red Card Ejection &amp; On-Pitch Limits:</strong> Red cards (or 2nd yellows) automatically bench the player and reduce the team's on-pitch limit by 1.</li>
+                    <li><strong>Referee Whistle Sound (Offline Web Audio):</strong> Automatically blows a two-blast whistle when 1st Half regulation time finishes (e.g., <code>35:00</code>) and a three-blast whistle when 2nd Half regulation time finishes (e.g., <code>70:00</code>).</li>
+                    <li><strong>True 105m × 68m Pitch Scale:</strong> Scaled pitch width, 18-yard boxes, 6-yard boxes, 11m penalty spots, and <code>9.1m</code> penalty "D" arcs.</li>
+                    <li><strong>Red Card Ejection &amp; On-Pitch Limits:</strong> Red cards automatically bench the player and reduce the team's on-pitch limit by 1.</li>
                 </ul>
             </div>
         </div>
@@ -263,6 +266,7 @@
         var canvas = document.getElementById('pitch');
         var ctx = canvas.getContext('2d');
         var toastTimeoutId = null;
+        var whistleAudioCtx = null;
 
         // Exact Metre-to-Pixel Scaling: 105m = 760px (1m = 7.23809524px)
         var METRE_SCALE = 760 / 105;
@@ -286,7 +290,16 @@
         PITCH.centerX = PITCH.left + PITCH.lengthPx / 2;
         PITCH.centerY = PITCH.top + PITCH.widthPx / 2;
 
-        var TimerState = { intervalId: null, isRunning: false, secondsElapsed: 0, activeHalf: 1 };
+        var TimerState = {
+            intervalId: null,
+            isRunning: false,
+            secondsElapsed: 0,
+            activeHalf: 1,
+            whistleEnabled: true,
+            halfWhistleBlown: false,
+            fullWhistleBlown: false
+        };
+
         var LedgerState = {
             squad: [],
             statHistory: [],
@@ -337,12 +350,117 @@
             }
         };
 
+        // ==========================================
+        // REFEREE WHISTLE SYNTHESIZER (WEB AUDIO API)
+        // ==========================================
+        function getOrCreateAudioContext() {
+            var AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return null;
+            if (!whistleAudioCtx) whistleAudioCtx = new AudioCtx();
+            if (whistleAudioCtx.state === 'suspended') {
+                try { whistleAudioCtx.resume(); } catch (e) {}
+            }
+            return whistleAudioCtx;
+        }
+
+        function scheduleWhistleBlast(ac, startTime, duration) {
+            var masterGain = ac.createGain();
+            masterGain.gain.setValueAtTime(0.0001, startTime);
+            masterGain.gain.linearRampToValueAtTime(0.32, startTime + 0.025);
+            masterGain.gain.setValueAtTime(0.32, startTime + Math.max(0.03, duration - 0.045));
+            masterGain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+            masterGain.connect(ac.destination);
+
+            // Dual detuned chambers (classic referee whistle frequencies)
+            var osc1 = ac.createOscillator();
+            var osc2 = ac.createOscillator();
+            osc1.type = 'sine';
+            osc2.type = 'triangle';
+            osc1.frequency.setValueAtTime(2820, startTime);
+            osc2.frequency.setValueAtTime(2985, startTime);
+
+            // Pea trill modulator (34 Hz cork ball vibration effect)
+            var peaLfo = ac.createOscillator();
+            var peaDepth = ac.createGain();
+            peaLfo.type = 'sine';
+            peaLfo.frequency.setValueAtTime(34, startTime);
+            peaDepth.gain.setValueAtTime(95, startTime);
+            peaLfo.connect(peaDepth);
+            peaDepth.connect(osc1.frequency);
+            peaDepth.connect(osc2.frequency);
+
+            var osc2Gain = ac.createGain();
+            osc2Gain.gain.setValueAtTime(0.45, startTime);
+
+            osc1.connect(masterGain);
+            osc2.connect(osc2Gain);
+            osc2Gain.connect(masterGain);
+
+            osc1.start(startTime);
+            osc2.start(startTime);
+            peaLfo.start(startTime);
+
+            var stopAt = startTime + duration + 0.02;
+            osc1.stop(stopAt);
+            osc2.stop(stopAt);
+            peaLfo.stop(stopAt);
+        }
+
+        function playRefereeWhistle(pattern) {
+            if (!TimerState.whistleEnabled && pattern !== 'single') return;
+            try {
+                var ac = getOrCreateAudioContext();
+                if (!ac) return;
+                var now = ac.currentTime + 0.02;
+                if (pattern === 'half') {
+                    // Half-Time whistle: Short blast + Long blast (Peep — Peeeeeep!)
+                    scheduleWhistleBlast(ac, now, 0.28);
+                    scheduleWhistleBlast(ac, now + 0.40, 0.72);
+                } else if (pattern === 'full') {
+                    // Full-Time whistle: Two short blasts + Long blast (Peep — Peep — Peeeeeeeeep!)
+                    scheduleWhistleBlast(ac, now, 0.22);
+                    scheduleWhistleBlast(ac, now + 0.32, 0.22);
+                    scheduleWhistleBlast(ac, now + 0.66, 0.88);
+                } else {
+                    // Single blast (Test)
+                    scheduleWhistleBlast(ac, now, 0.42);
+                }
+            } catch (e) {}
+        }
+
+        function toggleWhistleAudio() {
+            TimerState.whistleEnabled = !TimerState.whistleEnabled;
+            var btn = document.getElementById('whistleToggleBtn');
+            if (btn) {
+                btn.classList.toggle('active', TimerState.whistleEnabled);
+                btn.innerText = TimerState.whistleEnabled ? "🔊 Whistle: ON" : "🔇 Whistle: OFF";
+            }
+            if (TimerState.whistleEnabled) {
+                getOrCreateAudioContext();
+            }
+        }
+
+        function checkRegulationWhistleTriggers() {
+            var halfMins = parseFloat(document.getElementById('halfLengthInput').value) || 35;
+            var matchMins = parseFloat(document.getElementById('matchLengthInput').value) || 70;
+
+            if (TimerState.activeHalf === 1 && !TimerState.halfWhistleBlown && TimerState.secondsElapsed >= halfMins * 60) {
+                TimerState.halfWhistleBlown = true;
+                playRefereeWhistle('half');
+                showPitchToast("📣 Half-Time Regulation Reached (" + halfMins + ":00)! Entering 1st Half Stoppage Time.");
+            } else if (TimerState.activeHalf >= 2 && !TimerState.fullWhistleBlown && TimerState.secondsElapsed >= matchMins * 60) {
+                TimerState.fullWhistleBlown = true;
+                playRefereeWhistle('full');
+                showPitchToast("📣 Full-Time Regulation Reached (" + matchMins + ":00)! Entering 2nd Half Stoppage Time.");
+            }
+        }
+
         function showPitchToast(msg) {
             var toast = document.getElementById('pitchToast');
             if (!toast) return;
             toast.innerText = msg; toast.style.opacity = '1';
             if (toastTimeoutId) clearTimeout(toastTimeoutId);
-            toastTimeoutId = setTimeout(function() { toast.style.opacity = '0'; }, 3200);
+            toastTimeoutId = setTimeout(function() { toast.style.opacity = '0'; }, 3800);
         }
 
         function saveSquadData() {
@@ -412,6 +530,10 @@
             clockEl.innerText = mins.toString().padStart(2, '0') + ":" + secs.toString().padStart(2, '0');
             var halfMins = parseFloat(document.getElementById('halfLengthInput').value) || 35;
             var matchMins = parseFloat(document.getElementById('matchLengthInput').value) || 70;
+
+            if (TimerState.secondsElapsed < halfMins * 60) TimerState.halfWhistleBlown = false;
+            if (TimerState.secondsElapsed < matchMins * 60) TimerState.fullWhistleBlown = false;
+
             var isStoppage = (TimerState.activeHalf === 1 && TimerState.secondsElapsed > halfMins * 60) ||
                              (TimerState.activeHalf >= 2 && TimerState.secondsElapsed > matchMins * 60);
             clockEl.style.backgroundColor = isStoppage ? '#c0392b' : '#eaeded';
@@ -427,6 +549,7 @@
         }
 
         function startMatchTimerEngine() {
+            getOrCreateAudioContext();
             if (TimerState.isRunning) return;
             TimerState.isRunning = true;
             document.getElementById('startTimerBtn').disabled = true;
@@ -434,6 +557,7 @@
             TimerState.intervalId = setInterval(function() {
                 TimerState.secondsElapsed++;
                 LedgerState.squad.forEach(function(p) { if (p.onPitch) p.timePlayed = (p.timePlayed || 0) + 1; });
+                checkRegulationWhistleTriggers();
                 updateClockDisplayStrings();
                 updatePlayerTimeDomNodesOnly();
                 if (TimerState.secondsElapsed % 5 === 0) saveSquadData();
@@ -450,9 +574,11 @@
         }
 
         function injectRetroactiveMinutes(mins) {
+            getOrCreateAudioContext();
             var addedSecs = mins * 60;
             TimerState.secondsElapsed += addedSecs;
             LedgerState.squad.forEach(function(p) { if (p.onPitch) p.timePlayed = (p.timePlayed || 0) + addedSecs; });
+            checkRegulationWhistleTriggers();
             saveSquadData(); updateClockDisplayStrings(); updatePlayerTimeDomNodesOnly();
         }
 
@@ -744,6 +870,7 @@
         function startNewGame() {
             pauseMatchTimerEngine();
             TimerState.secondsElapsed = 0; TimerState.activeHalf = 1;
+            TimerState.halfWhistleBlown = false; TimerState.fullWhistleBlown = false;
             document.getElementById('matchLengthInput').value = 70;
             document.getElementById('halfLengthInput').value = 35;
             var lbl = document.getElementById('currentHalfLabel');

@@ -37,9 +37,14 @@ App changes
 
 9) Add a button to copy the match report ready for sharing
 
-10) Half-time and full-time whistles, or even a 2 minute warning
+10) ~~Half-time and full-time whistles~~, or even a 2 minute warning
 
 11) Add a new and better background
+
+12) Use symbols for the things like play/pause
+13) Maybe hide the equal play timing behind a drop down
+14) Maybe hide the Run line/Pass line/clear lines behind a drop down menu (They are not really used during a game but only to give a guide on training routines
+15) Do I really need an option to change the appearance of the grass (Could hide in a settings menu)
 
 
 
