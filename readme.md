@@ -21,7 +21,7 @@ App changes
 6) ~~Ability to add Red/Yellow cards, these should actually show on the Match Summary.~~
 
 
-7) Check name change to CoachCalc has been applied
+7) ~~Check name change to CoachCalc has been applied~~
 
 8) Scale pitch:
 
