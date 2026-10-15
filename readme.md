@@ -18,7 +18,7 @@ App changes
 5) Ability to save previous game summary's in the app itself and it does not get wiped when clicking "Reset Squads", however we should be able to select and delete individual ones when needed.
 
 
-6) Ability to add Red/Yellow cards, these should actually show on the Match Summary.
+6) ~~Ability to add Red/Yellow cards, these should actually show on the Match Summary.~~
 
 
 7) Check name change to CoachCalc has been applied
