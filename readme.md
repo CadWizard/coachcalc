@@ -52,7 +52,7 @@ App changes
 20) ~~Restrict Goals & Assists to on-pitch players only~~
 21) Implement local match report file export
 22) Add background stadium image and UI opacity slider
-23) Add custom kit & shirt designer
+23) ~~Add custom kit & shirt designer~~
 24) ~~Tactics Menu Label & Persistence Fix~~
 25) ~~Bring on sub in place of player who has last been subbed~~
 

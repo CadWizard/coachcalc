@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.12)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.68.0)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -19,11 +19,32 @@
         h2.subtitle { color: #e2e8f0; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-size: 14px; margin: 0 0 18px 0; font-weight: normal; text-align: center; }
         #main-layout { display: flex; gap: 16px; align-items: flex-start; max-width: 1480px; width: 100%; justify-content: center; }
         .sidebar { flex: 0 1 305px; min-width: 265px; background: #fff; padding: 14px; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 10px; }
-        .sidebar h3 { display: flex; align-items: center; margin: 0 0 2px 0; color: #2c3e50; font-size: 17px; }
+        .sidebar h3 { display: flex; align-items: center; margin: 0 0 2px 0; color: #2c3e50; font-size: 17px; gap: 6px; }
         .sidebar h4 { margin: 5px 0 2px 0; font-size: 12px; text-transform: uppercase; color: #7f8c8d; border-bottom: 1px solid #eee; padding-bottom: 2px; display: flex; justify-content: space-between; align-items: center; }
-        .kit-badge { display: inline-block; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.15); margin-right: 8px; flex-shrink: 0; }
-        .kit-home { background: linear-gradient(to right, #27ae60 25%, #f1c40f 25% 50%, #27ae60 50% 75%, #f1c40f 75%); }
-        .kit-away { background-color: #2980b9; }
+
+        /* Interactive Mini Shirt Button */
+        .shirt-icon-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 2px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+        }
+        .shirt-icon-btn:hover {
+            background: rgba(44, 62, 80, 0.08);
+            border-color: #bdc3c7;
+            transform: scale(1.08);
+        }
+        .scoreboard-shirt-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
         .center-workspace { flex: 1 1 560px; max-width: 800px; min-width: 300px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
         #timer-panel { display: flex; flex-direction: column; gap: 9px; background: #fff; padding: 12px 15px; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.3); width: 100%; }
         .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
@@ -152,6 +173,70 @@
         .info-modal-header h3 { margin: 0; font-size: 18px; }
         .info-modal-close-btn { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 0; }
         .info-modal-body { padding: 20px; overflow-y: auto; color: #2c3e50; font-size: 14px; line-height: 1.5; }
+
+        /* Kit & Shirt Designer Modal Styles */
+        .kit-preview-stage {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            background: linear-gradient(135deg, #1e5221, #2e7d32);
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid #1a242b;
+            margin-bottom: 14px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.35);
+        }
+        .kit-pattern-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .kit-pattern-btn {
+            flex-direction: column;
+            justify-content: center;
+            padding: 8px 4px;
+            font-size: 11px;
+            font-weight: bold;
+            border: 2px solid #d5dbdb;
+            background: #f8f9fa;
+            color: #2c3e50;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .kit-pattern-btn.active {
+            border-color: #27ae60 !important;
+            background: #e8f8f5 !important;
+            color: #1e8449 !important;
+        }
+        .kit-color-section {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+            background: #f8f9f9;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid #e5e8e8;
+        }
+        .kit-swatch-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .kit-swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #bdc3c7;
+            cursor: pointer;
+            padding: 0;
+            transition: transform 0.12s ease;
+        }
+        .kit-swatch:hover { transform: scale(1.15); border-color: #2c3e50; }
+
         @media (max-width: 1160px) {
             #main-layout { flex-wrap: wrap; }
             .center-workspace { order: 1; flex: 1 1 100%; max-width: 800px; }
@@ -161,23 +246,24 @@
         @media (max-width: 640px) {
             body { padding: 10px 10px 70px 10px; }
             #sidebar-left, #sidebar-right { flex: 1 1 100%; }
+            .kit-pattern-grid { grid-template-columns: repeat(3, 1fr); }
         }
     </style>
 </head>
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.12)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.68.0)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
             <h3>
-                <span class="kit-badge kit-home"></span>
+                <button id="homeSidebarShirtBtn" class="shirt-icon-btn" onclick="openKitDesigner('home')" title="Click to customize Home shirt design &amp; colors"></button>
                 <span id="homeTeamTitleText" class="player-label-click" onclick="promptRenameTeam('home')" title="Click to rename team">Home Squad</span>
             </h3>
             <div style="display:flex; gap:4px;">
                 <input type="text" id="homePlayerName" placeholder="Player Name" style="flex:1; min-width:0; padding:6px;">
-                <button onclick="createNewPlayer('home')" style="background:#27ae60; color:white; border:none; padding:6px 12px; justify-content:center;">Add</button>
+                <button id="homeAddPlayerBtn" onclick="createNewPlayer('home')" style="background:#27ae60; color:white; border:none; padding:6px 12px; justify-content:center;">Add</button>
             </div>
             <select id="homeFormatSelect" onchange="updateFormationOptions('home')" style="width:100%; padding:6px; font-weight:bold;">
                 <option value="5v5">Match Size: 5 v 5</option>
@@ -210,7 +296,7 @@
                 <div class="scoreboard-banner">
                     <div class="scoreboard-center">
                         <span class="score-team-label">
-                            <span class="kit-badge kit-home" style="width:14px; height:14px; margin-right:2px;"></span>
+                            <button id="scoreboardHomeShirtBtn" class="shirt-icon-btn scoreboard-shirt-btn" onclick="openKitDesigner('home')" title="Customize Home Kit"></button>
                             <span id="scoreboardHomeName">Home Squad</span>
                         </span>
                         <div class="score-pill-box">
@@ -218,7 +304,7 @@
                         </div>
                         <span class="score-team-label">
                             <span id="scoreboardAwayName">Away Squad</span>
-                            <span class="kit-badge kit-away" style="width:14px; height:14px; margin-left:2px; margin-right:0;"></span>
+                            <button id="scoreboardAwayShirtBtn" class="shirt-icon-btn scoreboard-shirt-btn" onclick="openKitDesigner('away')" title="Customize Away Kit"></button>
                         </span>
                     </div>
                     <button id="undoLastStatBtn" class="undo-stat-btn" onclick="undoLastStatAction()" disabled title="Undo the most recent Goal, Assist, or Card">↩️ Undo Last Stat/Card</button>
@@ -356,12 +442,12 @@
 
         <div id="sidebar-right" class="sidebar">
             <h3>
-                <span class="kit-badge kit-away"></span>
+                <button id="awaySidebarShirtBtn" class="shirt-icon-btn" onclick="openKitDesigner('away')" title="Click to customize Away shirt design &amp; colors"></button>
                 <span id="awayTeamTitleText" class="player-label-click" onclick="promptRenameTeam('away')" title="Click to rename team">Away Squad</span>
             </h3>
             <div style="display:flex; gap:4px;">
                 <input type="text" id="awayPlayerName" placeholder="Player Name" style="flex:1; min-width:0; padding:6px;">
-                <button onclick="createNewPlayer('away')" style="background:#2980b9; color:white; border:none; padding:6px 12px; justify-content:center;">Add</button>
+                <button id="awayAddPlayerBtn" onclick="createNewPlayer('away')" style="background:#2980b9; color:white; border:none; padding:6px 12px; justify-content:center;">Add</button>
             </div>
             <select id="awayFormatSelect" onchange="updateFormationOptions('away')" style="width:100%; padding:6px; font-weight:bold;">
                 <option value="5v5">Match Size: 5 v 5</option>
@@ -390,6 +476,58 @@
         </div>
     </div>
 
+    <!-- Custom Kit & Shirt Designer Modal -->
+    <div id="kitDesignerModal" class="info-modal-overlay" onclick="closeKitDesignerModal(event)">
+        <div class="info-modal-box" style="max-width:440px;" onclick="event.stopPropagation()">
+            <div class="info-modal-header">
+                <h3 id="kitDesignerHeaderTitle">👕 Customize Team Kit</h3>
+                <button class="info-modal-close-btn" onclick="hideKitDesignerModal()">✕</button>
+            </div>
+            <div class="info-modal-body">
+                <div class="kit-preview-stage">
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+                        <div id="kitDesignerShirtPreview"></div>
+                        <span style="font-size:11px; color:#e2e8f0; font-weight:bold;">Shirt Icon</span>
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+                        <canvas id="kitDesignerTokenCanvas" width="56" height="56" style="cursor:default;"></canvas>
+                        <span style="font-size:11px; color:#e2e8f0; font-weight:bold;">Pitch Counter</span>
+                    </div>
+                </div>
+
+                <div style="font-size:12px; font-weight:bold; color:#2c3e50; margin-bottom:6px;">1. Select Shirt Pattern:</div>
+                <div class="kit-pattern-grid">
+                    <button id="kitPat_solid" class="kit-pattern-btn" onclick="selectKitPattern('solid')">Solid</button>
+                    <button id="kitPat_stripes" class="kit-pattern-btn" onclick="selectKitPattern('stripes')">Stripes</button>
+                    <button id="kitPat_hoops" class="kit-pattern-btn" onclick="selectKitPattern('hoops')">Hoops</button>
+                    <button id="kitPat_halves" class="kit-pattern-btn" onclick="selectKitPattern('halves')">Halves</button>
+                    <button id="kitPat_quarters" class="kit-pattern-btn" onclick="selectKitPattern('quarters')">Quarters</button>
+                </div>
+
+                <div class="kit-color-section">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:12px; font-weight:bold;">2. Primary Colour:</span>
+                        <input type="color" id="kitPrimaryColorPicker" oninput="updateKitColor('primary', this.value)" style="width:42px; height:28px; padding:1px; cursor:pointer;">
+                    </div>
+                    <div class="kit-swatch-row" id="kitPrimarySwatches"></div>
+                </div>
+
+                <div class="kit-color-section" id="kitSecondaryColorSection">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span id="kitSecondaryLabel" style="font-size:12px; font-weight:bold;">3. Secondary / Stripe Colour:</span>
+                        <input type="color" id="kitSecondaryColorPicker" oninput="updateKitColor('secondary', this.value)" style="width:42px; height:28px; padding:1px; cursor:pointer;">
+                    </div>
+                    <div class="kit-swatch-row" id="kitSecondarySwatches"></div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px;">
+                    <button onclick="resetTeamKitToDefault()" style="background:#f2f4f4; color:#566573; border-color:#bdc3c7; font-weight:bold;">↺ Reset Default</button>
+                    <button onclick="hideKitDesignerModal()" style="background:#27ae60; color:#fff; border:none; padding:8px 20px; font-weight:bold;">✓ Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="bottom-right-dock-anchor">
         <button id="infoBtn" onclick="openChangelogModalWindow()">ℹ️ View App Info</button>
     </div>
@@ -401,11 +539,11 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.12 (Tactics Menu Label &amp; Multi-Draw Persistence)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.68.0 (Custom Kit &amp; Shirt Designer)</p>
                 <ul>
-                    <li><strong>Fixed <code>✏️ Tactics &amp; Drawing ▾</code> Label:</strong> The menu button now permanently keeps its <code>✏️ Tactics &amp; Drawing ▾</code> title while displaying a separate green active-tool pill (with a quick <code>✕</code> exit button) so you can draw multiple arrows or notes consecutively without confusion.</li>
-                    <li><strong>Smart Sub Position Memory:</strong> Bringing a substitute onto the pitch automatically places them in the exact coordinates and role of the last player sent to the bench.</li>
-                    <li><strong>Bench Red Card &amp; Goal/Assist Rules:</strong> Full Laws of the Game compliance for bench dismissals and on-pitch scoring.</li>
+                    <li><strong>Interactive Mini Shirt Icons &amp; Kit Designer:</strong> Replaced static kit circles next to Home and Away team names with interactive mini shirt icons. Click any shirt to customize patterns (Solid, Vertical Stripes, Horizontal Hoops, Split Halves, Quarters) and up to 2 custom colours.</li>
+                    <li><strong>Tactics Menu Label &amp; Multi-Draw Persistence:</strong> Permanent <code>✏️ Tactics &amp; Drawing ▾</code> label with an active tool indicator pill.</li>
+                    <li><strong>Smart Sub Position Memory &amp; Bench Card Rules:</strong> Full match-day suite.</li>
                 </ul>
             </div>
         </div>
@@ -440,6 +578,29 @@
         PITCH.centerX = PITCH.left + PITCH.lengthPx / 2;
         PITCH.centerY = PITCH.top + PITCH.widthPx / 2;
 
+        var DEFAULT_KITS = {
+            home: { pattern: 'stripes', primary: '#27ae60', secondary: '#f1c40f' },
+            away: { pattern: 'solid', primary: '#2980b9', secondary: '#ffffff' }
+        };
+        var KIT_SWATCH_COLORS = ['#27ae60', '#2980b9', '#c0392b', '#f1c40f', '#ffffff', '#1a242f', '#8e44ad', '#e67e22', '#5dade2', '#7b241c'];
+
+        function loadSavedKit(team) {
+            var key = team === 'home' ? 'pitchPadHomeKit' : 'pitchPadAwayKit';
+            var def = DEFAULT_KITS[team];
+            try {
+                var raw = localStorage.getItem(key);
+                if (!raw) return { pattern: def.pattern, primary: def.primary, secondary: def.secondary };
+                var parsed = JSON.parse(raw);
+                return {
+                    pattern: ['solid', 'stripes', 'hoops', 'halves', 'quarters'].indexOf(parsed.pattern) !== -1 ? parsed.pattern : def.pattern,
+                    primary: typeof parsed.primary === 'string' ? parsed.primary : def.primary,
+                    secondary: typeof parsed.secondary === 'string' ? parsed.secondary : def.secondary
+                };
+            } catch (e) {
+                return { pattern: def.pattern, primary: def.primary, secondary: def.secondary };
+            }
+        }
+
         var TimerState = { intervalId: null, isRunning: false, secondsElapsed: 0, activeHalf: 1, whistleEnabled: true, halfWhistleBlown: false, fullWhistleBlown: false };
         var LedgerState = {
             squad: [], statHistory: [],
@@ -458,7 +619,12 @@
             labelMode: localStorage.getItem('pitchPadLabelMode') || 'names',
             pitchDesign: localStorage.getItem('pitchPadDesign') || 'stripes-v',
             awayGkColor: keeperColors[Math.floor(Math.random() * keeperColors.length)],
-            ball: { x: PITCH.centerX, y: PITCH.centerY, isDragging: false }
+            ball: { x: PITCH.centerX, y: PITCH.centerY, isDragging: false },
+            kits: {
+                home: loadSavedKit('home'),
+                away: loadSavedKit('away')
+            },
+            editingKitTeam: 'home'
         };
 
         var formatPlaybooks = { '5v5': ['1-2-1'], '7v7': ['2-3-1'], '9v9': ['2-4-2', '3-3-2', '2-3-1-1', '3-3-1-1'], '11v11': ['4-4-2'] };
@@ -493,6 +659,227 @@
             }
         };
 
+        // ==========================================
+        // CUSTOM KIT & SHIRT DESIGNER ENGINE
+        // ==========================================
+        function saveKitData() {
+            try {
+                localStorage.setItem('pitchPadHomeKit', JSON.stringify(BoardState.kits.home));
+                localStorage.setItem('pitchPadAwayKit', JSON.stringify(BoardState.kits.away));
+            } catch (e) {}
+        }
+
+        function buildShirtSvgMarkup(kit, widthPx, heightPx, uid) {
+            var pCol = kit.primary || '#27ae60';
+            var sCol = kit.secondary || '#f1c40f';
+            var pat = kit.pattern || 'solid';
+            var clipId = 'shirtClip_' + uid;
+            var shirtPath = 'M8,3 L13,3 C14,6 18,6 19,3 L24,3 L30,9 L26,14 L23,11 L23,28 L9,28 L9,11 L6,14 L2,9 Z';
+
+            var innerPattern = '<rect x="0" y="0" width="32" height="32" fill="' + pCol + '"/>';
+            if (pat === 'stripes') {
+                innerPattern +=
+                    '<rect x="7" y="0" width="3.6" height="32" fill="' + sCol + '"/>' +
+                    '<rect x="14.2" y="0" width="3.6" height="32" fill="' + sCol + '"/>' +
+                    '<rect x="21.4" y="0" width="3.6" height="32" fill="' + sCol + '"/>';
+            } else if (pat === 'hoops') {
+                innerPattern +=
+                    '<rect x="0" y="6" width="32" height="4" fill="' + sCol + '"/>' +
+                    '<rect x="0" y="14" width="32" height="4" fill="' + sCol + '"/>' +
+                    '<rect x="0" y="22" width="32" height="4" fill="' + sCol + '"/>';
+            } else if (pat === 'halves') {
+                innerPattern += '<rect x="16" y="0" width="16" height="32" fill="' + sCol + '"/>';
+            } else if (pat === 'quarters') {
+                innerPattern +=
+                    '<rect x="16" y="0" width="16" height="15.5" fill="' + sCol + '"/>' +
+                    '<rect x="0" y="15.5" width="16" height="16.5" fill="' + sCol + '"/>';
+            }
+
+            var collarColor = (pat === 'solid') ? sCol : '#ffffff';
+            return '<svg width="' + widthPx + '" height="' + heightPx + '" viewBox="0 0 32 30" style="display:block; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.35));">' +
+                '<defs><clipPath id="' + clipId + '"><path d="' + shirtPath + '"/></clipPath></defs>' +
+                '<g clip-path="url(#' + clipId + ')">' + innerPattern + '</g>' +
+                '<path d="' + shirtPath + '" fill="none" stroke="#1a242f" stroke-width="1.6" stroke-linejoin="round"/>' +
+                '<path d="M12.5,3 C13.8,6.5 18.2,6.5 19.5,3" fill="none" stroke="' + collarColor + '" stroke-width="1.6" stroke-linecap="round"/>' +
+            '</svg>';
+        }
+
+        function drawPlayerKitFillOnCanvas(targetCtx, cx, cy, radius, kit, alpha) {
+            var d = radius * 2;
+            var left = cx - radius;
+            var top = cy - radius;
+            var pCol = kit.primary || '#27ae60';
+            var sCol = kit.secondary || '#f1c40f';
+            var pat = kit.pattern || 'solid';
+
+            targetCtx.save();
+            targetCtx.beginPath();
+            targetCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+            targetCtx.clip();
+            if (alpha !== undefined && alpha < 1) targetCtx.globalAlpha = alpha;
+
+            targetCtx.fillStyle = pCol;
+            targetCtx.fillRect(left, top, d, d);
+
+            if (pat === 'stripes') {
+                targetCtx.fillStyle = sCol;
+                var sw = radius * 0.46;
+                targetCtx.fillRect(cx - sw * 1.5, top, sw, d);
+                targetCtx.fillRect(cx + sw * 0.5, top, sw, d);
+            } else if (pat === 'hoops') {
+                targetCtx.fillStyle = sCol;
+                var hh = radius * 0.46;
+                targetCtx.fillRect(left, cy - hh * 1.5, d, hh);
+                targetCtx.fillRect(left, cy + hh * 0.5, d, hh);
+            } else if (pat === 'halves') {
+                targetCtx.fillStyle = sCol;
+                targetCtx.fillRect(cx, top, radius, d);
+            } else if (pat === 'quarters') {
+                targetCtx.fillStyle = sCol;
+                targetCtx.fillRect(cx, top, radius, radius);
+                targetCtx.fillRect(left, cy, radius, radius);
+            }
+            targetCtx.restore();
+        }
+
+        function refreshAllKitBadgesUI() {
+            var hKit = BoardState.kits.home;
+            var aKit = BoardState.kits.away;
+
+            var hSideBtn = document.getElementById('homeSidebarShirtBtn');
+            var aSideBtn = document.getElementById('awaySidebarShirtBtn');
+            var hScoreBtn = document.getElementById('scoreboardHomeShirtBtn');
+            var aScoreBtn = document.getElementById('scoreboardAwayShirtBtn');
+
+            if (hSideBtn) hSideBtn.innerHTML = buildShirtSvgMarkup(hKit, 26, 24, 'hSide');
+            if (aSideBtn) aSideBtn.innerHTML = buildShirtSvgMarkup(aKit, 26, 24, 'aSide');
+            if (hScoreBtn) hScoreBtn.innerHTML = buildShirtSvgMarkup(hKit, 22, 20, 'hScore');
+            if (aScoreBtn) aScoreBtn.innerHTML = buildShirtSvgMarkup(aKit, 22, 20, 'aScore');
+
+            var hAddBtn = document.getElementById('homeAddPlayerBtn');
+            var aAddBtn = document.getElementById('awayAddPlayerBtn');
+            if (hAddBtn) hAddBtn.style.backgroundColor = hKit.primary;
+            if (aAddBtn) aAddBtn.style.backgroundColor = aKit.primary;
+        }
+
+        function renderKitDesignerPreview() {
+            var team = BoardState.editingKitTeam;
+            var kit = BoardState.kits[team];
+
+            var shirtPrev = document.getElementById('kitDesignerShirtPreview');
+            if (shirtPrev) shirtPrev.innerHTML = buildShirtSvgMarkup(kit, 58, 54, 'modalPrev');
+
+            var pCanvas = document.getElementById('kitDesignerTokenCanvas');
+            if (pCanvas) {
+                var pCtx = pCanvas.getContext('2d');
+                pCtx.clearRect(0, 0, 56, 56);
+                drawPlayerKitFillOnCanvas(pCtx, 28, 28, 21, kit, 1);
+                pCtx.beginPath();
+                pCtx.arc(28, 28, 21, 0, Math.PI * 2);
+                pCtx.strokeStyle = '#ffffff';
+                pCtx.lineWidth = 2;
+                pCtx.stroke();
+                pCtx.font = 'bold 11px Arial';
+                pCtx.textAlign = 'center';
+                pCtx.textBaseline = 'middle';
+                pCtx.lineWidth = 2.5;
+                pCtx.strokeStyle = 'rgba(17, 24, 34, 0.85)';
+                pCtx.strokeText('P1', 28, 28);
+                pCtx.fillStyle = '#ffffff';
+                pCtx.fillText('P1', 28, 28);
+            }
+
+            ['solid', 'stripes', 'hoops', 'halves', 'quarters'].forEach(function(pat) {
+                var btn = document.getElementById('kitPat_' + pat);
+                if (btn) btn.classList.toggle('active', kit.pattern === pat);
+            });
+
+            var pPicker = document.getElementById('kitPrimaryColorPicker');
+            var sPicker = document.getElementById('kitSecondaryColorPicker');
+            if (pPicker) pPicker.value = kit.primary;
+            if (sPicker) sPicker.value = kit.secondary;
+
+            var secLabel = document.getElementById('kitSecondaryLabel');
+            if (secLabel) {
+                secLabel.innerText = kit.pattern === 'solid' ? '3. Collar Trim Colour:' : '3. Secondary / Stripe Colour:';
+            }
+        }
+
+        function buildKitSwatchesDom() {
+            var priRow = document.getElementById('kitPrimarySwatches');
+            var secRow = document.getElementById('kitSecondarySwatches');
+            if (!priRow || !secRow) return;
+            priRow.innerHTML = '';
+            secRow.innerHTML = '';
+
+            KIT_SWATCH_COLORS.forEach(function(hex) {
+                var s1 = document.createElement('button');
+                s1.className = 'kit-swatch';
+                s1.style.backgroundColor = hex;
+                s1.title = hex;
+                s1.onclick = function() { updateKitColor('primary', hex); };
+                priRow.appendChild(s1);
+
+                var s2 = document.createElement('button');
+                s2.className = 'kit-swatch';
+                s2.style.backgroundColor = hex;
+                s2.title = hex;
+                s2.onclick = function() { updateKitColor('secondary', hex); };
+                secRow.appendChild(s2);
+            });
+        }
+
+        function openKitDesigner(team) {
+            BoardState.editingKitTeam = (team === 'away') ? 'away' : 'home';
+            var teamTitle = BoardState.editingKitTeam === 'home' ? LedgerState.homeTeamName : LedgerState.awayTeamName;
+            document.getElementById('kitDesignerHeaderTitle').innerText = '👕 ' + teamTitle + ' — Kit Designer';
+            buildKitSwatchesDom();
+            renderKitDesignerPreview();
+            document.getElementById('kitDesignerModal').style.display = 'flex';
+        }
+
+        function hideKitDesignerModal() {
+            document.getElementById('kitDesignerModal').style.display = 'none';
+        }
+
+        function closeKitDesignerModal(e) {
+            if (!e || e.target.id === 'kitDesignerModal') hideKitDesignerModal();
+        }
+
+        function selectKitPattern(pattern) {
+            var team = BoardState.editingKitTeam;
+            BoardState.kits[team].pattern = pattern;
+            saveKitData();
+            renderKitDesignerPreview();
+            refreshAllKitBadgesUI();
+            renderSquadBanks();
+            drawPitch();
+        }
+
+        function updateKitColor(slot, hexColor) {
+            var team = BoardState.editingKitTeam;
+            BoardState.kits[team][slot] = hexColor;
+            saveKitData();
+            renderKitDesignerPreview();
+            refreshAllKitBadgesUI();
+            renderSquadBanks();
+            drawPitch();
+        }
+
+        function resetTeamKitToDefault() {
+            var team = BoardState.editingKitTeam;
+            var def = DEFAULT_KITS[team];
+            BoardState.kits[team] = { pattern: def.pattern, primary: def.primary, secondary: def.secondary };
+            saveKitData();
+            renderKitDesignerPreview();
+            refreshAllKitBadgesUI();
+            renderSquadBanks();
+            drawPitch();
+        }
+
+        // ==========================================
+        // AUDIO & CORE HELPERS
+        // ==========================================
         function getOrCreateAudioContext() {
             var AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (!AudioCtx) return null;
@@ -780,7 +1167,7 @@
                 if (badge) {
                     var cur = getCurrentOnPitchCount(team), max = getMaxAllowedOnPitch(team), pitchReds = getTeamPitchReducingRedCount(team);
                     badge.innerText = cur + ' / ' + max + (pitchReds > 0 ? ' • ' + pitchReds + ' 🟥' : '');
-                    badge.style.color = pitchReds > 0 ? '#c0392b' : (team === 'home' ? '#27ae60' : '#2980b9');
+                    badge.style.color = pitchReds > 0 ? '#c0392b' : BoardState.kits[team].primary;
                 }
                 var benchBadge = document.getElementById(team + 'BenchCountBadge');
                 if (benchBadge) {
@@ -788,6 +1175,7 @@
                     benchBadge.innerText = benchCount + (benchCount === 1 ? ' sub' : ' subs');
                 }
             });
+            refreshAllKitBadgesUI();
         }
 
         function repositionBenchedTeammatesInZones() {
@@ -825,7 +1213,7 @@
 
                 var item = document.createElement('div');
                 item.className = 'squad-item' + (isSentOff ? ' sent-off-card' : '');
-                item.style.borderLeftColor = player.team === 'home' ? '#27ae60' : '#2980b9';
+                item.style.borderLeftColor = BoardState.kits[player.team] ? BoardState.kits[player.team].primary : (player.team === 'home' ? '#27ae60' : '#2980b9');
 
                 var summaryBadges = '';
                 if (g > 0) summaryBadges += '<span class="mini-stat-badge">⚽' + g + '</span>';
@@ -1096,6 +1484,9 @@
             var halfBtn = document.getElementById('nextHalfBtn');
             halfBtn.disabled = false; halfBtn.innerText = "⏭"; halfBtn.title = "Advance to 2nd Half"; halfBtn.style.backgroundColor = "#8e44ad"; halfBtn.onclick = advanceToNextHalf;
             LedgerState.homeTeamName = 'Home Squad'; LedgerState.awayTeamName = 'Away Squad';
+            BoardState.kits.home = { pattern: DEFAULT_KITS.home.pattern, primary: DEFAULT_KITS.home.primary, secondary: DEFAULT_KITS.home.secondary };
+            BoardState.kits.away = { pattern: DEFAULT_KITS.away.pattern, primary: DEFAULT_KITS.away.primary, secondary: DEFAULT_KITS.away.secondary };
+            saveKitData();
             try { localStorage.setItem('pitchPadHomeTeamName', 'Home Squad'); localStorage.setItem('pitchPadAwayTeamName', 'Away Squad'); } catch (e) {}
             BoardState.drawings = []; BoardState.notes = [];
             document.getElementById('report-ledger-panel').style.display = 'none';
@@ -1236,9 +1627,9 @@
 
             var boxes = getBenchZoneBoxes();
             ctx.save(); ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
-            ctx.strokeStyle = 'rgba(39, 174, 96, 0.55)'; ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.strokeStyle = BoardState.kits.home.primary || 'rgba(39, 174, 96, 0.55)'; ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
             traceRoundedRect(boxes.home.x, boxes.home.y, boxes.home.w, boxes.home.h, 6); ctx.fill(); ctx.stroke();
-            ctx.strokeStyle = 'rgba(41, 128, 185, 0.55)';
+            ctx.strokeStyle = BoardState.kits.away.primary || 'rgba(41, 128, 185, 0.55)';
             traceRoundedRect(boxes.away.x, boxes.away.y, boxes.away.w, boxes.away.h, 6); ctx.fill(); ctx.stroke();
             ctx.setLineDash([]); ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = 'bold 11px Arial'; ctx.textAlign = 'left';
             ctx.fillText("📋 " + LedgerState.homeTeamName + " Technical Area", boxes.home.x + 10, boxes.home.y + 16);
@@ -1263,32 +1654,38 @@
                 ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fillText(n.text, n.x + 1, n.y + 1); ctx.fillStyle = '#ffffff'; ctx.fillText(n.text, n.x, n.y);
             });
 
+            // 10% Larger Player Tokens with Custom Kit Rendering
             var pr = PLAYER_RADIUS;
-            var pd = pr * 2;
             LedgerState.squad.forEach(function(p) {
                 if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return;
                 var isGK = String(p.name).toUpperCase() === 'GK' || String(p.role || '').toUpperCase() === 'GK';
                 var hasRed = (Number(p.redCards) || 0) > 0;
+                var teamKit = BoardState.kits[p.team] || DEFAULT_KITS[p.team];
+
                 if (hasRed) {
                     ctx.beginPath(); ctx.arc(p.x, p.y, pr, 0, Math.PI * 2); ctx.fillStyle = 'rgba(192, 57, 43, 0.45)'; ctx.fill();
-                } else if (p.team === 'away') {
-                    ctx.beginPath(); ctx.arc(p.x, p.y, pr, 0, Math.PI * 2);
-                    ctx.fillStyle = isGK ? (p.onPitch ? BoardState.awayGkColor : 'rgba(120,120,120,0.45)') : (p.onPitch ? '#2980b9' : 'rgba(41,128,185,0.45)'); ctx.fill();
                 } else if (isGK) {
-                    ctx.beginPath(); ctx.arc(p.x, p.y, pr, 0, Math.PI * 2); ctx.fillStyle = p.onPitch ? '#4a148c' : 'rgba(74,20,140,0.45)'; ctx.fill();
+                    ctx.beginPath(); ctx.arc(p.x, p.y, pr, 0, Math.PI * 2);
+                    if (p.team === 'away') {
+                        ctx.fillStyle = p.onPitch ? BoardState.awayGkColor : 'rgba(120,120,120,0.45)';
+                    } else {
+                        ctx.fillStyle = p.onPitch ? '#4a148c' : 'rgba(74,20,140,0.45)';
+                    }
+                    ctx.fill();
                 } else {
-                    ctx.save(); ctx.beginPath(); ctx.arc(p.x, p.y, pr, 0, Math.PI * 2); ctx.clip();
-                    if (p.onPitch) {
-                        ctx.fillStyle = '#27ae60'; ctx.fillRect(p.x - pr, p.y - pr, pd, pd);
-                        ctx.fillStyle = '#f1c40f'; ctx.fillRect(p.x - 7.7, p.y - pr, 7.7, pd); ctx.fillRect(p.x + 7.7, p.y - pr, 7.7, pd);
-                    } else { ctx.fillStyle = 'rgba(39,174,96,0.4)'; ctx.fillRect(p.x - pr, p.y - pr, pd, pd); }
-                    ctx.restore();
+                    drawPlayerKitFillOnCanvas(ctx, p.x, p.y, pr, teamKit, p.onPitch ? 1.0 : 0.42);
                 }
+
                 ctx.beginPath(); ctx.arc(p.x, p.y, pr, 0, Math.PI * 2);
                 ctx.strokeStyle = hasRed ? '#e74c3c' : (p.onPitch ? '#fff' : 'rgba(255,255,255,0.4)'); ctx.lineWidth = 1.65; ctx.stroke();
-                ctx.fillStyle = p.onPitch ? '#fff' : 'rgba(255,255,255,0.65)'; ctx.font = 'bold 10px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
                 var label = BoardState.labelMode === 'names' ? String(p.name) : String(p.role || 'SUB');
                 if (label.length > 5) label = label.substring(0, 4) + '..';
+                ctx.font = 'bold 10px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.lineWidth = 2.4;
+                ctx.strokeStyle = p.onPitch ? 'rgba(17, 24, 34, 0.85)' : 'rgba(17, 24, 34, 0.45)';
+                ctx.strokeText(label, p.x, p.y);
+                ctx.fillStyle = p.onPitch ? '#fff' : 'rgba(255,255,255,0.75)';
                 ctx.fillText(label, p.x, p.y);
 
                 var yCards = Number(p.yellowCards) || 0, rCards = Number(p.redCards) || 0;
@@ -1310,7 +1707,9 @@
                 var info = (BoardState.labelMode === 'names' ? hp.name : (hp.role || 'POS')) + " [" + statusTag + "]";
                 ctx.font = 'bold 12px Arial';
                 var bw = ctx.measureText(info).width + 16, bh = 24, boxX = hp.x - bw / 2, boxY = hp.y - 36;
-                ctx.fillStyle = 'rgba(17,24,34,0.95)'; ctx.strokeStyle = (Number(hp.redCards) || 0) > 0 ? '#e74c3c' : (hp.team === 'home' ? '#27ae60' : '#2980b9'); ctx.lineWidth = 1.5;
+                ctx.fillStyle = 'rgba(17,24,34,0.95)';
+                ctx.strokeStyle = (Number(hp.redCards) || 0) > 0 ? '#e74c3c' : BoardState.kits[hp.team].primary;
+                ctx.lineWidth = 1.5;
                 traceRoundedRect(boxX, boxY, bw, bh, 4); ctx.fill(); ctx.stroke();
                 ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(info, hp.x, boxY + 12);
                 ctx.restore();
@@ -1328,7 +1727,6 @@
             document.getElementById('passLineBtn').classList.toggle('active', mode === 'draw-dashed');
             document.getElementById('textBtn').classList.toggle('active', mode === 'text');
 
-            // Keep menu title permanently as "✏️ Tactics & Drawing" and show/hide the active tool pill next to it
             var summaryEl = document.getElementById('tacticsDropdownSummary');
             var pillEl = document.getElementById('activeTacticPill');
             var pillTextEl = document.getElementById('activeTacticPillText');
@@ -1567,6 +1965,7 @@
             if (!hasHome) autoFillTeam('home'); else ensureFormationSlotCount('home', BoardState.homeFormation);
             if (!hasAway) autoFillTeam('away'); else ensureFormationSlotCount('away', BoardState.awayFormation);
 
+            refreshAllKitBadgesUI();
             repositionBenchedTeammatesInZones(); renderSquadBanks(); saveSquadData();
             document.getElementById('pitchDesignSelect').value = BoardState.pitchDesign;
             toggleGlobalLabelView(true); recalculateEqualTimeMatrix(); updateSidebarHeaderLabels(); drawPitch();
@@ -1583,6 +1982,7 @@
             if (e.key === 'Escape') {
                 closeTacticsDropdown();
                 closeSettingsDropdown();
+                hideKitDesignerModal();
                 if (BoardState.mode !== 'move') setMode('move');
             }
         });
@@ -1599,4 +1999,4 @@
     </script>
 </body>
 </html>
-<!-- END OF COACHCALC v0.67.12 -->
+<!-- END OF COACHCALC v0.68.0 -->
