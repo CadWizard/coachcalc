@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.2)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.3)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -93,6 +93,67 @@
             background: #f8f9f9;
         }
 
+        /* Tactics & Drawing Popover Dropdown */
+        .tactics-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .tactics-dropdown summary {
+            padding: 7px 11px;
+            border-radius: 4px;
+            border: 1px solid #2980b9;
+            background: #ebf5fb;
+            color: #1f618d;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            list-style: none;
+            touch-action: manipulation;
+        }
+        .tactics-dropdown summary::-webkit-details-marker { display: none; }
+        .tactics-dropdown summary.active-draw-mode {
+            background-color: #27ae60 !important;
+            color: #fff !important;
+            border-color: #1e8449 !important;
+        }
+        .tactics-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            min-width: 210px;
+            background: #ffffff;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 200;
+        }
+        .tactics-dropdown-menu button {
+            width: 100%;
+            justify-content: flex-start;
+            background: #f8f9fa;
+            border: 1px solid #e5e8e8;
+            font-size: 12px;
+            font-weight: bold;
+            color: #2c3e50;
+            padding: 7px 10px;
+        }
+        .tactics-dropdown-menu button:hover {
+            background: #eaf2f8;
+            border-color: #a9cce3;
+        }
+        .tactics-menu-divider {
+            height: 1px;
+            background: #e5e8e8;
+            margin: 3px 0;
+        }
+
         .squad-list-container { display: flex; flex-direction: column; gap: 6px; max-height: 250px; overflow-y: auto; background: #fcfcfc; padding: 4px; border: 1px dashed #ddd; border-radius: 4px; }
         .squad-item { display: flex; flex-direction: column; padding: 6px 8px; background: #f8f9fa; border-radius: 4px; border-left: 5px solid #ccc; font-size: 13px; gap: 5px; }
         .squad-item.sent-off-card { background: #fdf2e9; border-left-color: #c0392b !important; }
@@ -139,7 +200,7 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.2)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.3)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -242,9 +303,23 @@
             <div id="controls">
                 <div class="row">
                     <button id="moveBtn" class="active" onclick="setMode('move')">🏃 Move</button>
-                    <button id="runLineBtn" onclick="setMode('draw-solid')" style="background:#ebf5fb; border-color:#2980b9; color:#1f618d; font-weight:bold;">🏹 Run Line</button>
-                    <button id="passLineBtn" onclick="setMode('draw-dashed')" style="background:#ebf5fb; border-color:#2980b9; color:#1f618d; font-weight:bold;">⚽ Pass Line</button>
-                    <button id="textBtn" onclick="setMode('text')">📝 Note</button>
+
+                    <!-- Collapsible Tactics & Drawing Dropdown Menu -->
+                    <details id="tacticsDropdown" class="tactics-dropdown">
+                        <summary id="tacticsDropdownSummary" title="Open tactical drawing &amp; annotation tools">
+                            <span id="tacticsDropdownLabel">✏️ Tactics &amp; Drawing</span>
+                            <span style="font-size:10px;">▾</span>
+                        </summary>
+                        <div class="tactics-dropdown-menu">
+                            <button id="runLineBtn" onclick="selectTacticTool('draw-solid')">🏹 Run Line (Solid Arrow)</button>
+                            <button id="passLineBtn" onclick="selectTacticTool('draw-dashed')">⚽ Pass Line (Dashed Arrow)</button>
+                            <button id="textBtn" onclick="selectTacticTool('text')">📝 Add Pitch Note</button>
+                            <div class="tactics-menu-divider"></div>
+                            <button id="undoBtn" onclick="undoLastDrawing()" style="color:#d35400;">↩️ Undo Last Drawing/Note</button>
+                            <button onclick="clearDrawings()" style="color:#c0392b;">🗑️ Clear All Lines &amp; Notes</button>
+                        </div>
+                    </details>
+
                     <button id="snapToggleBtn" class="active" onclick="toggleSnapping()">🧲 Snapping: ON</button>
                     <select id="pitchDesignSelect" onchange="changePitchDesign(this.value)" style="font-size:12px; padding:5px 8px; margin-left:auto;">
                         <option value="stripes-v">Grass: Vertical</option>
@@ -253,8 +328,6 @@
                         <option value="grid">Grass: Grid</option>
                     </select>
                     <button id="labelToggleBtn" onclick="toggleGlobalLabelView()" style="background-color:#8e44ad; color:white; font-size:12px; padding:5px 10px; border:none;">👁️ View: NAMES</button>
-                    <button id="undoBtn" onclick="undoLastDrawing()" style="background-color:#d35400; color:white; font-size:12px; padding:5px 10px; border:none;">↩️ Undo</button>
-                    <button onclick="clearDrawings()" style="background-color:#7f8c8d; color:white; font-size:12px; padding:5px 10px; border:none;">🗑️ Clear Lines</button>
                     <button onclick="resetDefaultSquads()" style="background-color:#34495e; color:white; font-size:12px; padding:5px 10px; border:none;">🔄 Reset Squads</button>
                 </div>
             </div>
@@ -318,10 +391,10 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.2 (Collapsible Equal Play Guide)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.3 (Tactics &amp; Drawing Dropdown Menu)</p>
                 <ul>
-                    <li><strong>Collapsible Equal Play Guide:</strong> Tucked the GK Rotation Mode selector and detailed target readouts inside a collapsible dropdown bar with a compact summary preview.</li>
-                    <li><strong>Symbol Timer Controls:</strong> Compact icon buttons for Play (<code>▶</code>), Pause (<code>⏸</code>), Next Half (<code>⏭</code>), Finish Report (<code>🏁</code>), and New Game (<code>🆕</code>).</li>
+                    <li><strong>Tactics &amp; Drawing Dropdown:</strong> Consolidated Run Line, Pass Line, Pitch Note, Undo, and Clear Lines inside a compact <code>✏️ Tactics &amp; Drawing ▾</code> popover menu.</li>
+                    <li><strong>Collapsible Equal Play Guide &amp; Symbol Timer Controls:</strong> Streamlined match-day dashboard with symbol buttons and collapsible target calculator.</li>
                     <li><strong>Referee Whistle &amp; FIFA 105m × 68m Pitch:</strong> Automatic regulation-time whistle alerts and true-scale pitch markings.</li>
                 </ul>
             </div>
@@ -1182,12 +1255,40 @@
             }
         }
 
+        function closeTacticsDropdown() {
+            var dd = document.getElementById('tacticsDropdown');
+            if (dd) dd.removeAttribute('open');
+        }
+
+        function selectTacticTool(mode) {
+            setMode(mode);
+            closeTacticsDropdown();
+        }
+
         function setMode(mode) {
             BoardState.mode = mode;
             document.getElementById('moveBtn').classList.toggle('active', mode === 'move');
             document.getElementById('runLineBtn').classList.toggle('active', mode === 'draw-solid');
             document.getElementById('passLineBtn').classList.toggle('active', mode === 'draw-dashed');
             document.getElementById('textBtn').classList.toggle('active', mode === 'text');
+
+            var summaryEl = document.getElementById('tacticsDropdownSummary');
+            var labelEl = document.getElementById('tacticsDropdownLabel');
+            if (summaryEl && labelEl) {
+                if (mode === 'draw-solid') {
+                    summaryEl.classList.add('active-draw-mode');
+                    labelEl.innerText = '🏹 Run Line';
+                } else if (mode === 'draw-dashed') {
+                    summaryEl.classList.add('active-draw-mode');
+                    labelEl.innerText = '⚽ Pass Line';
+                } else if (mode === 'text') {
+                    summaryEl.classList.add('active-draw-mode');
+                    labelEl.innerText = '📝 Pitch Note';
+                } else {
+                    summaryEl.classList.remove('active-draw-mode');
+                    labelEl.innerText = '✏️ Tactics & Drawing';
+                }
+            }
         }
 
         function toggleSnapping() {
@@ -1209,10 +1310,17 @@
         }
 
         function undoLastDrawing() {
+            closeTacticsDropdown();
             if (BoardState.drawings.length > 0) { BoardState.drawings.pop(); drawPitch(); return; }
             if (BoardState.notes.length > 0) { BoardState.notes.pop(); drawPitch(); }
         }
-        function clearDrawings() { BoardState.drawings = []; BoardState.notes = []; drawPitch(); }
+
+        function clearDrawings() {
+            closeTacticsDropdown();
+            BoardState.drawings = [];
+            BoardState.notes = [];
+            drawPitch();
+        }
 
         function updateFormationOptions(team, skipAutoFill) {
             var fmtNode = document.getElementById(team === 'home' ? 'homeFormatSelect' : 'awayFormatSelect');
@@ -1242,6 +1350,7 @@
         }
 
         function handlePointerStart(e) {
+            closeTacticsDropdown();
             if (e.type === 'touchstart') e.preventDefault();
             var c = getCanvasCoordinates(e);
             if (BoardState.mode === 'move') {
@@ -1374,6 +1483,14 @@
             document.getElementById('pitchDesignSelect').value = BoardState.pitchDesign;
             toggleGlobalLabelView(true); recalculateEqualTimeMatrix(); updateSidebarHeaderLabels(); drawPitch();
         }
+
+        // Close tactics popover when clicking outside of it
+        document.addEventListener('click', function(e) {
+            var dd = document.getElementById('tacticsDropdown');
+            if (dd && dd.hasAttribute('open') && !dd.contains(e.target)) {
+                dd.removeAttribute('open');
+            }
+        });
 
         canvas.addEventListener('mousedown', handlePointerStart);
         canvas.addEventListener('mousemove', handlePointerMove);

@@ -43,7 +43,7 @@ App changes
 
 12) ~~Use symbols for the things like play/pause~~
 13) ~~Maybe hide the equal play timing behind a drop down~~
-14) Maybe hide the Run line/Pass line/clear lines behind a drop down menu (They are not really used during a game but only to give a guide on training routines
+14) ~~Maybe hide the Run line/Pass line/clear lines behind a drop down menu (They are not really used during a game but only to give a guide on training routines~~
 15) Do I really need an option to change the appearance of the grass (Could hide in a settings menu)
 
 
