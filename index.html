@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.7)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.8)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -58,9 +58,7 @@
         .settings-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #2c3e50; font-weight: bold; }
 
         /* Collapsible Substitutes Bench Dropdown */
-        details.bench-dropdown {
-            margin-top: 2px;
-        }
+        details.bench-dropdown { margin-top: 2px; }
         details.bench-dropdown summary {
             margin: 3px 0 4px 0;
             font-size: 12px;
@@ -88,14 +86,8 @@
             color: #566573;
             text-transform: none;
         }
-        .bench-chevron {
-            display: inline-block;
-            font-size: 11px;
-            transition: transform 0.2s ease;
-        }
-        details.bench-dropdown[open] .bench-chevron {
-            transform: rotate(180deg);
-        }
+        .bench-chevron { display: inline-block; font-size: 11px; transition: transform 0.2s ease; }
+        details.bench-dropdown[open] .bench-chevron { transform: rotate(180deg); }
 
         /* Clean Player Rows & Per-Player Action Dropdown Drawer */
         .squad-list-container { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; background: #fcfcfc; padding: 4px; border: 1px dashed #ddd; border-radius: 4px; }
@@ -150,7 +142,7 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.7)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.8)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -378,11 +370,11 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.7 (Collapsible Substitutes Bench)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.8 (Consistent Sub Naming &amp; Collapsible Benches)</p>
                 <ul>
-                    <li><strong>Collapsible Substitutes Bench (<code>🪑 Substitutes Bench ▾</code>):</strong> Both Home and Away substitute benches can now be expanded or collapsed with a click, complete with live bench player count badges.</li>
+                    <li><strong>Shortened Away Sub Names:</strong> Default Away substitutes now use <code>Sub 1..5</code> (matching the Home team) so the <code>SUB</code> badge never wraps onto a second line.</li>
+                    <li><strong>Collapsible Substitutes Bench (<code>🪑 Substitutes Bench ▾</code>):</strong> Both Home and Away substitute benches can be expanded or collapsed with a click.</li>
                     <li><strong>10% Larger Player Counters &amp; Action Drawers (<code>⚡ ▾</code>):</strong> Enlarged <code>16.5px</code> radius pitch tokens and per-player expandable stat menus.</li>
-                    <li><strong>On-Pitch Goal/Assist Rule &amp; +30s Catch-Up:</strong> Benched substitutes cannot accrue new goals or assists while on the bench.</li>
                 </ul>
             </div>
         </div>
@@ -968,7 +960,7 @@
                 LedgerState.squad.push({ id: baseId + idx, name: isGK ? 'GK' : (isAway ? 'Opp ' : 'Player ') + idx, role: slot.r || 'POS', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, x: scaled.x, y: scaled.y, team: team, onPitch: true });
             });
             for (var b = 1; b <= 5; b++) {
-                LedgerState.squad.push({ id: baseId + 50 + b, name: (isAway ? 'Away Sub ' : 'Sub ') + b, role: 'SUB', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, x: 0, y: 0, team: team, onPitch: false });
+                LedgerState.squad.push({ id: baseId + 50 + b, name: 'Sub ' + b, role: 'SUB', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, x: 0, y: 0, team: team, onPitch: false });
             }
             repositionBenchedTeammatesInZones(); saveSquadData(); renderSquadBanks(); recalculateEqualTimeMatrix(); updateSidebarHeaderLabels(); drawPitch();
         }
@@ -1386,6 +1378,9 @@
                 var rawSquad = localStorage.getItem('footballSquadTracker');
                 var parsed = rawSquad ? JSON.parse(rawSquad) : [];
                 LedgerState.squad = Array.isArray(parsed) ? parsed.filter(function(p) { return p && (p.team === 'home' || p.team === 'away'); }).map(function(p) {
+                    if (p.team === 'away' && typeof p.name === 'string' && /^Away Sub \d+$/i.test(p.name.trim())) {
+                        p.name = p.name.trim().replace(/^Away /i, '');
+                    }
                     p.yellowCards = Math.min(2, Math.max(0, Number(p.yellowCards) || 0));
                     p.redCards = Math.min(1, Math.max(0, Number(p.redCards) || 0));
                     if (p.yellowCards >= 2) p.redCards = 1;
@@ -1441,4 +1436,4 @@
     </script>
 </body>
 </html>
-<!-- END OF COACHCALC v0.67.7 -->
+<!-- END OF COACHCALC v0.67.8 -->
