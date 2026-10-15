@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.68.2)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.68.3)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -59,7 +59,7 @@
         .timer-icon-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.08); }
         .timer-icon-btn:disabled { opacity: 0.32; cursor: not-allowed; box-shadow: none; }
 
-        /* Condensed Equal Playing Time Popover Dropdown (Next to Transport Controls) */
+        /* Condensed Equal Playing Time Popover Dropdown */
         .fairplay-dropdown, .tactics-dropdown, .settings-dropdown { position: relative; display: inline-block; }
         .fairplay-dropdown summary {
             padding: 6px 10px;
@@ -194,6 +194,17 @@
         .stat-pill-btn.bench-locked { opacity: 0.45; cursor: not-allowed; background: #ebedef; color: #7f8c8d; }
         .stat-minus-btn { background: #fdedec; border: none; border-left: 1px solid #d5dbdb; color: #c0392b; padding: 3px 6px; font-size: 12px; font-weight: 900; cursor: pointer; line-height: 1; }
         .stat-minus-btn:hover { background: #e74c3c; color: #fff; }
+        .delete-player-btn {
+            padding: 3px 7px;
+            font-size: 11px;
+            background: #fdedec;
+            color: #c0392b;
+            border: 1px solid #f5b7b1;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: auto;
+        }
+        .delete-player-btn:hover { background: #e74c3c; color: #fff; border-color: #c0392b; }
         .player-label-click { cursor: pointer; padding: 2px 4px; border-radius: 3px; }
         .player-label-click:hover { background-color: #eaecee; }
         .role-badge-click { font-size: 10px; background: #ebf5fb; border: 1px solid #a9cce3; padding: 1px 4px; border-radius: 4px; color: #2980b9; font-weight: bold; cursor: pointer; }
@@ -279,6 +290,36 @@
         }
         .kit-swatch:hover { transform: scale(1.15); border-color: #2c3e50; }
 
+        /* Sessions Manager Modal Styles */
+        .session-list-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 260px;
+            overflow-y: auto;
+            border: 1px solid #d5dbdb;
+            border-radius: 6px;
+            padding: 8px;
+            background: #f8f9f9;
+            margin-top: 8px;
+        }
+        .session-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            padding: 8px 10px;
+            border-radius: 5px;
+            border-left: 4px solid #2980b9;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            flex-wrap: wrap;
+        }
+        .session-card.active-session {
+            border-left-color: #27ae60;
+            background: #f4fbf7;
+        }
+
         @media (max-width: 1160px) {
             #main-layout { flex-wrap: wrap; }
             .center-workspace { order: 1; flex: 1 1 100%; max-width: 800px; }
@@ -295,7 +336,7 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.68.2)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.68.3)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -356,9 +397,9 @@
                 <div class="row" style="justify-content:space-between;">
                     <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
                         <label style="font-weight:bold; font-size:12px;">Game:</label>
-                        <input type="number" id="matchLengthInput" oninput="recalculateEqualTimeMatrix()" value="70" style="width:46px; padding:3px 4px; text-align:center;" title="Total Game Length (mins)">
+                        <input type="number" id="matchLengthInput" oninput="recalculateEqualTimeMatrix(); saveSquadData();" value="70" style="width:46px; padding:3px 4px; text-align:center;" title="Total Game Length (mins)">
                         <label style="font-weight:bold; font-size:12px;">Half:</label>
-                        <input type="number" id="halfLengthInput" oninput="updateClockDisplayStrings()" value="35" style="width:46px; padding:3px 4px; text-align:center;" title="Half Length (mins)">
+                        <input type="number" id="halfLengthInput" oninput="updateClockDisplayStrings(); saveSquadData();" value="35" style="width:46px; padding:3px 4px; text-align:center;" title="Half Length (mins)">
                     </div>
 
                     <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap; margin-left:auto;">
@@ -384,7 +425,7 @@
                                 </div>
                                 <div class="tactics-menu-divider"></div>
                                 <label for="gkRotationModeSelect" style="font-weight:bold; color:#566573; font-size:11px;">Goalkeeper Rotation Rule:</label>
-                                <select id="gkRotationModeSelect" onchange="recalculateEqualTimeMatrix()" style="width:100%; padding:5px 8px; font-size:11px; font-weight:bold; background:#f8f9fa;">
+                                <select id="gkRotationModeSelect" onchange="recalculateEqualTimeMatrix(); saveSquadData();" style="width:100%; padding:5px 8px; font-size:11px; font-weight:bold; background:#f8f9fa;">
                                     <option value="exclude">Excluding Dedicated GK (GK plays 100%)</option>
                                     <option value="include">Including GK (Everyone rotates in goal)</option>
                                 </select>
@@ -426,6 +467,9 @@
                         <button onclick="injectRetroactiveMinutes(2)" style="padding:5px 7px; font-size:11px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3; font-weight:bold;" title="Add 2 retroactive minutes">+2m</button>
                         <button onclick="injectRetroactiveMinutes(5)" style="padding:5px 7px; font-size:11px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3; font-weight:bold;" title="Add 5 retroactive minutes">+5m</button>
                     </div>
+
+                    <!-- Save / Load Sessions Button -->
+                    <button id="sessionsBtn" onclick="openSessionsModal()" style="background:#e8f8f5; color:#117864; border-color:#a3e4d7; font-weight:bold;" title="Save or load match prep sessions, squads, kits, and tactics">💾 Sessions</button>
 
                     <details id="settingsDropdown" class="settings-dropdown">
                         <summary title="Open Pitch, Audio &amp; Squad Settings">
@@ -582,6 +626,44 @@
         </div>
     </div>
 
+    <!-- Match Sessions Manager Modal (Save, Return, Overwrite, Export/Import) -->
+    <div id="sessionsModal" class="info-modal-overlay" onclick="closeSessionsModal(event)">
+        <div class="info-modal-box" style="max-width:540px;" onclick="event.stopPropagation()">
+            <div class="info-modal-header">
+                <h3>💾 Match Sessions (Save &amp; Return)</h3>
+                <button class="info-modal-close-btn" onclick="hideSessionsModal()">✕</button>
+            </div>
+            <div class="info-modal-body">
+                <p style="margin:0 0 10px 0; font-size:12px; color:#566573;">
+                    Build your squad, formations, tactics, and opposition kit colours during the week. Save named sessions below and return to update or load them anytime.
+                </p>
+
+                <div style="background:#f4f6f7; padding:10px 12px; border-radius:6px; border:1px solid #d5dbdb; margin-bottom:14px;">
+                    <label style="font-size:12px; font-weight:bold; color:#2c3e50; display:block; margin-bottom:5px;">Save Current Setup as New Session:</label>
+                    <div style="display:flex; gap:6px;">
+                        <input type="text" id="newSessionNameInput" placeholder="e.g. Saturday vs Cwmbran (U13)" style="flex:1; min-width:0;">
+                        <button onclick="saveCurrentAsNewSession()" style="background:#27ae60; color:#fff; border:none; font-weight:bold; padding:6px 14px;">💾 Save New</button>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:12px; font-weight:bold; color:#2c3e50; text-transform:uppercase;">📂 Saved Sessions in Browser</span>
+                    <span id="savedSessionsCountLabel" style="font-size:11px; color:#7f8c8d; font-weight:bold;">0 saved</span>
+                </div>
+                <div id="savedSessionsListContainer" class="session-list-box"></div>
+
+                <div style="margin-top:14px; padding-top:12px; border-top:1px dashed #d5dbdb; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <span style="font-size:12px; font-weight:bold; color:#566573;">💻 Switch Device (File Backup):</span>
+                    <div style="display:flex; gap:6px;">
+                        <button onclick="exportCurrentSessionToFile()" style="background:#ebf5fb; color:#1f618d; border-color:#a9cce3; font-weight:bold;" title="Download current session as a .json file to open on another device">⬇️ Export File</button>
+                        <button onclick=" document.getElementById('importSessionFileInput').click()" style="background:#fef9e7; color:#9a7d0a; border-color:#f9e79f; font-weight:bold;" title="Load a session .json file from your computer or tablet">⬆️ Import File</button>
+                        <input type="file" id="importSessionFileInput" accept=".json" style="display:none;" onchange="importSessionFromFile(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="bottom-right-dock-anchor">
         <button id="infoBtn" onclick="openChangelogModalWindow()">ℹ️ View App Info</button>
     </div>
@@ -593,11 +675,11 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.68.2 (Custom Goalkeeper Kit Colour)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.68.3 (Save &amp; Return Match Sessions + Remove Player)</p>
                 <ul>
-                    <li><strong>Goalkeeper Kit Colour Selector:</strong> Added a solid colour selector and quick-pick swatches for each team's Goalkeeper inside the Kit Designer modal, complete with a live GK Counter preview.</li>
-                    <li><strong>Condensed Inline Equal Playing Time:</strong> Located next to the transport controls on the main clock row.</li>
-                    <li><strong>Interactive Mini Shirt Icons &amp; Kit Designer:</strong> Clickable Home and Away shirt icons with 5 patterns and custom colours.</li>
+                    <li><strong>💾 Match Sessions Manager:</strong> Save multiple named pre-match sessions in your browser, return during the week to <code>💾 Update</code> them as team news or opposition kit details arrive, or export/import <code>.json</code> session files across devices.</li>
+                    <li><strong>Remove Individual Players (<code>🗑️</code>):</strong> Added a delete button inside each player's <code>⚡</code> action drawer so you can remove players who drop out before matchday.</li>
+                    <li><strong>Goalkeeper Kit Colour &amp; Inline Equal Playing Time:</strong> Full match-day suite.</li>
                 </ul>
             </div>
         </div>
@@ -661,6 +743,7 @@
         var LedgerState = {
             squad: [], statHistory: [],
             openActionPlayerId: null,
+            activeSessionId: localStorage.getItem('pitchPadActiveSessionId') || null,
             vacatedSlots: { home: [], away: [] },
             homeTeamName: localStorage.getItem('pitchPadHomeTeamName') || 'Home Squad',
             awayTeamName: localStorage.getItem('pitchPadAwayTeamName') || 'Away Squad'
@@ -712,6 +795,273 @@
                 away: [{x:740,y:240,r:'GK'},{x:660,y:65,r:'RB'},{x:650,y:185,r:'RCB'},{x:650,y:295,r:'LCB'},{x:660,y:415,r:'LB'},{x:540,y:65,r:'RM'},{x:550,y:185,r:'RCM'},{x:550,y:295,r:'LCM'},{x:540,y:415,r:'LM'},{x:420,y:170,r:'RS'},{x:420,y:310,r:'LS'}]
             }
         };
+
+        // ==========================================
+        // SESSIONS MANAGER (SAVE / LOAD / EXPORT / IMPORT)
+        // ==========================================
+        function getSavedSessionsList() {
+            try {
+                var raw = localStorage.getItem('pitchPadSavedSessions');
+                var parsed = raw ? JSON.parse(raw) : [];
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveSessionsListToStorage(list) {
+            try {
+                localStorage.setItem('pitchPadSavedSessions', JSON.stringify(list));
+            } catch (e) {}
+        }
+
+        function captureCurrentSessionSnapshot(sessionName, existingId) {
+            return {
+                id: existingId || ('sess_' + Date.now()),
+                name: sessionName,
+                updatedAt: new Date().toLocaleString([], { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
+                homeTeamName: LedgerState.homeTeamName,
+                awayTeamName: LedgerState.awayTeamName,
+                homeFormat: document.getElementById('homeFormatSelect').value || '9v9',
+                awayFormat: document.getElementById('awayFormatSelect').value || '9v9',
+                homeFormation: BoardState.homeFormation,
+                awayFormation: BoardState.awayFormation,
+                matchLength: parseFloat(document.getElementById('matchLengthInput').value) || 70,
+                halfLength: parseFloat(document.getElementById('halfLengthInput').value) || 35,
+                gkRotationMode: document.getElementById('gkRotationModeSelect').value || 'exclude',
+                secondsElapsed: TimerState.secondsElapsed,
+                activeHalf: TimerState.activeHalf,
+                pitchDesign: BoardState.pitchDesign,
+                kits: JSON.parse(JSON.stringify(BoardState.kits)),
+                ball: { x: BoardState.ball.x, y: BoardState.ball.y },
+                drawings: JSON.parse(JSON.stringify(BoardState.drawings)),
+                notes: JSON.parse(JSON.stringify(BoardState.notes)),
+                squad: JSON.parse(JSON.stringify(LedgerState.squad))
+            };
+        }
+
+        function applySessionSnapshot(snap) {
+            if (!snap || !Array.isArray(snap.squad)) return;
+            pauseMatchTimerEngine();
+
+            LedgerState.homeTeamName = snap.homeTeamName || 'Home Squad';
+            LedgerState.awayTeamName = snap.awayTeamName || 'Away Squad';
+            try {
+                localStorage.setItem('pitchPadHomeTeamName', LedgerState.homeTeamName);
+                localStorage.setItem('pitchPadAwayTeamName', LedgerState.awayTeamName);
+            } catch (e) {}
+
+            var hFmt = formatPlaybooks[snap.homeFormat] ? snap.homeFormat : '9v9';
+            var aFmt = formatPlaybooks[snap.awayFormat] ? snap.awayFormat : '9v9';
+            document.getElementById('homeFormatSelect').value = hFmt;
+            document.getElementById('awayFormatSelect').value = aFmt;
+
+            BoardState.homeFormation = snap.homeFormation || formatPlaybooks[hFmt][0];
+            BoardState.awayFormation = snap.awayFormation || formatPlaybooks[aFmt][0];
+            updateFormationOptions('home', true);
+            updateFormationOptions('away', true);
+
+            if (snap.kits && snap.kits.home && snap.kits.away) {
+                BoardState.kits = {
+                    home: Object.assign({}, DEFAULT_KITS.home, snap.kits.home),
+                    away: Object.assign({}, DEFAULT_KITS.away, snap.kits.away)
+                };
+                saveKitData();
+            }
+
+            if (snap.pitchDesign) {
+                BoardState.pitchDesign = snap.pitchDesign;
+                document.getElementById('pitchDesignSelect').value = snap.pitchDesign;
+                localStorage.setItem('pitchPadDesign', snap.pitchDesign);
+            }
+
+            document.getElementById('matchLengthInput').value = snap.matchLength || 70;
+            document.getElementById('halfLengthInput').value = snap.halfLength || 35;
+            document.getElementById('gkRotationModeSelect').value = snap.gkRotationMode || 'exclude';
+
+            TimerState.secondsElapsed = Number(snap.secondsElapsed) || 0;
+            TimerState.activeHalf = Number(snap.activeHalf) || 1;
+            var lbl = document.getElementById('currentHalfLabel');
+            var halfBtn = document.getElementById('nextHalfBtn');
+            if (TimerState.activeHalf >= 2) {
+                lbl.style.backgroundColor = "#fadbd8"; lbl.style.color = "#78281f"; lbl.innerText = "2nd Half";
+                halfBtn.innerText = "⏹"; halfBtn.title = "Full Time: End Game"; halfBtn.style.backgroundColor = "#c0392b"; halfBtn.onclick = finishGameAndCompileReport;
+            } else {
+                lbl.style.backgroundColor = "#ebd4ef"; lbl.style.color = "#6c3483"; lbl.innerText = "1st Half";
+                halfBtn.innerText = "⏭"; halfBtn.title = "Advance to 2nd Half"; halfBtn.style.backgroundColor = "#8e44ad"; halfBtn.onclick = advanceToNextHalf;
+            }
+            document.getElementById('startTimerBtn').disabled = false;
+            document.getElementById('pauseTimerBtn').disabled = true;
+            halfBtn.disabled = false;
+
+            BoardState.ball.x = (snap.ball && Number.isFinite(snap.ball.x)) ? snap.ball.x : PITCH.centerX;
+            BoardState.ball.y = (snap.ball && Number.isFinite(snap.ball.y)) ? snap.ball.y : PITCH.centerY;
+            BoardState.drawings = Array.isArray(snap.drawings) ? JSON.parse(JSON.stringify(snap.drawings)) : [];
+            BoardState.notes = Array.isArray(snap.notes) ? JSON.parse(JSON.stringify(snap.notes)) : [];
+            LedgerState.squad = JSON.parse(JSON.stringify(snap.squad));
+            LedgerState.vacatedSlots = { home: [], away: [] };
+            LedgerState.openActionPlayerId = null;
+
+            if (snap.id) {
+                LedgerState.activeSessionId = snap.id;
+                try { localStorage.setItem('pitchPadActiveSessionId', snap.id); } catch (e) {}
+            }
+
+            repositionBenchedTeammatesInZones();
+            saveSquadData();
+            refreshAllKitBadgesUI();
+            renderSquadBanks();
+            recalculateEqualTimeMatrix();
+            updateSidebarHeaderLabels();
+            updateClockDisplayStrings();
+            drawPitch();
+        }
+
+        function openSessionsModal() {
+            var nameInput = document.getElementById('newSessionNameInput');
+            if (nameInput && !nameInput.value.trim()) {
+                nameInput.value = LedgerState.homeTeamName + ' vs ' + LedgerState.awayTeamName;
+            }
+            renderSavedSessionsList();
+            document.getElementById('sessionsModal').style.display = 'flex';
+        }
+
+        function hideSessionsModal() {
+            document.getElementById('sessionsModal').style.display = 'none';
+        }
+
+        function closeSessionsModal(e) {
+            if (!e || e.target.id === 'sessionsModal') hideSessionsModal();
+        }
+
+        function saveCurrentAsNewSession() {
+            var input = document.getElementById('newSessionNameInput');
+            var name = (input && input.value.trim()) ? input.value.trim() : (LedgerState.homeTeamName + ' vs ' + LedgerState.awayTeamName);
+            var list = getSavedSessionsList();
+            var snap = captureCurrentSessionSnapshot(name, null);
+            list.unshift(snap);
+            saveSessionsListToStorage(list);
+            LedgerState.activeSessionId = snap.id;
+            try { localStorage.setItem('pitchPadActiveSessionId', snap.id); } catch (e) {}
+            if (input) input.value = '';
+            renderSavedSessionsList();
+            showPitchToast("💾 Saved session: \"" + name + "\"");
+        }
+
+        function overwriteSavedSession(sessionId) {
+            var list = getSavedSessionsList();
+            var idx = list.findIndex(function(s) { return s.id === sessionId; });
+            if (idx === -1) return;
+            var existingName = list[idx].name;
+            list[idx] = captureCurrentSessionSnapshot(existingName, sessionId);
+            saveSessionsListToStorage(list);
+            LedgerState.activeSessionId = sessionId;
+            try { localStorage.setItem('pitchPadActiveSessionId', sessionId); } catch (e) {}
+            renderSavedSessionsList();
+            showPitchToast("💾 Updated session: \"" + existingName + "\"");
+        }
+
+        function loadSavedSessionById(sessionId) {
+            var list = getSavedSessionsList();
+            var found = list.find(function(s) { return s.id === sessionId; });
+            if (!found) return;
+            applySessionSnapshot(found);
+            renderSavedSessionsList();
+            hideSessionsModal();
+            showPitchToast("📂 Loaded session: \"" + found.name + "\"");
+        }
+
+        function deleteSavedSessionById(sessionId) {
+            var list = getSavedSessionsList().filter(function(s) { return s.id !== sessionId; });
+            saveSessionsListToStorage(list);
+            if (LedgerState.activeSessionId === sessionId) {
+                LedgerState.activeSessionId = null;
+                try { localStorage.removeItem('pitchPadActiveSessionId'); } catch (e) {}
+            }
+            renderSavedSessionsList();
+        }
+
+        function renderSavedSessionsList() {
+            var container = document.getElementById('savedSessionsListContainer');
+            var countLbl = document.getElementById('savedSessionsCountLabel');
+            if (!container) return;
+            var list = getSavedSessionsList();
+            if (countLbl) countLbl.innerText = list.length + ' saved';
+
+            if (list.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:18px; color:#7f8c8d; font-size:12px;">No saved sessions yet. Enter a name above and click <strong>💾 Save New</strong> to store your team setup for the weekend!</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            list.forEach(function(sess) {
+                var isCurrent = (LedgerState.activeSessionId === sess.id);
+                var hCount = Array.isArray(sess.squad) ? sess.squad.filter(function(p) { return p.team === 'home'; }).length : 0;
+                var aCount = Array.isArray(sess.squad) ? sess.squad.filter(function(p) { return p.team === 'away'; }).length : 0;
+
+                var card = document.createElement('div');
+                card.className = 'session-card' + (isCurrent ? ' active-session' : '');
+                card.innerHTML =
+                    '<div style="display:flex; flex-direction:column; gap:2px; min-width:180px; flex:1;">' +
+                        '<div style="font-weight:bold; font-size:13px; color:#2c3e50; display:flex; align-items:center; gap:6px;">' +
+                            '<span>' + sess.name + '</span>' +
+                            (isCurrent ? '<span style="font-size:10px; background:#27ae60; color:#fff; padding:1px 5px; border-radius:3px;">ACTIVE</span>' : '') +
+                        '</div>' +
+                        '<div style="font-size:11px; color:#7f8c8d;">' +
+                            (sess.homeFormat || '9v9') + ' • Home (' + hCount + ') vs Away (' + aCount + ') • Saved: ' + (sess.updatedAt || '') +
+                        '</div>' +
+                    '</div>' +
+                    '<div style="display:flex; gap:4px; align-items:center;">' +
+                        '<button onclick="loadSavedSessionById(\'' + sess.id + '\')" style="background:#ebf5fb; color:#1f618d; border-color:#a9cce3; font-weight:bold; padding:4px 8px; font-size:11px;" title="Load this session onto the pitch">📂 Load</button>' +
+                        '<button onclick="overwriteSavedSession(\'' + sess.id + '\')" style="background:#e8f8f5; color:#117864; border-color:#a3e4d7; font-weight:bold; padding:4px 8px; font-size:11px;" title="Overwrite this session with your current pitch &amp; squad changes">💾 Update</button>' +
+                        '<button onclick="deleteSavedSessionById(\'' + sess.id + '\')" style="background:#fdedec; color:#c0392b; border-color:#f5b7b1; font-weight:bold; padding:4px 7px; font-size:11px;" title="Delete saved session">🗑️</button>' +
+                    '</div>';
+                container.appendChild(card);
+            });
+        }
+
+        function exportCurrentSessionToFile() {
+            var defaultName = (LedgerState.homeTeamName + '_vs_' + LedgerState.awayTeamName).replace(/[^a-z0-9_-]/gi, '_');
+            var snap = captureCurrentSessionSnapshot(LedgerState.homeTeamName + ' vs ' + LedgerState.awayTeamName, LedgerState.activeSessionId);
+            var blob = new Blob([JSON.stringify(snap, null, 2)], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'CoachCalc_' + defaultName + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showPitchToast("⬇️ Session file downloaded!");
+        }
+
+        function importSessionFromFile(e) {
+            var file = e.target.files && e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    var parsed = JSON.parse(evt.target.result);
+                    if (!parsed || !Array.isArray(parsed.squad)) {
+                        showPitchToast("⚠️ Invalid CoachCalc session file.");
+                        return;
+                    }
+                    parsed.id = 'sess_' + Date.now();
+                    parsed.updatedAt = new Date().toLocaleString([], { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+                    var list = getSavedSessionsList();
+                    list.unshift(parsed);
+                    saveSessionsListToStorage(list);
+                    applySessionSnapshot(parsed);
+                    renderSavedSessionsList();
+                    hideSessionsModal();
+                    showPitchToast("⬆️ Imported session: \"" + (parsed.name || file.name) + "\"");
+                } catch (err) {
+                    showPitchToast("⚠️ Could not read session file.");
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        }
 
         // ==========================================
         // CUSTOM KIT & SHIRT DESIGNER ENGINE
@@ -1041,6 +1391,11 @@
                 localStorage.setItem('footballSquadTracker', JSON.stringify(LedgerState.squad));
                 localStorage.setItem('pitchPadBallX', BoardState.ball.x);
                 localStorage.setItem('pitchPadBallY', BoardState.ball.y);
+                localStorage.setItem('pitchPadDrawings', JSON.stringify(BoardState.drawings));
+                localStorage.setItem('pitchPadNotes', JSON.stringify(BoardState.notes));
+                localStorage.setItem('pitchPadMatchLength', document.getElementById('matchLengthInput').value || '70');
+                localStorage.setItem('pitchPadHalfLength', document.getElementById('halfLengthInput').value || '35');
+                localStorage.setItem('pitchPadGkRotation', document.getElementById('gkRotationModeSelect').value || 'exclude');
             } catch (e) {}
         }
 
@@ -1292,6 +1647,23 @@
             renderSquadBanks();
         }
 
+        function removePlayerFromSquad(playerId) {
+            var p = LedgerState.squad.find(function(x) { return x.id === playerId; });
+            if (!p) return;
+            if (p.onPitch) {
+                recordVacatedSlot(p.team, p.x, p.y, p.role);
+            }
+            LedgerState.squad = LedgerState.squad.filter(function(x) { return x.id !== playerId; });
+            if (LedgerState.openActionPlayerId === playerId) LedgerState.openActionPlayerId = null;
+            repositionBenchedTeammatesInZones();
+            saveSquadData();
+            renderSquadBanks();
+            recalculateEqualTimeMatrix();
+            updateSidebarHeaderLabels();
+            drawPitch();
+            showPitchToast("🗑️ Removed " + p.name + " from squad.");
+        }
+
         function renderSquadBanks() {
             var homeActive = document.getElementById('home-active-list'), homeBench = document.getElementById('home-bench-list');
             var awayActive = document.getElementById('away-active-list'), awayBench = document.getElementById('away-bench-list');
@@ -1336,15 +1708,16 @@
                         '<div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">' +
                             '<span data-player-time="' + player.id + '" style="font-size:11px; color:#566573; font-weight:bold;">⏱️ ' + formatSecondsToMinutes(player.timePlayed) + '</span>' +
                             actBtn +
-                            '<button class="player-action-toggle-btn' + (isOpen ? ' open' : '') + '" onclick="togglePlayerActionMenu(' + player.id + ')" title="Open player match actions (Goal, Assist, Yellow/Red Cards)">⚡ ' + (isOpen ? '▴' : '▾') + '</button>' +
+                            '<button class="player-action-toggle-btn' + (isOpen ? ' open' : '') + '" onclick="togglePlayerActionMenu(' + player.id + ')" title="Open player match actions &amp; remove option">⚡ ' + (isOpen ? '▴' : '▾') + '</button>' +
                         '</div>' +
                     '</div>' +
                     '<div class="player-action-drawer' + (isOpen ? ' open' : '') + '">' +
-                        '<div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;">' +
+                        '<div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap; width:100%;">' +
                             '<div class="stat-group"><button class="stat-pill-btn' + lockClass + '" onclick="handleStatClick(event,' + player.id + ',\'goals\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'goals\')" title="' + goalBtnTitle + '">' + (canScore ? '⚽' : '🔒') + ' G:' + g + '</button>' + gMin + '</div>' +
                             '<div class="stat-group"><button class="stat-pill-btn' + lockClass + '" onclick="handleStatClick(event,' + player.id + ',\'assists\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'assists\')" title="' + assistBtnTitle + '">' + (canScore ? '👟' : '🔒') + ' A:' + a + '</button>' + aMin + '</div>' +
                             '<div class="stat-group"><button class="stat-pill-btn" onclick="handleStatClick(event,' + player.id + ',\'yellowCards\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'yellowCards\')" title="Click: +1 Yellow Card">🟨 Y:' + y + '</button>' + yMin + '</div>' +
                             '<div class="stat-group"><button class="stat-pill-btn" onclick="handleStatClick(event,' + player.id + ',\'redCards\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'redCards\')" title="Click: +1 Red Card">🟥 R:' + r + '</button>' + rMin + '</div>' +
+                            '<button class="delete-player-btn" onclick="removePlayerFromSquad(' + player.id + ')" title="Remove player from squad">🗑️</button>' +
                         '</div>' +
                     '</div>';
 
@@ -1575,10 +1948,15 @@
             var halfBtn = document.getElementById('nextHalfBtn');
             halfBtn.disabled = false; halfBtn.innerText = "⏭"; halfBtn.title = "Advance to 2nd Half"; halfBtn.style.backgroundColor = "#8e44ad"; halfBtn.onclick = advanceToNextHalf;
             LedgerState.homeTeamName = 'Home Squad'; LedgerState.awayTeamName = 'Away Squad';
+            LedgerState.activeSessionId = null;
             BoardState.kits.home = { pattern: DEFAULT_KITS.home.pattern, primary: DEFAULT_KITS.home.primary, secondary: DEFAULT_KITS.home.secondary, gkColor: DEFAULT_KITS.home.gkColor };
             BoardState.kits.away = { pattern: DEFAULT_KITS.away.pattern, primary: DEFAULT_KITS.away.primary, secondary: DEFAULT_KITS.away.secondary, gkColor: DEFAULT_KITS.away.gkColor };
             saveKitData();
-            try { localStorage.setItem('pitchPadHomeTeamName', 'Home Squad'); localStorage.setItem('pitchPadAwayTeamName', 'Away Squad'); } catch (e) {}
+            try {
+                localStorage.setItem('pitchPadHomeTeamName', 'Home Squad');
+                localStorage.setItem('pitchPadAwayTeamName', 'Away Squad');
+                localStorage.removeItem('pitchPadActiveSessionId');
+            } catch (e) {}
             BoardState.drawings = []; BoardState.notes = [];
             document.getElementById('report-ledger-panel').style.display = 'none';
             resetDefaultSquads(); updateClockDisplayStrings();
@@ -1862,11 +2240,11 @@
 
         function undoLastDrawing() {
             closeTacticsDropdown();
-            if (BoardState.drawings.length > 0) { BoardState.drawings.pop(); drawPitch(); return; }
-            if (BoardState.notes.length > 0) { BoardState.notes.pop(); drawPitch(); }
+            if (BoardState.drawings.length > 0) { BoardState.drawings.pop(); saveSquadData(); drawPitch(); return; }
+            if (BoardState.notes.length > 0) { BoardState.notes.pop(); saveSquadData(); drawPitch(); }
         }
 
-        function clearDrawings() { closeTacticsDropdown(); BoardState.drawings = []; BoardState.notes = []; drawPitch(); }
+        function clearDrawings() { closeTacticsDropdown(); BoardState.drawings = []; BoardState.notes = []; saveSquadData(); drawPitch(); }
 
         function updateFormationOptions(team, skipAutoFill) {
             var fmtNode = document.getElementById(team === 'home' ? 'homeFormatSelect' : 'awayFormatSelect');
@@ -1924,7 +2302,7 @@
                 BoardState.isDragging = true; BoardState.arrowStart = { x: c.x, y: c.y }; BoardState.tempArrowEnd = { x: c.x, y: c.y };
             } else if (BoardState.mode === 'text') {
                 var txt = prompt("Enter Note text:");
-                if (txt && txt.trim() !== "") { BoardState.notes.push({ x: c.x, y: c.y, text: txt.trim() }); drawPitch(); }
+                if (txt && txt.trim() !== "") { BoardState.notes.push({ x: c.x, y: c.y, text: txt.trim() }); saveSquadData(); drawPitch(); }
             }
         }
 
@@ -1951,6 +2329,7 @@
             if (BoardState.mode.indexOf('draw') === 0 && BoardState.arrowStart && BoardState.tempArrowEnd) {
                 if (Math.hypot(BoardState.tempArrowEnd.x - BoardState.arrowStart.x, BoardState.tempArrowEnd.y - BoardState.arrowStart.y) > 6) {
                     BoardState.drawings.push({ start: { x: BoardState.arrowStart.x, y: BoardState.arrowStart.y }, end: { x: BoardState.tempArrowEnd.x, y: BoardState.tempArrowEnd.y }, style: BoardState.mode === 'draw-dashed' ? 'dashed' : 'solid' });
+                    saveSquadData();
                 }
             } else if (BoardState.mode === 'move') {
                 if (BoardState.ball.isDragging) {
@@ -1958,6 +2337,8 @@
                     if (BoardState.snapping && Math.hypot(BoardState.ball.x - PITCH.centerX, BoardState.ball.y - PITCH.centerY) < 22) {
                         BoardState.ball.x = PITCH.centerX; BoardState.ball.y = PITCH.centerY;
                     }
+                    saveSquadData();
+                } else if (BoardState.selectedNote) {
                     saveSquadData();
                 } else if (BoardState.selectedPlayer) {
                     var sp = BoardState.selectedPlayer, boxes = getBenchZoneBoxes(), box = sp.team === 'home' ? boxes.home : boxes.away;
@@ -2033,6 +2414,19 @@
                 }) : [];
             } catch (e) { LedgerState.squad = []; }
 
+            try {
+                var rawDrawings = localStorage.getItem('pitchPadDrawings');
+                var rawNotes = localStorage.getItem('pitchPadNotes');
+                if (rawDrawings) BoardState.drawings = JSON.parse(rawDrawings) || [];
+                if (rawNotes) BoardState.notes = JSON.parse(rawNotes) || [];
+                var savedML = localStorage.getItem('pitchPadMatchLength');
+                var savedHL = localStorage.getItem('pitchPadHalfLength');
+                var savedGK = localStorage.getItem('pitchPadGkRotation');
+                if (savedML) document.getElementById('matchLengthInput').value = savedML;
+                if (savedHL) document.getElementById('halfLengthInput').value = savedHL;
+                if (savedGK) document.getElementById('gkRotationModeSelect').value = savedGK;
+            } catch (e) {}
+
             var bx = parseFloat(localStorage.getItem('pitchPadBallX')), by = parseFloat(localStorage.getItem('pitchPadBallY'));
             if (Number.isFinite(bx) && Number.isFinite(by)) {
                 if (Math.abs(bx - 400) < 1 && Math.abs(by - 240) < 1) { BoardState.ball.x = PITCH.centerX; BoardState.ball.y = PITCH.centerY; }
@@ -2077,6 +2471,7 @@
                 closeSettingsDropdown();
                 closeFairPlayDropdown();
                 hideKitDesignerModal();
+                hideSessionsModal();
                 if (BoardState.mode !== 'move') setMode('move');
             }
         });
@@ -2093,4 +2488,4 @@
     </script>
 </body>
 </html>
-<!-- END OF COACHCALC v0.68.2 -->
+<!-- END OF COACHCALC v0.68.3 -->
