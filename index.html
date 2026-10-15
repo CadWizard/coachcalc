@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.5)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.6)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -18,7 +18,7 @@
         h1 { color: #fff; font-size: clamp(32px, 4vw, 52px); font-weight: 900; letter-spacing: 1.5px; line-height: 1.2; text-shadow: 0 6px 14px rgba(0,0,0,0.9), 0 3px 6px rgba(0,0,0,0.7); margin: 8px 0 4px 0; text-align: center; }
         h2.subtitle { color: #e2e8f0; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-size: 14px; margin: 0 0 18px 0; font-weight: normal; text-align: center; }
         #main-layout { display: flex; gap: 16px; align-items: flex-start; max-width: 1480px; width: 100%; justify-content: center; }
-        .sidebar { flex: 0 1 300px; min-width: 260px; background: #fff; padding: 14px; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 10px; }
+        .sidebar { flex: 0 1 305px; min-width: 265px; background: #fff; padding: 14px; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 10px; }
         .sidebar h3 { display: flex; align-items: center; margin: 0 0 2px 0; color: #2c3e50; font-size: 17px; }
         .sidebar h4 { margin: 5px 0 2px 0; font-size: 12px; text-transform: uppercase; color: #7f8c8d; border-bottom: 1px solid #eee; padding-bottom: 2px; display: flex; justify-content: space-between; align-items: center; }
         .kit-badge { display: inline-block; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.15); margin-right: 8px; flex-shrink: 0; }
@@ -34,167 +34,47 @@
         .undo-stat-btn { background: rgba(255,255,255,0.12); color: #ecf0f1; border: 1px solid rgba(255,255,255,0.25); font-size: 11px; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .undo-stat-btn:hover:not(:disabled) { background: rgba(231, 76, 60, 0.85); border-color: #e74c3c; color: #fff; }
         .undo-stat-btn:disabled { opacity: 0.4; cursor: default; }
-
-        /* Compact Symbol Timer Transport Buttons */
-        .timer-icon-btn {
-            width: 36px; height: 34px; padding: 0;
-            justify-content: center; align-items: center;
-            font-size: 15px; font-weight: bold; border: none; border-radius: 5px;
-            color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.18);
-            transition: transform 0.1s ease, opacity 0.2s ease;
-        }
+        .timer-icon-btn { width: 36px; height: 34px; padding: 0; justify-content: center; align-items: center; font-size: 15px; font-weight: bold; border: none; border-radius: 5px; color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.18); transition: transform 0.1s ease, opacity 0.2s ease; }
         .timer-icon-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.08); }
-        .timer-icon-btn:active:not(:disabled) { transform: translateY(0); }
         .timer-icon-btn:disabled { opacity: 0.32; cursor: not-allowed; box-shadow: none; }
-
-        /* Collapsible Equal Play Dropdown */
-        details.fairplay-matrix-box {
-            background: #f4f6f7;
-            border-left: 5px solid #8e44ad;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #2c3e50;
-            overflow: hidden;
-        }
-        details.fairplay-matrix-box summary {
-            padding: 6px 12px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-            list-style: none;
-            transition: background-color 0.15s ease;
-        }
+        details.fairplay-matrix-box { background: #f4f6f7; border-left: 5px solid #8e44ad; border-radius: 4px; font-size: 12px; color: #2c3e50; overflow: hidden; }
+        details.fairplay-matrix-box summary { padding: 6px 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; list-style: none; }
         details.fairplay-matrix-box summary::-webkit-details-marker { display: none; }
         details.fairplay-matrix-box summary:hover { background: #eaecee; }
-        .fairplay-summary-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: monospace;
-            font-size: 12px;
-            color: #6c3483;
-        }
-        .fairplay-chevron {
-            display: inline-block;
-            font-size: 11px;
-            transition: transform 0.2s ease;
-        }
-        details.fairplay-matrix-box[open] .fairplay-chevron {
-            transform: rotate(180deg);
-        }
-        .fairplay-dropdown-body {
-            padding: 8px 12px;
-            border-top: 1px dashed #d5dbdb;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            background: #f8f9f9;
-        }
+        .fairplay-summary-right { display: flex; align-items: center; gap: 8px; font-family: monospace; font-size: 12px; color: #6c3483; }
+        .fairplay-chevron { display: inline-block; font-size: 11px; transition: transform 0.2s ease; }
+        details.fairplay-matrix-box[open] .fairplay-chevron { transform: rotate(180deg); }
+        .fairplay-dropdown-body { padding: 8px 12px; border-top: 1px dashed #d5dbdb; display: flex; flex-direction: column; gap: 6px; background: #f8f9f9; }
+        .tactics-dropdown, .settings-dropdown { position: relative; display: inline-block; }
+        .tactics-dropdown summary, .settings-dropdown summary { padding: 6px 11px; border-radius: 4px; border: 1px solid #2980b9; background: #ebf5fb; color: #1f618d; font-size: 12px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; list-style: none; }
+        .settings-dropdown summary { border-color: #bdc3c7; background: #f4f6f7; color: #2c3e50; }
+        .tactics-dropdown summary::-webkit-details-marker, .settings-dropdown summary::-webkit-details-marker { display: none; }
+        .tactics-dropdown summary.active-draw-mode { background-color: #27ae60 !important; color: #fff !important; border-color: #1e8449 !important; }
+        .tactics-dropdown-menu { position: absolute; top: calc(100% + 6px); left: 0; min-width: 215px; background: #fff; border: 1px solid #bdc3c7; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.28); padding: 6px; display: flex; flex-direction: column; gap: 4px; z-index: 200; }
+        .settings-dropdown-menu { position: absolute; top: calc(100% + 6px); right: 0; min-width: 255px; background: #fff; border: 1px solid #bdc3c7; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.28); padding: 10px; display: flex; flex-direction: column; gap: 8px; z-index: 200; }
+        .tactics-dropdown-menu button { width: 100%; justify-content: flex-start; background: #f8f9fa; border: 1px solid #e5e8e8; font-size: 12px; font-weight: bold; color: #2c3e50; padding: 7px 10px; }
+        .tactics-dropdown-menu button:hover { background: #eaf2f8; border-color: #a9cce3; }
+        .tactics-menu-divider { height: 1px; background: #e5e8e8; margin: 3px 0; }
+        .settings-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #2c3e50; font-weight: bold; }
 
-        /* Tactics & Settings Popover Dropdowns */
-        .tactics-dropdown, .settings-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .tactics-dropdown summary, .settings-dropdown summary {
-            padding: 6px 11px;
-            border-radius: 4px;
-            border: 1px solid #2980b9;
-            background: #ebf5fb;
-            color: #1f618d;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            list-style: none;
-            touch-action: manipulation;
-        }
-        .settings-dropdown summary {
-            border-color: #bdc3c7;
-            background: #f4f6f7;
-            color: #2c3e50;
-        }
-        .tactics-dropdown summary::-webkit-details-marker,
-        .settings-dropdown summary::-webkit-details-marker { display: none; }
-        .tactics-dropdown summary.active-draw-mode {
-            background-color: #27ae60 !important;
-            color: #fff !important;
-            border-color: #1e8449 !important;
-        }
-        .tactics-dropdown-menu {
-            position: absolute;
-            top: calc(100% + 6px);
-            left: 0;
-            min-width: 215px;
-            background: #ffffff;
-            border: 1px solid #bdc3c7;
-            border-radius: 6px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.28);
-            padding: 6px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            z-index: 200;
-        }
-        .settings-dropdown-menu {
-            position: absolute;
-            top: calc(100% + 6px);
-            right: 0;
-            min-width: 255px;
-            background: #ffffff;
-            border: 1px solid #bdc3c7;
-            border-radius: 6px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.28);
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 200;
-        }
-        .tactics-dropdown-menu button {
-            width: 100%;
-            justify-content: flex-start;
-            background: #f8f9fa;
-            border: 1px solid #e5e8e8;
-            font-size: 12px;
-            font-weight: bold;
-            color: #2c3e50;
-            padding: 7px 10px;
-        }
-        .tactics-dropdown-menu button:hover {
-            background: #eaf2f8;
-            border-color: #a9cce3;
-        }
-        .tactics-menu-divider {
-            height: 1px;
-            background: #e5e8e8;
-            margin: 3px 0;
-        }
-        .settings-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: #2c3e50;
-            font-weight: bold;
-        }
-
-        .squad-list-container { display: flex; flex-direction: column; gap: 6px; max-height: 250px; overflow-y: auto; background: #fcfcfc; padding: 4px; border: 1px dashed #ddd; border-radius: 4px; }
-        .squad-item { display: flex; flex-direction: column; padding: 6px 8px; background: #f8f9fa; border-radius: 4px; border-left: 5px solid #ccc; font-size: 13px; gap: 5px; }
+        /* Clean Player Rows & Per-Player Action Dropdown Drawer */
+        .squad-list-container { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; background: #fcfcfc; padding: 4px; border: 1px dashed #ddd; border-radius: 4px; }
+        .squad-item { display: flex; flex-direction: column; padding: 6px 8px; background: #f8f9fa; border-radius: 4px; border-left: 5px solid #ccc; font-size: 13px; gap: 4px; }
         .squad-item.sent-off-card { background: #fdf2e9; border-left-color: #c0392b !important; }
         .squad-item-top { display: flex; justify-content: space-between; align-items: center; gap: 4px; }
-        .squad-item-bottom { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
-        .stat-group { display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; border: 1px solid #d5dbdb; background: #f2f4f4; }
-        .stat-pill-btn { background: transparent; border: none; padding: 2px 5px; font-size: 11px; cursor: pointer; font-weight: bold; color: #2c3e50; }
-        .stat-pill-btn:hover { background: #e5e8e8; }
-        .stat-minus-btn { background: #fdedec; border: none; border-left: 1px solid #d5dbdb; color: #c0392b; padding: 2px 5px; font-size: 11px; font-weight: 900; cursor: pointer; line-height: 1; }
+        .mini-stat-summary { display: inline-flex; gap: 3px; align-items: center; font-size: 11px; font-weight: bold; color: #2c3e50; }
+        .mini-stat-badge { background: #eaecee; padding: 1px 4px; border-radius: 3px; font-size: 10px; }
+        .player-action-toggle-btn { padding: 3px 6px; font-size: 11px; background: #f4f6f7; color: #2c3e50; border: 1px solid #bdc3c7; font-weight: bold; border-radius: 4px; }
+        .player-action-toggle-btn.open { background: #2c3e50; color: #fff; border-color: #1a242f; }
+        .player-action-drawer { display: none; padding-top: 6px; margin-top: 2px; border-top: 1px dashed #d5dbdb; gap: 5px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+        .player-action-drawer.open { display: flex; }
+        .stat-group { display: inline-flex; align-items: center; border-radius: 4px; overflow: hidden; border: 1px solid #d5dbdb; background: #f2f4f4; }
+        .stat-pill-btn { background: transparent; border: none; padding: 3px 6px; font-size: 12px; cursor: pointer; font-weight: bold; color: #2c3e50; }
+        .stat-pill-btn:hover:not(:disabled) { background: #e5e8e8; }
+        .stat-pill-btn:disabled { opacity: 0.42; cursor: not-allowed; }
+        .stat-minus-btn { background: #fdedec; border: none; border-left: 1px solid #d5dbdb; color: #c0392b; padding: 3px 6px; font-size: 12px; font-weight: 900; cursor: pointer; line-height: 1; }
         .stat-minus-btn:hover { background: #e74c3c; color: #fff; }
-        .player-label-click { cursor: pointer; padding: 2px 4px; border-radius: 3px; transition: background 0.2s ease; }
+        .player-label-click { cursor: pointer; padding: 2px 4px; border-radius: 3px; }
         .player-label-click:hover { background-color: #eaecee; }
         .role-badge-click { font-size: 10px; background: #ebf5fb; border: 1px solid #a9cce3; padding: 1px 4px; border-radius: 4px; color: #2980b9; font-weight: bold; cursor: pointer; }
         button { padding: 6px 11px; border-radius: 4px; border: 1px solid #ccc; background: #f8f9fa; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; touch-action: manipulation; }
@@ -230,7 +110,7 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.5)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.6)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -260,7 +140,6 @@
 
         <div class="center-workspace" id="centerWorkspaceFrame">
             <div id="timer-panel">
-                <!-- 1. Live Match Scoreboard Banner -->
                 <div class="scoreboard-banner">
                     <div class="scoreboard-center">
                         <span class="score-team-label">
@@ -278,7 +157,6 @@
                     <button id="undoLastStatBtn" class="undo-stat-btn" onclick="undoLastStatAction()" disabled title="Undo the most recent Goal, Assist, or Card">↩️ Undo Last Stat/Card</button>
                 </div>
 
-                <!-- 2. Unified Clock & Symbol Transport Bar -->
                 <div class="row" style="justify-content:space-between;">
                     <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                         <label style="font-weight:bold; font-size:13px;">Game Length:</label>
@@ -297,7 +175,6 @@
                     </div>
                 </div>
 
-                <!-- 3. Collapsible Equal Play Guide Dropdown -->
                 <details class="fairplay-matrix-box">
                     <summary title="Click to expand or hide Equal Play Guide settings">
                         <span>🎯 Equal Play Guide (Target per Player)</span>
@@ -321,11 +198,9 @@
                     </div>
                 </details>
 
-                <!-- 4. Unified Action Toolbar: Move, Tactics Dropdown, View Toggle, Catch-Up & Settings Dropdown -->
                 <div class="row" style="border-top:1px dashed #ddd; padding-top:8px; margin-top:2px; align-items:center;">
                     <button id="moveBtn" class="active" onclick="setMode('move')">🏃 Move</button>
 
-                    <!-- Tactics & Drawing Dropdown Menu -->
                     <details id="tacticsDropdown" class="tactics-dropdown">
                         <summary id="tacticsDropdownSummary" title="Open tactical drawing &amp; annotation tools">
                             <span id="tacticsDropdownLabel">✏️ Tactics &amp; Drawing</span>
@@ -351,7 +226,6 @@
                         <button onclick="injectRetroactiveMinutes(5)" style="padding:5px 7px; font-size:11px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3; font-weight:bold;" title="Add 5 retroactive minutes">+5m</button>
                     </div>
 
-                    <!-- Settings Dropdown Menu (Grass, Whistle, Snapping, Reset Squads) -->
                     <details id="settingsDropdown" class="settings-dropdown">
                         <summary title="Open Pitch, Audio &amp; Squad Settings">
                             <span>⚙️ Settings</span>
@@ -444,10 +318,11 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.5 (+30s Retroactive Catch-Up)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.6 (10% Larger Counters &amp; Player Action Dropdowns)</p>
                 <ul>
-                    <li><strong>+30 Seconds Catch-Up Button:</strong> Added a <code>+30s</code> button alongside <code>+1m</code>, <code>+2m</code>, and <code>+5m</code> for finer retroactive clock and player time adjustments.</li>
-                    <li><strong>Unified Settings Menu &amp; Single-Panel Header:</strong> Clean match-day dashboard with collapsible Equal Play Guide, Tactics dropdown, and Settings popover.</li>
+                    <li><strong>10% Larger Player Counters:</strong> Increased player pitch tokens from <code>15px</code> to <code>16.5px</code> radius (<code>33px</code> diameter) with larger labels and hit targets.</li>
+                    <li><strong>Player Action Dropdowns (<code>⚡ ▾</code>):</strong> Tucked Goals, Assists, Yellow Cards, and Red Cards into a per-player expandable drawer so squad lists stay clean.</li>
+                    <li><strong>On-Pitch Goal/Assist Rule &amp; +30s Catch-Up:</strong> Benched substitutes cannot accrue new goals or assists while on the bench, and <code>+30s</code> catch-up is available in the toolbar.</li>
                 </ul>
             </div>
         </div>
@@ -459,21 +334,22 @@
         var toastTimeoutId = null;
         var whistleAudioCtx = null;
 
-        // Exact Metre-to-Pixel Scaling: 105m = 760px (1m = 7.23809524px)
+        // 10% Larger Player Counter Radius (15px -> 16.5px)
+        var PLAYER_RADIUS = 16.5;
+        var PLAYER_HIT_RADIUS = 18;
+
         var METRE_SCALE = 760 / 105;
         var PITCH = {
-            left: 20,
-            top: 14,
-            lengthPx: 760,                              // 105.00m
-            widthPx: 68 * METRE_SCALE,                  // 68.00m  -> 492.19px
-            sixYardDepthPx: 5.49 * METRE_SCALE,         // 5.49m   -> 39.74px
-            sixYardWidthPx: 18.29 * METRE_SCALE,        // 18.29m  -> 132.38px
-            eighteenYardDepthPx: 16.46 * METRE_SCALE,   // 16.46m  -> 119.14px
-            eighteenYardWidthPx: 40.23 * METRE_SCALE,   // 40.23m  -> 291.19px
-            penaltySpotDistPx: 11 * METRE_SCALE,        // 11.00m  -> 79.62px
-            penaltyArcRadiusPx: 9.1 * METRE_SCALE,      // 9.10m   -> 65.87px
-            centerCircleRadiusPx: 9.15 * METRE_SCALE,   // 9.15m   -> 66.23px
-            goalWidthPx: 7.32 * METRE_SCALE,            // 7.32m   -> 52.98px
+            left: 20, top: 14, lengthPx: 760,
+            widthPx: 68 * METRE_SCALE,
+            sixYardDepthPx: 5.49 * METRE_SCALE,
+            sixYardWidthPx: 18.29 * METRE_SCALE,
+            eighteenYardDepthPx: 16.46 * METRE_SCALE,
+            eighteenYardWidthPx: 40.23 * METRE_SCALE,
+            penaltySpotDistPx: 11 * METRE_SCALE,
+            penaltyArcRadiusPx: 9.1 * METRE_SCALE,
+            centerCircleRadiusPx: 9.15 * METRE_SCALE,
+            goalWidthPx: 7.32 * METRE_SCALE,
             penaltyArcHalfAngle: Math.acos((16.46 - 11) / 9.1)
         };
         PITCH.right = PITCH.left + PITCH.lengthPx;
@@ -481,19 +357,10 @@
         PITCH.centerX = PITCH.left + PITCH.lengthPx / 2;
         PITCH.centerY = PITCH.top + PITCH.widthPx / 2;
 
-        var TimerState = {
-            intervalId: null,
-            isRunning: false,
-            secondsElapsed: 0,
-            activeHalf: 1,
-            whistleEnabled: true,
-            halfWhistleBlown: false,
-            fullWhistleBlown: false
-        };
-
+        var TimerState = { intervalId: null, isRunning: false, secondsElapsed: 0, activeHalf: 1, whistleEnabled: true, halfWhistleBlown: false, fullWhistleBlown: false };
         var LedgerState = {
-            squad: [],
-            statHistory: [],
+            squad: [], statHistory: [],
+            openActionPlayerId: null,
             homeTeamName: localStorage.getItem('pitchPadHomeTeamName') || 'Home Squad',
             awayTeamName: localStorage.getItem('pitchPadAwayTeamName') || 'Away Squad'
         };
@@ -541,16 +408,11 @@
             }
         };
 
-        // ==========================================
-        // REFEREE WHISTLE SYNTHESIZER (WEB AUDIO API)
-        // ==========================================
         function getOrCreateAudioContext() {
             var AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (!AudioCtx) return null;
             if (!whistleAudioCtx) whistleAudioCtx = new AudioCtx();
-            if (whistleAudioCtx.state === 'suspended') {
-                try { whistleAudioCtx.resume(); } catch (e) {}
-            }
+            if (whistleAudioCtx.state === 'suspended') { try { whistleAudioCtx.resume(); } catch (e) {} }
             return whistleAudioCtx;
         }
 
@@ -561,38 +423,18 @@
             masterGain.gain.setValueAtTime(0.32, startTime + Math.max(0.03, duration - 0.045));
             masterGain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
             masterGain.connect(ac.destination);
-
-            var osc1 = ac.createOscillator();
-            var osc2 = ac.createOscillator();
-            osc1.type = 'sine';
-            osc2.type = 'triangle';
-            osc1.frequency.setValueAtTime(2820, startTime);
-            osc2.frequency.setValueAtTime(2985, startTime);
-
-            var peaLfo = ac.createOscillator();
-            var peaDepth = ac.createGain();
-            peaLfo.type = 'sine';
-            peaLfo.frequency.setValueAtTime(34, startTime);
+            var osc1 = ac.createOscillator(), osc2 = ac.createOscillator();
+            osc1.type = 'sine'; osc2.type = 'triangle';
+            osc1.frequency.setValueAtTime(2820, startTime); osc2.frequency.setValueAtTime(2985, startTime);
+            var peaLfo = ac.createOscillator(), peaDepth = ac.createGain();
+            peaLfo.type = 'sine'; peaLfo.frequency.setValueAtTime(34, startTime);
             peaDepth.gain.setValueAtTime(95, startTime);
-            peaLfo.connect(peaDepth);
-            peaDepth.connect(osc1.frequency);
-            peaDepth.connect(osc2.frequency);
-
-            var osc2Gain = ac.createGain();
-            osc2Gain.gain.setValueAtTime(0.45, startTime);
-
-            osc1.connect(masterGain);
-            osc2.connect(osc2Gain);
-            osc2Gain.connect(masterGain);
-
-            osc1.start(startTime);
-            osc2.start(startTime);
-            peaLfo.start(startTime);
-
+            peaLfo.connect(peaDepth); peaDepth.connect(osc1.frequency); peaDepth.connect(osc2.frequency);
+            var osc2Gain = ac.createGain(); osc2Gain.gain.setValueAtTime(0.45, startTime);
+            osc1.connect(masterGain); osc2.connect(osc2Gain); osc2Gain.connect(masterGain);
+            osc1.start(startTime); osc2.start(startTime); peaLfo.start(startTime);
             var stopAt = startTime + duration + 0.02;
-            osc1.stop(stopAt);
-            osc2.stop(stopAt);
-            peaLfo.stop(stopAt);
+            osc1.stop(stopAt); osc2.stop(stopAt); peaLfo.stop(stopAt);
         }
 
         function playRefereeWhistle(pattern) {
@@ -601,42 +443,27 @@
                 var ac = getOrCreateAudioContext();
                 if (!ac) return;
                 var now = ac.currentTime + 0.02;
-                if (pattern === 'half') {
-                    scheduleWhistleBlast(ac, now, 0.28);
-                    scheduleWhistleBlast(ac, now + 0.40, 0.72);
-                } else if (pattern === 'full') {
-                    scheduleWhistleBlast(ac, now, 0.22);
-                    scheduleWhistleBlast(ac, now + 0.32, 0.22);
-                    scheduleWhistleBlast(ac, now + 0.66, 0.88);
-                } else {
-                    scheduleWhistleBlast(ac, now, 0.42);
-                }
+                if (pattern === 'half') { scheduleWhistleBlast(ac, now, 0.28); scheduleWhistleBlast(ac, now + 0.40, 0.72); }
+                else if (pattern === 'full') { scheduleWhistleBlast(ac, now, 0.22); scheduleWhistleBlast(ac, now + 0.32, 0.22); scheduleWhistleBlast(ac, now + 0.66, 0.88); }
+                else { scheduleWhistleBlast(ac, now, 0.42); }
             } catch (e) {}
         }
 
         function toggleWhistleAudio() {
             TimerState.whistleEnabled = !TimerState.whistleEnabled;
             var btn = document.getElementById('whistleToggleBtn');
-            if (btn) {
-                btn.classList.toggle('active', TimerState.whistleEnabled);
-                btn.innerText = TimerState.whistleEnabled ? "🔊 ON" : "🔇 OFF";
-            }
-            if (TimerState.whistleEnabled) {
-                getOrCreateAudioContext();
-            }
+            if (btn) { btn.classList.toggle('active', TimerState.whistleEnabled); btn.innerText = TimerState.whistleEnabled ? "🔊 ON" : "🔇 OFF"; }
+            if (TimerState.whistleEnabled) getOrCreateAudioContext();
         }
 
         function checkRegulationWhistleTriggers() {
             var halfMins = parseFloat(document.getElementById('halfLengthInput').value) || 35;
             var matchMins = parseFloat(document.getElementById('matchLengthInput').value) || 70;
-
             if (TimerState.activeHalf === 1 && !TimerState.halfWhistleBlown && TimerState.secondsElapsed >= halfMins * 60) {
-                TimerState.halfWhistleBlown = true;
-                playRefereeWhistle('half');
+                TimerState.halfWhistleBlown = true; playRefereeWhistle('half');
                 showPitchToast("📣 Half-Time Regulation Reached (" + halfMins + ":00)! Entering 1st Half Stoppage Time.");
             } else if (TimerState.activeHalf >= 2 && !TimerState.fullWhistleBlown && TimerState.secondsElapsed >= matchMins * 60) {
-                TimerState.fullWhistleBlown = true;
-                playRefereeWhistle('full');
+                TimerState.fullWhistleBlown = true; playRefereeWhistle('full');
                 showPitchToast("📣 Full-Time Regulation Reached (" + matchMins + ":00)! Entering 2nd Half Stoppage Time.");
             }
         }
@@ -716,10 +543,8 @@
             clockEl.innerText = mins.toString().padStart(2, '0') + ":" + secs.toString().padStart(2, '0');
             var halfMins = parseFloat(document.getElementById('halfLengthInput').value) || 35;
             var matchMins = parseFloat(document.getElementById('matchLengthInput').value) || 70;
-
             if (TimerState.secondsElapsed < halfMins * 60) TimerState.halfWhistleBlown = false;
             if (TimerState.secondsElapsed < matchMins * 60) TimerState.fullWhistleBlown = false;
-
             var isStoppage = (TimerState.activeHalf === 1 && TimerState.secondsElapsed > halfMins * 60) ||
                              (TimerState.activeHalf >= 2 && TimerState.secondsElapsed > matchMins * 60);
             clockEl.style.backgroundColor = isStoppage ? '#c0392b' : '#eaeded';
@@ -777,10 +602,7 @@
             var lbl = document.getElementById('currentHalfLabel');
             lbl.style.backgroundColor = "#fadbd8"; lbl.style.color = "#78281f"; lbl.innerText = "2nd Half";
             var halfBtn = document.getElementById('nextHalfBtn');
-            halfBtn.innerText = "⏹";
-            halfBtn.title = "Full Time: End Game";
-            halfBtn.style.backgroundColor = "#c0392b";
-            halfBtn.onclick = finishGameAndCompileReport;
+            halfBtn.innerText = "⏹"; halfBtn.title = "Full Time: End Game"; halfBtn.style.backgroundColor = "#c0392b"; halfBtn.onclick = finishGameAndCompileReport;
             updateClockDisplayStrings(); drawPitch();
         }
 
@@ -797,14 +619,11 @@
                 if (outPlayers <= 0 || outSlots <= 0) return matchMins;
                 return Math.round((matchMins * outSlots) / outPlayers);
             }
-            var homeTarget = calcForTeam('home');
-            var awayTarget = calcForTeam('away');
+            var homeTarget = calcForTeam('home'), awayTarget = calcForTeam('away');
             document.getElementById('homeFairPlayTarget').innerText = "Home Target: " + homeTarget + " mins";
             document.getElementById('awayFairPlayTarget').innerText = "Away Target: " + awayTarget + " mins";
             var summaryEl = document.getElementById('fairPlayCompactSummary');
-            if (summaryEl) {
-                summaryEl.innerText = "Home: " + homeTarget + "m | Away: " + awayTarget + "m";
-            }
+            if (summaryEl) summaryEl.innerText = "Home: " + homeTarget + "m | Away: " + awayTarget + "m";
             updateClockDisplayStrings();
         }
 
@@ -831,8 +650,8 @@
 
         function repositionBenchedTeammatesInZones() {
             var boxes = getBenchZoneBoxes();
-            LedgerState.squad.filter(function(p) { return p.team === 'home' && !p.onPitch; }).forEach(function(p, i) { p.x = boxes.home.x + 22 + (i * 38); p.y = boxes.home.y + 42; });
-            LedgerState.squad.filter(function(p) { return p.team === 'away' && !p.onPitch; }).forEach(function(p, i) { p.x = boxes.away.x + 22 + (i * 38); p.y = boxes.away.y + 42; });
+            LedgerState.squad.filter(function(p) { return p.team === 'home' && !p.onPitch; }).forEach(function(p, i) { p.x = boxes.home.x + 24 + (i * 40); p.y = boxes.home.y + 42; });
+            LedgerState.squad.filter(function(p) { return p.team === 'away' && !p.onPitch; }).forEach(function(p, i) { p.x = boxes.away.x + 24 + (i * 40); p.y = boxes.away.y + 42; });
         }
 
         function updateSidebarHeaderLabels() {
@@ -843,6 +662,15 @@
             updateScoreboardDisplay();
         }
 
+        function togglePlayerActionMenu(playerId) {
+            if (LedgerState.openActionPlayerId === playerId) {
+                LedgerState.openActionPlayerId = null;
+            } else {
+                LedgerState.openActionPlayerId = playerId;
+            }
+            renderSquadBanks();
+        }
+
         function renderSquadBanks() {
             var homeActive = document.getElementById('home-active-list'), homeBench = document.getElementById('home-bench-list');
             var awayActive = document.getElementById('away-active-list'), awayBench = document.getElementById('away-bench-list');
@@ -851,34 +679,51 @@
             LedgerState.squad.forEach(function(player) {
                 var g = Number(player.goals) || 0, a = Number(player.assists) || 0, y = Number(player.yellowCards) || 0, r = Number(player.redCards) || 0;
                 var isSentOff = r > 0;
+                var isOpen = (LedgerState.openActionPlayerId === player.id);
+
                 var item = document.createElement('div');
                 item.className = 'squad-item' + (isSentOff ? ' sent-off-card' : '');
                 item.style.borderLeftColor = player.team === 'home' ? '#27ae60' : '#2980b9';
 
-                var gMin = g > 0 ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ',\'goals\',-1)">−</button>' : '';
-                var aMin = a > 0 ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ',\'assists\',-1)">−</button>' : '';
-                var yMin = y > 0 ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ',\'yellowCards\',-1)">−</button>' : '';
-                var rMin = r > 0 ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ',\'redCards\',-1)">−</button>' : '';
+                var summaryBadges = '';
+                if (g > 0) summaryBadges += '<span class="mini-stat-badge">⚽' + g + '</span>';
+                if (a > 0) summaryBadges += '<span class="mini-stat-badge">👟' + a + '</span>';
+                if (y > 0) summaryBadges += '<span class="mini-stat-badge">🟨' + y + '</span>';
+                if (r > 0) summaryBadges += '<span class="mini-stat-badge">🟥' + r + '</span>';
+
+                var gMin = g > 0 ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ',\'goals\',-1)" title="Remove 1 Goal">−</button>' : '';
+                var aMin = a > 0 ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ',\'assists\',-1)" title="Remove 1 Assist">−</button>' : '';
+                var yMin = y > 0 ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ',\'yellowCards\',-1)" title="Remove 1 Yellow">−</button>' : '';
+                var rMin = r > 0 ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ',\'redCards\',-1)" title="Remove Red">−</button>' : '';
+
+                var canScore = Boolean(player.onPitch);
+                var goalBtnTitle = canScore ? 'Click: +1 Goal' : 'Only on-pitch players can score goals';
+                var assistBtnTitle = canScore ? 'Click: +1 Assist' : 'Only on-pitch players can record assists';
+
                 var actBtn = isSentOff
                     ? '<button disabled style="padding:3px 7px; font-size:11px; background:#fdedec; color:#c0392b; border-color:#f5b7b1; font-weight:bold; cursor:not-allowed;">🟥 Sent Off</button>'
                     : '<button onclick="togglePlayerPitch(' + player.id + ')" style="padding:3px 7px; font-size:11px; background:#ebf5fb;">' + (player.onPitch ? 'Bench' : 'Pitch') + '</button>';
 
                 item.innerHTML =
                     '<div class="squad-item-top">' +
-                        '<div style="display:flex; align-items:center; gap:5px; min-width:0;">' +
+                        '<div style="display:flex; align-items:center; gap:4px; min-width:0; flex-wrap:wrap;">' +
                             '<span class="player-label-click" onclick="promptRenameTeamEdit(' + player.id + ')"><strong>' + player.name + '</strong></span>' +
                             '<span class="role-badge-click" onclick="promptPlayerRoleEdit(' + player.id + ')">' + (player.role || 'POS') + '</span>' +
+                            '<span class="mini-stat-summary">' + summaryBadges + '</span>' +
                         '</div>' +
-                        '<div style="display:flex; align-items:center; gap:6px;">' +
+                        '<div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">' +
                             '<span data-player-time="' + player.id + '" style="font-size:11px; color:#566573; font-weight:bold;">⏱️ ' + formatSecondsToMinutes(player.timePlayed) + '</span>' +
                             actBtn +
+                            '<button class="player-action-toggle-btn' + (isOpen ? ' open' : '') + '" onclick="togglePlayerActionMenu(' + player.id + ')" title="Open player match actions (Goal, Assist, Yellow/Red Cards)">⚡ ' + (isOpen ? '▴' : '▾') + '</button>' +
                         '</div>' +
                     '</div>' +
-                    '<div class="squad-item-bottom">' +
-                        '<div class="stat-group"><button class="stat-pill-btn" onclick="handleStatClick(event,' + player.id + ',\'goals\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'goals\')">⚽ G:' + g + '</button>' + gMin + '</div>' +
-                        '<div class="stat-group"><button class="stat-pill-btn" onclick="handleStatClick(event,' + player.id + ',\'assists\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'assists\')">👟 A:' + a + '</button>' + aMin + '</div>' +
-                        '<div class="stat-group"><button class="stat-pill-btn" onclick="handleStatClick(event,' + player.id + ',\'yellowCards\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'yellowCards\')">🟨 Y:' + y + '</button>' + yMin + '</div>' +
-                        '<div class="stat-group"><button class="stat-pill-btn" onclick="handleStatClick(event,' + player.id + ',\'redCards\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'redCards\')">🟥 R:' + r + '</button>' + rMin + '</div>' +
+                    '<div class="player-action-drawer' + (isOpen ? ' open' : '') + '">' +
+                        '<div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;">' +
+                            '<div class="stat-group"><button class="stat-pill-btn" ' + (!canScore ? 'disabled ' : '') + 'onclick="handleStatClick(event,' + player.id + ',\'goals\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'goals\')" title="' + goalBtnTitle + '">⚽ G:' + g + '</button>' + gMin + '</div>' +
+                            '<div class="stat-group"><button class="stat-pill-btn" ' + (!canScore ? 'disabled ' : '') + 'onclick="handleStatClick(event,' + player.id + ',\'assists\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'assists\')" title="' + assistBtnTitle + '">👟 A:' + a + '</button>' + aMin + '</div>' +
+                            '<div class="stat-group"><button class="stat-pill-btn" onclick="handleStatClick(event,' + player.id + ',\'yellowCards\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'yellowCards\')" title="Click: +1 Yellow Card">🟨 Y:' + y + '</button>' + yMin + '</div>' +
+                            '<div class="stat-group"><button class="stat-pill-btn" onclick="handleStatClick(event,' + player.id + ',\'redCards\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'redCards\')" title="Click: +1 Red Card">🟥 R:' + r + '</button>' + rMin + '</div>' +
+                        '</div>' +
                     '</div>';
 
                 if (player.team === 'home') { if (player.onPitch) homeActive.appendChild(item); else homeBench.appendChild(item); }
@@ -890,6 +735,12 @@
         function adjustPlayerStat(id, field, delta, skipHistory) {
             var p = LedgerState.squad.find(function(x) { return x.id === id; });
             if (!p) return;
+
+            if (delta > 0 && (field === 'goals' || field === 'assists') && !p.onPitch) {
+                showPitchToast("⚠️ Only players currently on the pitch can score goals or assists.");
+                return;
+            }
+
             var prevG = Number(p.goals) || 0, prevA = Number(p.assists) || 0, prevY = Number(p.yellowCards) || 0, prevR = Number(p.redCards) || 0;
             var prevOn = Boolean(p.onPitch), prevX = p.x, prevYCoord = p.y;
 
@@ -1059,6 +910,7 @@
         function resetDefaultSquads() {
             BoardState.ball.x = PITCH.centerX; BoardState.ball.y = PITCH.centerY;
             LedgerState.statHistory = [];
+            LedgerState.openActionPlayerId = null;
             autoFillTeam('home'); autoFillTeam('away');
         }
 
@@ -1073,11 +925,7 @@
             document.getElementById('startTimerBtn').disabled = false;
             document.getElementById('pauseTimerBtn').disabled = true;
             var halfBtn = document.getElementById('nextHalfBtn');
-            halfBtn.disabled = false;
-            halfBtn.innerText = "⏭";
-            halfBtn.title = "Advance to 2nd Half";
-            halfBtn.style.backgroundColor = "#8e44ad";
-            halfBtn.onclick = advanceToNextHalf;
+            halfBtn.disabled = false; halfBtn.innerText = "⏭"; halfBtn.title = "Advance to 2nd Half"; halfBtn.style.backgroundColor = "#8e44ad"; halfBtn.onclick = advanceToNextHalf;
             LedgerState.homeTeamName = 'Home Squad'; LedgerState.awayTeamName = 'Away Squad';
             try { localStorage.setItem('pitchPadHomeTeamName', 'Home Squad'); localStorage.setItem('pitchPadAwayTeamName', 'Away Squad'); } catch (e) {}
             BoardState.drawings = []; BoardState.notes = [];
@@ -1148,7 +996,6 @@
             var grad = ctx.createRadialGradient(bx - r * 0.3, by - r * 0.3, r * 0.08, bx, by, r);
             grad.addColorStop(0, '#ffffff'); grad.addColorStop(0.68, '#f4f6f7'); grad.addColorStop(1, '#bfc9ca');
             ctx.fillStyle = grad; ctx.fillRect(bx - r, by - r, r * 2, r * 2);
-
             var rInner = r * 0.41, rMid = r * 0.72, rRim = r * 0.96, spread = 0.34;
             ctx.strokeStyle = '#2c3e50'; ctx.lineWidth = 1.05;
             for (var i = 0; i < 5; i++) {
@@ -1182,26 +1029,22 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.setLineDash([]); ctx.fillStyle = '#1e5221'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 1. True-Scale Pitch Turf (105m x 68m -> 760px x 492.19px)
             ctx.save();
             ctx.fillStyle = '#2e7d32'; ctx.fillRect(PITCH.left, PITCH.top, PITCH.lengthPx, PITCH.widthPx);
             drawMowedLawnPatterns();
             ctx.strokeStyle = 'rgba(255,255,255,0.88)'; ctx.lineWidth = 3.5;
             ctx.strokeRect(PITCH.left, PITCH.top, PITCH.lengthPx, PITCH.widthPx);
 
-            // 2. Goals (Centered on goal lines)
             var goalTopY = PITCH.centerY - (PITCH.goalWidthPx / 2);
             ctx.lineWidth = 2.5; ctx.strokeStyle = 'rgba(255,255,255,0.88)'; ctx.fillStyle = 'rgba(255,255,255,0.22)';
             ctx.fillRect(2, goalTopY, PITCH.left - 2, PITCH.goalWidthPx); ctx.strokeRect(2, goalTopY, PITCH.left - 2, PITCH.goalWidthPx);
             ctx.fillRect(PITCH.right, goalTopY, 18, PITCH.goalWidthPx); ctx.strokeRect(PITCH.right, goalTopY, 18, PITCH.goalWidthPx);
 
-            // 3. Halfway Line, Centre Circle & Centre Spot
             ctx.lineWidth = 3.5;
             ctx.beginPath(); ctx.moveTo(PITCH.centerX, PITCH.top); ctx.lineTo(PITCH.centerX, PITCH.bottom); ctx.stroke();
             ctx.beginPath(); ctx.arc(PITCH.centerX, PITCH.centerY, PITCH.centerCircleRadiusPx, 0, Math.PI * 2); ctx.stroke();
             ctx.beginPath(); ctx.arc(PITCH.centerX, PITCH.centerY, 3.5, 0, Math.PI * 2); ctx.fillStyle = '#ffffff'; ctx.fill();
 
-            // 4. 18-Yard Boxes (16.46m x 40.23m) & 6-Yard Boxes (5.49m x 18.29m)
             var eighteenTopY = PITCH.centerY - (PITCH.eighteenYardWidthPx / 2);
             ctx.strokeRect(PITCH.left, eighteenTopY, PITCH.eighteenYardDepthPx, PITCH.eighteenYardWidthPx);
             ctx.strokeRect(PITCH.right - PITCH.eighteenYardDepthPx, eighteenTopY, PITCH.eighteenYardDepthPx, PITCH.eighteenYardWidthPx);
@@ -1210,7 +1053,6 @@
             ctx.strokeRect(PITCH.left, sixTopY, PITCH.sixYardDepthPx, PITCH.sixYardWidthPx);
             ctx.strokeRect(PITCH.right - PITCH.sixYardDepthPx, sixTopY, PITCH.sixYardDepthPx, PITCH.sixYardWidthPx);
 
-            // 5. Penalty Spots (11m from goal line) & Penalty "D" Arcs (9.1m radius outside 18-yard box)
             var leftPenSpotX = PITCH.left + PITCH.penaltySpotDistPx, rightPenSpotX = PITCH.right - PITCH.penaltySpotDistPx;
             ctx.beginPath(); ctx.arc(leftPenSpotX, PITCH.centerY, 3.2, 0, Math.PI * 2); ctx.fill();
             ctx.beginPath(); ctx.arc(rightPenSpotX, PITCH.centerY, 3.2, 0, Math.PI * 2); ctx.fill();
@@ -1223,7 +1065,6 @@
             drawCornerFlag(PITCH.right, PITCH.top, true, false); drawCornerFlag(PITCH.right, PITCH.bottom, true, true);
             ctx.restore();
 
-            // Technical areas
             var boxes = getBenchZoneBoxes();
             ctx.save(); ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
             ctx.strokeStyle = 'rgba(39, 174, 96, 0.55)'; ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
@@ -1235,7 +1076,6 @@
             ctx.fillText("📋 " + LedgerState.awayTeamName + " Technical Area", boxes.away.x + 10, boxes.away.y + 16);
             ctx.restore();
 
-            // Formation X markers
             [{ active: BoardState.homeFormation, team: 'home' }, { active: BoardState.awayFormation, team: 'away' }].forEach(function(cfg) {
                 if (cfg.active === 'none' || !formations[cfg.active]) return;
                 ctx.strokeStyle = cfg.team === 'home' ? 'rgba(46, 204, 113, 0.45)' : 'rgba(52, 152, 219, 0.45)'; ctx.lineWidth = 2;
@@ -1254,29 +1094,31 @@
                 ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fillText(n.text, n.x + 1, n.y + 1); ctx.fillStyle = '#ffffff'; ctx.fillText(n.text, n.x, n.y);
             });
 
-            // Players
+            // 10% Larger Player Tokens (PLAYER_RADIUS = 16.5px, diameter = 33px)
+            var pr = PLAYER_RADIUS;
+            var pd = pr * 2;
             LedgerState.squad.forEach(function(p) {
                 if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return;
                 var isGK = String(p.name).toUpperCase() === 'GK' || String(p.role || '').toUpperCase() === 'GK';
                 var hasRed = (Number(p.redCards) || 0) > 0;
                 if (hasRed) {
-                    ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2); ctx.fillStyle = 'rgba(192, 57, 43, 0.45)'; ctx.fill();
+                    ctx.beginPath(); ctx.arc(p.x, p.y, pr, 0, Math.PI * 2); ctx.fillStyle = 'rgba(192, 57, 43, 0.45)'; ctx.fill();
                 } else if (p.team === 'away') {
-                    ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2);
+                    ctx.beginPath(); ctx.arc(p.x, p.y, pr, 0, Math.PI * 2);
                     ctx.fillStyle = isGK ? (p.onPitch ? BoardState.awayGkColor : 'rgba(120,120,120,0.45)') : (p.onPitch ? '#2980b9' : 'rgba(41,128,185,0.45)'); ctx.fill();
                 } else if (isGK) {
-                    ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2); ctx.fillStyle = p.onPitch ? '#4a148c' : 'rgba(74,20,140,0.45)'; ctx.fill();
+                    ctx.beginPath(); ctx.arc(p.x, p.y, pr, 0, Math.PI * 2); ctx.fillStyle = p.onPitch ? '#4a148c' : 'rgba(74,20,140,0.45)'; ctx.fill();
                 } else {
-                    ctx.save(); ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2); ctx.clip();
+                    ctx.save(); ctx.beginPath(); ctx.arc(p.x, p.y, pr, 0, Math.PI * 2); ctx.clip();
                     if (p.onPitch) {
-                        ctx.fillStyle = '#27ae60'; ctx.fillRect(p.x - 15, p.y - 15, 30, 30);
-                        ctx.fillStyle = '#f1c40f'; ctx.fillRect(p.x - 7, p.y - 15, 7, 30); ctx.fillRect(p.x + 7, p.y - 15, 7, 30);
-                    } else { ctx.fillStyle = 'rgba(39,174,96,0.4)'; ctx.fillRect(p.x - 15, p.y - 15, 30, 30); }
+                        ctx.fillStyle = '#27ae60'; ctx.fillRect(p.x - pr, p.y - pr, pd, pd);
+                        ctx.fillStyle = '#f1c40f'; ctx.fillRect(p.x - 7.7, p.y - pr, 7.7, pd); ctx.fillRect(p.x + 7.7, p.y - pr, 7.7, pd);
+                    } else { ctx.fillStyle = 'rgba(39,174,96,0.4)'; ctx.fillRect(p.x - pr, p.y - pr, pd, pd); }
                     ctx.restore();
                 }
-                ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2);
-                ctx.strokeStyle = hasRed ? '#e74c3c' : (p.onPitch ? '#fff' : 'rgba(255,255,255,0.4)'); ctx.lineWidth = 1.5; ctx.stroke();
-                ctx.fillStyle = p.onPitch ? '#fff' : 'rgba(255,255,255,0.65)'; ctx.font = 'bold 9px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.beginPath(); ctx.arc(p.x, p.y, pr, 0, Math.PI * 2);
+                ctx.strokeStyle = hasRed ? '#e74c3c' : (p.onPitch ? '#fff' : 'rgba(255,255,255,0.4)'); ctx.lineWidth = 1.65; ctx.stroke();
+                ctx.fillStyle = p.onPitch ? '#fff' : 'rgba(255,255,255,0.65)'; ctx.font = 'bold 10px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                 var label = BoardState.labelMode === 'names' ? String(p.name) : String(p.role || 'SUB');
                 if (label.length > 5) label = label.substring(0, 4) + '..';
                 ctx.fillText(label, p.x, p.y);
@@ -1284,9 +1126,9 @@
                 var yCards = Number(p.yellowCards) || 0, rCards = Number(p.redCards) || 0;
                 if (yCards > 0 || rCards > 0) {
                     ctx.save(); ctx.lineWidth = 1; ctx.strokeStyle = '#111822';
-                    var bx = p.x + 8, by = p.y - 17;
-                    if (yCards > 0) { ctx.fillStyle = '#f1c40f'; ctx.fillRect(bx, by, 7, 10); ctx.strokeRect(bx, by, 7, 10); bx += 5; }
-                    if (rCards > 0) { ctx.fillStyle = '#e74c3c'; ctx.fillRect(bx, by - 1, 7, 10); ctx.strokeRect(bx, by - 1, 7, 10); }
+                    var bx = p.x + 9, by = p.y - 19;
+                    if (yCards > 0) { ctx.fillStyle = '#f1c40f'; ctx.fillRect(bx, by, 7.5, 11); ctx.strokeRect(bx, by, 7.5, 11); bx += 5.5; }
+                    if (rCards > 0) { ctx.fillStyle = '#e74c3c'; ctx.fillRect(bx, by - 1, 7.5, 11); ctx.strokeRect(bx, by - 1, 7.5, 11); }
                     ctx.restore();
                 }
             });
@@ -1299,7 +1141,7 @@
                 var statusTag = (Number(hp.redCards) || 0) > 0 ? 'SENT OFF' : (hp.onPitch ? 'PITCH' : 'BENCH');
                 var info = (BoardState.labelMode === 'names' ? hp.name : (hp.role || 'POS')) + " [" + statusTag + "]";
                 ctx.font = 'bold 12px Arial';
-                var bw = ctx.measureText(info).width + 16, bh = 24, boxX = hp.x - bw / 2, boxY = hp.y - 34;
+                var bw = ctx.measureText(info).width + 16, bh = 24, boxX = hp.x - bw / 2, boxY = hp.y - 36;
                 ctx.fillStyle = 'rgba(17,24,34,0.95)'; ctx.strokeStyle = (Number(hp.redCards) || 0) > 0 ? '#e74c3c' : (hp.team === 'home' ? '#27ae60' : '#2980b9'); ctx.lineWidth = 1.5;
                 traceRoundedRect(boxX, boxY, bw, bh, 4); ctx.fill(); ctx.stroke();
                 ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(info, hp.x, boxY + 12);
@@ -1307,20 +1149,9 @@
             }
         }
 
-        function closeTacticsDropdown() {
-            var dd = document.getElementById('tacticsDropdown');
-            if (dd) dd.removeAttribute('open');
-        }
-
-        function closeSettingsDropdown() {
-            var sd = document.getElementById('settingsDropdown');
-            if (sd) sd.removeAttribute('open');
-        }
-
-        function selectTacticTool(mode) {
-            setMode(mode);
-            closeTacticsDropdown();
-        }
+        function closeTacticsDropdown() { var dd = document.getElementById('tacticsDropdown'); if (dd) dd.removeAttribute('open'); }
+        function closeSettingsDropdown() { var sd = document.getElementById('settingsDropdown'); if (sd) sd.removeAttribute('open'); }
+        function selectTacticTool(mode) { setMode(mode); closeTacticsDropdown(); }
 
         function setMode(mode) {
             BoardState.mode = mode;
@@ -1328,23 +1159,12 @@
             document.getElementById('runLineBtn').classList.toggle('active', mode === 'draw-solid');
             document.getElementById('passLineBtn').classList.toggle('active', mode === 'draw-dashed');
             document.getElementById('textBtn').classList.toggle('active', mode === 'text');
-
-            var summaryEl = document.getElementById('tacticsDropdownSummary');
-            var labelEl = document.getElementById('tacticsDropdownLabel');
+            var summaryEl = document.getElementById('tacticsDropdownSummary'), labelEl = document.getElementById('tacticsDropdownLabel');
             if (summaryEl && labelEl) {
-                if (mode === 'draw-solid') {
-                    summaryEl.classList.add('active-draw-mode');
-                    labelEl.innerText = '🏹 Run Line';
-                } else if (mode === 'draw-dashed') {
-                    summaryEl.classList.add('active-draw-mode');
-                    labelEl.innerText = '⚽ Pass Line';
-                } else if (mode === 'text') {
-                    summaryEl.classList.add('active-draw-mode');
-                    labelEl.innerText = '📝 Pitch Note';
-                } else {
-                    summaryEl.classList.remove('active-draw-mode');
-                    labelEl.innerText = '✏️ Tactics & Drawing';
-                }
+                if (mode === 'draw-solid') { summaryEl.classList.add('active-draw-mode'); labelEl.innerText = '🏹 Run Line'; }
+                else if (mode === 'draw-dashed') { summaryEl.classList.add('active-draw-mode'); labelEl.innerText = '⚽ Pass Line'; }
+                else if (mode === 'text') { summaryEl.classList.add('active-draw-mode'); labelEl.innerText = '📝 Pitch Note'; }
+                else { summaryEl.classList.remove('active-draw-mode'); labelEl.innerText = '✏️ Tactics & Drawing'; }
             }
         }
 
@@ -1372,12 +1192,7 @@
             if (BoardState.notes.length > 0) { BoardState.notes.pop(); drawPitch(); }
         }
 
-        function clearDrawings() {
-            closeTacticsDropdown();
-            BoardState.drawings = [];
-            BoardState.notes = [];
-            drawPitch();
-        }
+        function clearDrawings() { closeTacticsDropdown(); BoardState.drawings = []; BoardState.notes = []; drawPitch(); }
 
         function updateFormationOptions(team, skipAutoFill) {
             var fmtNode = document.getElementById(team === 'home' ? 'homeFormatSelect' : 'awayFormatSelect');
@@ -1407,13 +1222,12 @@
         }
 
         function handlePointerStart(e) {
-            closeTacticsDropdown();
-            closeSettingsDropdown();
+            closeTacticsDropdown(); closeSettingsDropdown();
             if (e.type === 'touchstart') e.preventDefault();
             var c = getCanvasCoordinates(e);
             if (BoardState.mode === 'move') {
                 if (Math.hypot(c.x - BoardState.ball.x, c.y - BoardState.ball.y) < 15) { BoardState.ball.isDragging = true; BoardState.isDragging = true; return; }
-                var clickedPlayer = LedgerState.squad.find(function(p) { return Number.isFinite(p.x) && Number.isFinite(p.y) && Math.hypot(c.x - p.x, c.y - p.y) < 16; });
+                var clickedPlayer = LedgerState.squad.find(function(p) { return Number.isFinite(p.x) && Number.isFinite(p.y) && Math.hypot(c.x - p.x, c.y - p.y) < PLAYER_HIT_RADIUS; });
                 if (clickedPlayer) {
                     if ((Number(clickedPlayer.redCards) || 0) > 0) { showPitchToast("🟥 " + clickedPlayer.name + " has a Red Card and must remain on the bench."); return; }
                     BoardState.selectedPlayer = clickedPlayer; BoardState.isDragging = true; return;
@@ -1435,7 +1249,7 @@
             if (!e) return;
             var c = getCanvasCoordinates(e);
             if (!BoardState.isDragging) {
-                var hovered = LedgerState.squad.find(function(p) { return Number.isFinite(p.x) && Number.isFinite(p.y) && Math.hypot(c.x - p.x, c.y - p.y) < 16; });
+                var hovered = LedgerState.squad.find(function(p) { return Number.isFinite(p.x) && Number.isFinite(p.y) && Math.hypot(c.x - p.x, c.y - p.y) < PLAYER_HIT_RADIUS; });
                 if (hovered !== BoardState.hoveredPlayer) { BoardState.hoveredPlayer = hovered; drawPitch(); }
                 return;
             }
@@ -1465,7 +1279,7 @@
                 } else if (BoardState.selectedPlayer) {
                     var sp = BoardState.selectedPlayer, boxes = getBenchZoneBoxes(), box = sp.team === 'home' ? boxes.home : boxes.away;
                     var inBenchBox = (c.x >= box.x && c.x <= box.x + box.w && c.y >= box.y && c.y <= box.y + box.h);
-                    var swapTarget = LedgerState.squad.find(function(p) { return p.id !== sp.id && p.team === sp.team && p.onPitch && Math.hypot(c.x - p.x, c.y - p.y) < 20; });
+                    var swapTarget = LedgerState.squad.find(function(p) { return p.id !== sp.id && p.team === sp.team && p.onPitch && Math.hypot(c.x - p.x, c.y - p.y) < 22; });
 
                     if (swapTarget && !sp.onPitch) {
                         var tx = swapTarget.x, ty = swapTarget.y, tr = swapTarget.role;
@@ -1542,16 +1356,11 @@
             toggleGlobalLabelView(true); recalculateEqualTimeMatrix(); updateSidebarHeaderLabels(); drawPitch();
         }
 
-        // Close popovers when clicking outside of them
         document.addEventListener('click', function(e) {
             var td = document.getElementById('tacticsDropdown');
-            if (td && td.hasAttribute('open') && !td.contains(e.target)) {
-                td.removeAttribute('open');
-            }
+            if (td && td.hasAttribute('open') && !td.contains(e.target)) td.removeAttribute('open');
             var sd = document.getElementById('settingsDropdown');
-            if (sd && sd.hasAttribute('open') && !sd.contains(e.target)) {
-                sd.removeAttribute('open');
-            }
+            if (sd && sd.hasAttribute('open') && !sd.contains(e.target)) sd.removeAttribute('open');
         });
 
         canvas.addEventListener('mousedown', handlePointerStart);
@@ -1566,3 +1375,4 @@
     </script>
 </body>
 </html>
+<!-- END OF COACHCALC v0.67.6 -->

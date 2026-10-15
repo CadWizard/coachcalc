@@ -46,9 +46,9 @@ App changes
 14) ~~Maybe hide the Run line/Pass line/clear lines behind a drop down menu (They are not really used during a game but only to give a guide on training routines~~
 15) ~~Do I really need an option to change the appearance of the grass (Could hide in a settings menu)~~
 16) ~~Add +30 seconds catch-up button to timer controls~~
-17) Enlarge player counters by 10% for easier touch targets
+17) ~~Enlarge player counters by 10% for easier touch targets~~
 18) Add collapsible dropdown for the Substitutes Bench
-19) Move player actions (Goals/Assists/Cards) behind a tap-to-expand player drawer
+19) ~~Move player actions (Goals/Assists/Cards) behind a tap-to-expand player drawer~~
 20) Restrict Goals & Assists to on-pitch players only
 21) Implement local match report file export
 22) Add background stadium image and UI opacity slider
