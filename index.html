@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.4)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.5)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -230,7 +230,7 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.4)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.5)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -345,6 +345,7 @@
 
                     <div style="display:inline-flex; align-items:center; gap:4px; margin-left:auto;">
                         <span style="font-size:11px; font-weight:bold; color:#7f8c8d;">⏱️ Catch Up:</span>
+                        <button onclick="injectRetroactiveMinutes(0.5)" style="padding:5px 7px; font-size:11px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3; font-weight:bold;" title="Add 30 retroactive seconds">+30s</button>
                         <button onclick="injectRetroactiveMinutes(1)" style="padding:5px 7px; font-size:11px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3; font-weight:bold;" title="Add 1 retroactive minute">+1m</button>
                         <button onclick="injectRetroactiveMinutes(2)" style="padding:5px 7px; font-size:11px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3; font-weight:bold;" title="Add 2 retroactive minutes">+2m</button>
                         <button onclick="injectRetroactiveMinutes(5)" style="padding:5px 7px; font-size:11px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3; font-weight:bold;" title="Add 5 retroactive minutes">+5m</button>
@@ -443,11 +444,10 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.4 (Unified Settings Menu &amp; Single-Panel Header)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.5 (+30s Retroactive Catch-Up)</p>
                 <ul>
-                    <li><strong>Unified Settings Menu (<code>⚙️ Settings ▾</code>):</strong> Tucked Grass Style, Slot Snapping, Referee Whistle toggle/test, and Reset Squads inside a clean Settings popover menu.</li>
-                    <li><strong>Single-Panel Match Dashboard:</strong> Merged the lower pitch controls into the main timer panel so the pitch sits higher on screen.</li>
-                    <li><strong>Tactics Dropdown, Equal Play Dropdown &amp; Symbol Timer Controls:</strong> Complete 4-part UI cleanup for desktop and future mobile/tablet views.</li>
+                    <li><strong>+30 Seconds Catch-Up Button:</strong> Added a <code>+30s</code> button alongside <code>+1m</code>, <code>+2m</code>, and <code>+5m</code> for finer retroactive clock and player time adjustments.</li>
+                    <li><strong>Unified Settings Menu &amp; Single-Panel Header:</strong> Clean match-day dashboard with collapsible Equal Play Guide, Tactics dropdown, and Settings popover.</li>
                 </ul>
             </div>
         </div>
@@ -761,7 +761,7 @@
 
         function injectRetroactiveMinutes(mins) {
             getOrCreateAudioContext();
-            var addedSecs = mins * 60;
+            var addedSecs = Math.round(mins * 60);
             TimerState.secondsElapsed += addedSecs;
             LedgerState.squad.forEach(function(p) { if (p.onPitch) p.timePlayed = (p.timePlayed || 0) + addedSecs; });
             checkRegulationWhistleTriggers();
