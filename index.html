@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.6)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.7)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -56,6 +56,46 @@
         .tactics-dropdown-menu button:hover { background: #eaf2f8; border-color: #a9cce3; }
         .tactics-menu-divider { height: 1px; background: #e5e8e8; margin: 3px 0; }
         .settings-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #2c3e50; font-weight: bold; }
+
+        /* Collapsible Substitutes Bench Dropdown */
+        details.bench-dropdown {
+            margin-top: 2px;
+        }
+        details.bench-dropdown summary {
+            margin: 3px 0 4px 0;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #7f8c8d;
+            border-bottom: 1px solid #eee;
+            padding: 4px 6px;
+            border-radius: 4px;
+            background: #f8f9f9;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            list-style: none;
+            transition: background-color 0.15s ease;
+        }
+        details.bench-dropdown summary::-webkit-details-marker { display: none; }
+        details.bench-dropdown summary:hover { background: #eaecee; color: #2c3e50; }
+        .bench-summary-right {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #566573;
+            text-transform: none;
+        }
+        .bench-chevron {
+            display: inline-block;
+            font-size: 11px;
+            transition: transform 0.2s ease;
+        }
+        details.bench-dropdown[open] .bench-chevron {
+            transform: rotate(180deg);
+        }
 
         /* Clean Player Rows & Per-Player Action Dropdown Drawer */
         .squad-list-container { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; background: #fcfcfc; padding: 4px; border: 1px dashed #ddd; border-radius: 4px; }
@@ -110,7 +150,7 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.6)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.7)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -134,8 +174,18 @@
                 <span id="homeOnPitchCountBadge" style="font-size:11px; color:#27ae60; font-weight:bold;">9 / 9</span>
             </h4>
             <div id="home-active-list" class="squad-list-container"></div>
-            <h4>🪑 Substitutes Bench</h4>
-            <div id="home-bench-list" class="squad-list-container"></div>
+
+            <!-- Collapsible Home Substitutes Bench Dropdown -->
+            <details class="bench-dropdown" open>
+                <summary title="Click to expand or collapse Home Substitutes Bench">
+                    <span>🪑 Substitutes Bench</span>
+                    <span class="bench-summary-right">
+                        <span id="homeBenchCountBadge">5 subs</span>
+                        <span class="bench-chevron">▾</span>
+                    </span>
+                </summary>
+                <div id="home-bench-list" class="squad-list-container"></div>
+            </details>
         </div>
 
         <div class="center-workspace" id="centerWorkspaceFrame">
@@ -302,8 +352,18 @@
                 <span id="awayOnPitchCountBadge" style="font-size:11px; color:#2980b9; font-weight:bold;">9 / 9</span>
             </h4>
             <div id="away-active-list" class="squad-list-container"></div>
-            <h4>🪑 Substitutes Bench</h4>
-            <div id="away-bench-list" class="squad-list-container"></div>
+
+            <!-- Collapsible Away Substitutes Bench Dropdown -->
+            <details class="bench-dropdown" open>
+                <summary title="Click to expand or collapse Away Substitutes Bench">
+                    <span>🪑 Substitutes Bench</span>
+                    <span class="bench-summary-right">
+                        <span id="awayBenchCountBadge">5 subs</span>
+                        <span class="bench-chevron">▾</span>
+                    </span>
+                </summary>
+                <div id="away-bench-list" class="squad-list-container"></div>
+            </details>
         </div>
     </div>
 
@@ -318,11 +378,11 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.6 (10% Larger Counters &amp; Player Action Dropdowns)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.7 (Collapsible Substitutes Bench)</p>
                 <ul>
-                    <li><strong>10% Larger Player Counters:</strong> Increased player pitch tokens from <code>15px</code> to <code>16.5px</code> radius (<code>33px</code> diameter) with larger labels and hit targets.</li>
-                    <li><strong>Player Action Dropdowns (<code>⚡ ▾</code>):</strong> Tucked Goals, Assists, Yellow Cards, and Red Cards into a per-player expandable drawer so squad lists stay clean.</li>
-                    <li><strong>On-Pitch Goal/Assist Rule &amp; +30s Catch-Up:</strong> Benched substitutes cannot accrue new goals or assists while on the bench, and <code>+30s</code> catch-up is available in the toolbar.</li>
+                    <li><strong>Collapsible Substitutes Bench (<code>🪑 Substitutes Bench ▾</code>):</strong> Both Home and Away substitute benches can now be expanded or collapsed with a click, complete with live bench player count badges.</li>
+                    <li><strong>10% Larger Player Counters &amp; Action Drawers (<code>⚡ ▾</code>):</strong> Enlarged <code>16.5px</code> radius pitch tokens and per-player expandable stat menus.</li>
+                    <li><strong>On-Pitch Goal/Assist Rule &amp; +30s Catch-Up:</strong> Benched substitutes cannot accrue new goals or assists while on the bench.</li>
                 </ul>
             </div>
         </div>
@@ -641,10 +701,16 @@
             document.getElementById('undoLastStatBtn').disabled = (LedgerState.statHistory.length === 0);
             ['home', 'away'].forEach(function(team) {
                 var badge = document.getElementById(team + 'OnPitchCountBadge');
-                if (!badge) return;
-                var cur = getCurrentOnPitchCount(team), max = getMaxAllowedOnPitch(team), reds = getTeamRedCardCount(team);
-                badge.innerText = cur + ' / ' + max + (reds > 0 ? ' • ' + reds + ' 🟥' : '');
-                badge.style.color = reds > 0 ? '#c0392b' : (team === 'home' ? '#27ae60' : '#2980b9');
+                if (badge) {
+                    var cur = getCurrentOnPitchCount(team), max = getMaxAllowedOnPitch(team), reds = getTeamRedCardCount(team);
+                    badge.innerText = cur + ' / ' + max + (reds > 0 ? ' • ' + reds + ' 🟥' : '');
+                    badge.style.color = reds > 0 ? '#c0392b' : (team === 'home' ? '#27ae60' : '#2980b9');
+                }
+                var benchBadge = document.getElementById(team + 'BenchCountBadge');
+                if (benchBadge) {
+                    var benchCount = LedgerState.squad.filter(function(p) { return p.team === team && !p.onPitch; }).length;
+                    benchBadge.innerText = benchCount + (benchCount === 1 ? ' sub' : ' subs');
+                }
             });
         }
 
@@ -1375,4 +1441,4 @@
     </script>
 </body>
 </html>
-<!-- END OF COACHCALC v0.67.6 -->
+<!-- END OF COACHCALC v0.67.7 -->
