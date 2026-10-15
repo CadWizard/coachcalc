@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.8)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.10)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -102,8 +102,8 @@
         .player-action-drawer.open { display: flex; }
         .stat-group { display: inline-flex; align-items: center; border-radius: 4px; overflow: hidden; border: 1px solid #d5dbdb; background: #f2f4f4; }
         .stat-pill-btn { background: transparent; border: none; padding: 3px 6px; font-size: 12px; cursor: pointer; font-weight: bold; color: #2c3e50; }
-        .stat-pill-btn:hover:not(:disabled) { background: #e5e8e8; }
-        .stat-pill-btn:disabled { opacity: 0.42; cursor: not-allowed; }
+        .stat-pill-btn:hover:not(.bench-locked) { background: #e5e8e8; }
+        .stat-pill-btn.bench-locked { opacity: 0.45; cursor: not-allowed; background: #ebedef; color: #7f8c8d; }
         .stat-minus-btn { background: #fdedec; border: none; border-left: 1px solid #d5dbdb; color: #c0392b; padding: 3px 6px; font-size: 12px; font-weight: 900; cursor: pointer; line-height: 1; }
         .stat-minus-btn:hover { background: #e74c3c; color: #fff; }
         .player-label-click { cursor: pointer; padding: 2px 4px; border-radius: 3px; }
@@ -142,7 +142,7 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.8)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.10)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -370,11 +370,11 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.8 (Consistent Sub Naming &amp; Collapsible Benches)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.10 (Bench Red Card Rule Fix)</p>
                 <ul>
-                    <li><strong>Shortened Away Sub Names:</strong> Default Away substitutes now use <code>Sub 1..5</code> (matching the Home team) so the <code>SUB</code> badge never wraps onto a second line.</li>
-                    <li><strong>Collapsible Substitutes Bench (<code>🪑 Substitutes Bench ▾</code>):</strong> Both Home and Away substitute benches can be expanded or collapsed with a click.</li>
-                    <li><strong>10% Larger Player Counters &amp; Action Drawers (<code>⚡ ▾</code>):</strong> Enlarged <code>16.5px</code> radius pitch tokens and per-player expandable stat menus.</li>
+                    <li><strong>Bench Red Card Rule Fix:</strong> If a substitute on the bench receives a Red Card (or 2nd Yellow), they are marked <code>🟥 Sent Off</code> and made unavailable to enter the pitch, while the on-pitch team size remains at full strength. Only red cards given to on-pitch players reduce the team's on-pitch count.</li>
+                    <li><strong>Bench Goal &amp; Assist Restriction:</strong> Benched substitutes cannot accrue new Goals or Assists while on the bench.</li>
+                    <li><strong>Collapsible Benches &amp; 10% Larger Counters:</strong> Expandable bench lists and <code>16.5px</code> radius pitch tokens.</li>
                 </ul>
             </div>
         </div>
@@ -552,10 +552,18 @@
             var fmtNode = document.getElementById(team === 'home' ? 'homeFormatSelect' : 'awayFormatSelect');
             return parseFormatInt(fmtNode ? fmtNode.value : '9v9');
         }
-        function getTeamRedCardCount(team) {
-            return LedgerState.squad.filter(function(p) { return p.team === team && (Number(p.redCards) || 0) > 0; }).length;
+
+        // Only red cards given to active on-pitch players reduce the team's on-pitch limit
+        function getTeamPitchReducingRedCount(team) {
+            return LedgerState.squad.filter(function(p) {
+                return p.team === team && (Number(p.redCards) || 0) > 0 && Boolean(p.sentOffFromPitch);
+            }).length;
         }
-        function getMaxAllowedOnPitch(team) { return Math.max(1, getTeamFormatBaseSize(team) - getTeamRedCardCount(team)); }
+
+        function getMaxAllowedOnPitch(team) {
+            return Math.max(1, getTeamFormatBaseSize(team) - getTeamPitchReducingRedCount(team));
+        }
+
         function getCurrentOnPitchCount(team) {
             return LedgerState.squad.filter(function(p) { return p.team === team && p.onPitch; }).length;
         }
@@ -694,9 +702,9 @@
             ['home', 'away'].forEach(function(team) {
                 var badge = document.getElementById(team + 'OnPitchCountBadge');
                 if (badge) {
-                    var cur = getCurrentOnPitchCount(team), max = getMaxAllowedOnPitch(team), reds = getTeamRedCardCount(team);
-                    badge.innerText = cur + ' / ' + max + (reds > 0 ? ' • ' + reds + ' 🟥' : '');
-                    badge.style.color = reds > 0 ? '#c0392b' : (team === 'home' ? '#27ae60' : '#2980b9');
+                    var cur = getCurrentOnPitchCount(team), max = getMaxAllowedOnPitch(team), pitchReds = getTeamPitchReducingRedCount(team);
+                    badge.innerText = cur + ' / ' + max + (pitchReds > 0 ? ' • ' + pitchReds + ' 🟥' : '');
+                    badge.style.color = pitchReds > 0 ? '#c0392b' : (team === 'home' ? '#27ae60' : '#2980b9');
                 }
                 var benchBadge = document.getElementById(team + 'BenchCountBadge');
                 if (benchBadge) {
@@ -755,11 +763,12 @@
                 var rMin = r > 0 ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ',\'redCards\',-1)" title="Remove Red">−</button>' : '';
 
                 var canScore = Boolean(player.onPitch);
-                var goalBtnTitle = canScore ? 'Click: +1 Goal' : 'Only on-pitch players can score goals';
-                var assistBtnTitle = canScore ? 'Click: +1 Assist' : 'Only on-pitch players can record assists';
+                var lockClass = canScore ? '' : ' bench-locked';
+                var goalBtnTitle = canScore ? 'Click: +1 Goal' : 'Locked: Benched substitutes cannot score goals (sub onto pitch first)';
+                var assistBtnTitle = canScore ? 'Click: +1 Assist' : 'Locked: Benched substitutes cannot record assists (sub onto pitch first)';
 
                 var actBtn = isSentOff
-                    ? '<button disabled style="padding:3px 7px; font-size:11px; background:#fdedec; color:#c0392b; border-color:#f5b7b1; font-weight:bold; cursor:not-allowed;">🟥 Sent Off</button>'
+                    ? '<button disabled style="padding:3px 7px; font-size:11px; background:#fdedec; color:#c0392b; border-color:#f5b7b1; font-weight:bold; cursor:not-allowed;" title="Sent off with a Red Card (unavailable to enter pitch)">🟥 Sent Off</button>'
                     : '<button onclick="togglePlayerPitch(' + player.id + ')" style="padding:3px 7px; font-size:11px; background:#ebf5fb;">' + (player.onPitch ? 'Bench' : 'Pitch') + '</button>';
 
                 item.innerHTML =
@@ -777,8 +786,8 @@
                     '</div>' +
                     '<div class="player-action-drawer' + (isOpen ? ' open' : '') + '">' +
                         '<div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;">' +
-                            '<div class="stat-group"><button class="stat-pill-btn" ' + (!canScore ? 'disabled ' : '') + 'onclick="handleStatClick(event,' + player.id + ',\'goals\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'goals\')" title="' + goalBtnTitle + '">⚽ G:' + g + '</button>' + gMin + '</div>' +
-                            '<div class="stat-group"><button class="stat-pill-btn" ' + (!canScore ? 'disabled ' : '') + 'onclick="handleStatClick(event,' + player.id + ',\'assists\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'assists\')" title="' + assistBtnTitle + '">👟 A:' + a + '</button>' + aMin + '</div>' +
+                            '<div class="stat-group"><button class="stat-pill-btn' + lockClass + '" onclick="handleStatClick(event,' + player.id + ',\'goals\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'goals\')" title="' + goalBtnTitle + '">' + (canScore ? '⚽' : '🔒') + ' G:' + g + '</button>' + gMin + '</div>' +
+                            '<div class="stat-group"><button class="stat-pill-btn' + lockClass + '" onclick="handleStatClick(event,' + player.id + ',\'assists\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'assists\')" title="' + assistBtnTitle + '">' + (canScore ? '👟' : '🔒') + ' A:' + a + '</button>' + aMin + '</div>' +
                             '<div class="stat-group"><button class="stat-pill-btn" onclick="handleStatClick(event,' + player.id + ',\'yellowCards\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'yellowCards\')" title="Click: +1 Yellow Card">🟨 Y:' + y + '</button>' + yMin + '</div>' +
                             '<div class="stat-group"><button class="stat-pill-btn" onclick="handleStatClick(event,' + player.id + ',\'redCards\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'redCards\')" title="Click: +1 Red Card">🟥 R:' + r + '</button>' + rMin + '</div>' +
                         '</div>' +
@@ -795,12 +804,13 @@
             if (!p) return;
 
             if (delta > 0 && (field === 'goals' || field === 'assists') && !p.onPitch) {
-                showPitchToast("⚠️ Only players currently on the pitch can score goals or assists.");
+                showPitchToast("⚠️ " + p.name + " is on the bench — only on-pitch players can record Goals or Assists!");
                 return;
             }
 
             var prevG = Number(p.goals) || 0, prevA = Number(p.assists) || 0, prevY = Number(p.yellowCards) || 0, prevR = Number(p.redCards) || 0;
             var prevOn = Boolean(p.onPitch), prevX = p.x, prevYCoord = p.y;
+            var prevSentOffFromPitch = Boolean(p.sentOffFromPitch);
 
             if (field === 'redCards') {
                 var nextR = Math.min(1, Math.max(0, prevR + delta));
@@ -819,20 +829,36 @@
                 p[field] = nxt;
             }
 
+            // Distinguish on-pitch dismissal (reduces team size) vs. bench dismissal (does not reduce on-pitch team)
             if (prevR === 0 && p.redCards === 1) {
                 p.wasOnPitchBeforeRed = prevOn;
-                if (prevOn) { p.lastPitchX = prevX; p.lastPitchY = prevYCoord; p.onPitch = false; }
-                enforceTeamPitchCap(p.team); repositionBenchedTeammatesInZones();
-                showPitchToast("🟥 " + p.name + " sent off! " + (p.team === 'home' ? LedgerState.homeTeamName : LedgerState.awayTeamName) + " reduced to " + getMaxAllowedOnPitch(p.team) + " players.");
+                p.sentOffFromPitch = prevOn;
+                var teamLabel = p.team === 'home' ? LedgerState.homeTeamName : LedgerState.awayTeamName;
+                if (prevOn) {
+                    p.lastPitchX = prevX; p.lastPitchY = prevYCoord; p.onPitch = false;
+                    enforceTeamPitchCap(p.team);
+                    repositionBenchedTeammatesInZones();
+                    showPitchToast("🟥 " + p.name + " sent off! " + teamLabel + " reduced to " + getMaxAllowedOnPitch(p.team) + " players on the pitch.");
+                } else {
+                    repositionBenchedTeammatesInZones();
+                    showPitchToast("🟥 Substitute " + p.name + " sent off on the bench! Unavailable to enter the pitch (" + teamLabel + " remains at " + getMaxAllowedOnPitch(p.team) + ").");
+                }
             } else if (prevR === 1 && p.redCards === 0) {
+                p.sentOffFromPitch = false;
                 if (p.wasOnPitchBeforeRed && getCurrentOnPitchCount(p.team) < getMaxAllowedOnPitch(p.team)) {
                     p.onPitch = true; p.x = Number.isFinite(p.lastPitchX) ? p.lastPitchX : PITCH.centerX; p.y = Number.isFinite(p.lastPitchY) ? p.lastPitchY : PITCH.centerY;
                 }
-                p.wasOnPitchBeforeRed = false; repositionBenchedTeammatesInZones();
+                p.wasOnPitchBeforeRed = false;
+                repositionBenchedTeammatesInZones();
             }
 
             if (!skipHistory && delta > 0) {
-                LedgerState.statHistory.push({ playerId: id, field: field, prevG: prevG, prevA: prevA, prevY: prevY, prevR: prevR, prevOn: prevOn, prevX: prevX, prevYCoord: prevYCoord });
+                LedgerState.statHistory.push({
+                    playerId: id, field: field,
+                    prevG: prevG, prevA: prevA, prevY: prevY, prevR: prevR,
+                    prevOn: prevOn, prevX: prevX, prevYCoord: prevYCoord,
+                    prevSentOffFromPitch: prevSentOffFromPitch
+                });
             } else if (!skipHistory && delta < 0) {
                 for (var i = LedgerState.statHistory.length - 1; i >= 0; i--) {
                     if (LedgerState.statHistory[i].playerId === id) { LedgerState.statHistory.splice(i, 1); break; }
@@ -851,6 +877,7 @@
                 var p = LedgerState.squad.find(function(x) { return x.id === last.playerId; });
                 if (p) {
                     p.goals = last.prevG; p.assists = last.prevA; p.yellowCards = last.prevY; p.redCards = last.prevR;
+                    p.sentOffFromPitch = Boolean(last.prevSentOffFromPitch && p.redCards >= 1);
                     if (last.prevOn && p.redCards === 0 && getCurrentOnPitchCount(p.team) < getMaxAllowedOnPitch(p.team)) {
                         p.onPitch = true; p.x = last.prevX; p.y = last.prevYCoord;
                     }
@@ -864,7 +891,7 @@
         function createNewPlayer(team) {
             var input = document.getElementById(team === 'home' ? 'homePlayerName' : 'awayPlayerName');
             if (input && input.value.trim() !== "") {
-                LedgerState.squad.push({ id: Date.now() + Math.floor(Math.random() * 1000), name: input.value.trim(), role: 'SUB', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, x: 0, y: 0, team: team, onPitch: false });
+                LedgerState.squad.push({ id: Date.now() + Math.floor(Math.random() * 1000), name: input.value.trim(), role: 'SUB', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, sentOffFromPitch: false, x: 0, y: 0, team: team, onPitch: false });
                 input.value = ""; repositionBenchedTeammatesInZones(); saveSquadData(); renderSquadBanks(); recalculateEqualTimeMatrix(); updateSidebarHeaderLabels(); drawPitch();
             }
         }
@@ -931,7 +958,7 @@
                     active.push(promoted);
                 } else {
                     var idx = active.length;
-                    var created = { id: Date.now() + Math.floor(Math.random() * 10000) + idx, name: nextSlot.r === 'GK' ? 'GK' : (isAway ? 'Opp ' : 'Player ') + idx, role: nextSlot.r || 'POS', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, x: PITCH.centerX, y: PITCH.centerY, team: team, onPitch: true };
+                    var created = { id: Date.now() + Math.floor(Math.random() * 10000) + idx, name: nextSlot.r === 'GK' ? 'GK' : (isAway ? 'Opp ' : 'Player ') + idx, role: nextSlot.r || 'POS', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, sentOffFromPitch: false, x: PITCH.centerX, y: PITCH.centerY, team: team, onPitch: true };
                     LedgerState.squad.push(created); active.push(created);
                 }
             }
@@ -957,10 +984,10 @@
             var slots = formations[formType][team], isAway = (team === 'away'), baseId = Date.now() + (isAway ? 500 : 100);
             slots.forEach(function(slot, idx) {
                 var isGK = slot.r === 'GK', scaled = scalePlayingFieldCoordinates(slot.x, slot.y, isAway, isGK);
-                LedgerState.squad.push({ id: baseId + idx, name: isGK ? 'GK' : (isAway ? 'Opp ' : 'Player ') + idx, role: slot.r || 'POS', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, x: scaled.x, y: scaled.y, team: team, onPitch: true });
+                LedgerState.squad.push({ id: baseId + idx, name: isGK ? 'GK' : (isAway ? 'Opp ' : 'Player ') + idx, role: slot.r || 'POS', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, sentOffFromPitch: false, x: scaled.x, y: scaled.y, team: team, onPitch: true });
             });
             for (var b = 1; b <= 5; b++) {
-                LedgerState.squad.push({ id: baseId + 50 + b, name: 'Sub ' + b, role: 'SUB', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, x: 0, y: 0, team: team, onPitch: false });
+                LedgerState.squad.push({ id: baseId + 50 + b, name: 'Sub ' + b, role: 'SUB', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, sentOffFromPitch: false, x: 0, y: 0, team: team, onPitch: false });
             }
             repositionBenchedTeammatesInZones(); saveSquadData(); renderSquadBanks(); recalculateEqualTimeMatrix(); updateSidebarHeaderLabels(); drawPitch();
         }
@@ -1384,7 +1411,12 @@
                     p.yellowCards = Math.min(2, Math.max(0, Number(p.yellowCards) || 0));
                     p.redCards = Math.min(1, Math.max(0, Number(p.redCards) || 0));
                     if (p.yellowCards >= 2) p.redCards = 1;
-                    if (p.redCards >= 1) p.onPitch = false;
+                    if (p.redCards >= 1) {
+                        p.onPitch = false;
+                        p.sentOffFromPitch = Boolean(p.sentOffFromPitch);
+                    } else {
+                        p.sentOffFromPitch = false;
+                    }
                     return p;
                 }) : [];
             } catch (e) { LedgerState.squad = []; }
@@ -1436,4 +1468,4 @@
     </script>
 </body>
 </html>
-<!-- END OF COACHCALC v0.67.8 -->
+<!-- END OF COACHCALC v0.67.10 -->
