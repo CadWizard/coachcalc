@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.10)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.11)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -142,7 +142,7 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.10)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.11)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -370,11 +370,11 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.10 (Bench Red Card Rule Fix)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.11 (Smart Sub Position Memory)</p>
                 <ul>
-                    <li><strong>Bench Red Card Rule Fix:</strong> If a substitute on the bench receives a Red Card (or 2nd Yellow), they are marked <code>🟥 Sent Off</code> and made unavailable to enter the pitch, while the on-pitch team size remains at full strength. Only red cards given to on-pitch players reduce the team's on-pitch count.</li>
-                    <li><strong>Bench Goal &amp; Assist Restriction:</strong> Benched substitutes cannot accrue new Goals or Assists while on the bench.</li>
-                    <li><strong>Collapsible Benches &amp; 10% Larger Counters:</strong> Expandable bench lists and <code>16.5px</code> radius pitch tokens.</li>
+                    <li><strong>Smart Sub Position Memory:</strong> When an on-pitch player is sent to the bench, their exact pitch coordinates and position role are stored so the next substitute brought onto the pitch automatically takes their vacated spot and role.</li>
+                    <li><strong>Bench Red Card Rule Fix:</strong> Substitutes sent off on the bench are locked as <code>🟥 Sent Off</code> without reducing the active on-pitch team size.</li>
+                    <li><strong>Bench Goal/Assist Lock &amp; Collapsible Benches:</strong> Full match-day suite.</li>
                 </ul>
             </div>
         </div>
@@ -413,6 +413,7 @@
         var LedgerState = {
             squad: [], statHistory: [],
             openActionPlayerId: null,
+            vacatedSlots: { home: [], away: [] },
             homeTeamName: localStorage.getItem('pitchPadHomeTeamName') || 'Home Squad',
             awayTeamName: localStorage.getItem('pitchPadAwayTeamName') || 'Away Squad'
         };
@@ -421,6 +422,7 @@
         var BoardState = {
             drawings: [], notes: [], mode: 'move', isDragging: false,
             selectedPlayer: null, selectedNote: null, arrowStart: null, tempArrowEnd: null, hoveredPlayer: null,
+            dragOrigin: null,
             homeFormation: '2-4-2', awayFormation: '2-4-2', snapping: true,
             labelMode: localStorage.getItem('pitchPadLabelMode') || 'names',
             pitchDesign: localStorage.getItem('pitchPadDesign') || 'stripes-v',
@@ -553,7 +555,6 @@
             return parseFormatInt(fmtNode ? fmtNode.value : '9v9');
         }
 
-        // Only red cards given to active on-pitch players reduce the team's on-pitch limit
         function getTeamPitchReducingRedCount(team) {
             return LedgerState.squad.filter(function(p) {
                 return p.team === team && (Number(p.redCards) || 0) > 0 && Boolean(p.sentOffFromPitch);
@@ -566,6 +567,53 @@
 
         function getCurrentOnPitchCount(team) {
             return LedgerState.squad.filter(function(p) { return p.team === team && p.onPitch; }).length;
+        }
+
+        // Stores the pitch coordinates and role of a player sent to the bench
+        function recordVacatedSlot(team, x, y, role) {
+            if (!LedgerState.vacatedSlots[team]) LedgerState.vacatedSlots[team] = [];
+            if (Number.isFinite(x) && Number.isFinite(y) && y <= PITCH.bottom + 15) {
+                LedgerState.vacatedSlots[team].push({
+                    x: x,
+                    y: y,
+                    role: (role && role !== 'SUB') ? role : 'POS'
+                });
+            }
+        }
+
+        // Returns the most recently vacated slot (or an open formation slot) for a substitute entering the pitch
+        function claimVacatedSlot(team) {
+            var stack = LedgerState.vacatedSlots[team] || [];
+            var activeTeammates = LedgerState.squad.filter(function(p) { return p.team === team && p.onPitch; });
+
+            while (stack.length > 0) {
+                var candidate = stack.pop();
+                var isOccupied = activeTeammates.some(function(p) {
+                    return Math.hypot(p.x - candidate.x, p.y - candidate.y) < 15;
+                });
+                if (!isOccupied) {
+                    return candidate;
+                }
+            }
+
+            // Fallback: check active formation for any unoccupied slot
+            var activeForm = team === 'home' ? BoardState.homeFormation : BoardState.awayFormation;
+            if (activeForm && activeForm !== 'none' && formations[activeForm] && formations[activeForm][team]) {
+                var slots = formations[activeForm][team];
+                var isAway = (team === 'away');
+                for (var i = 0; i < slots.length; i++) {
+                    var sl = slots[i];
+                    var scaled = scalePlayingFieldCoordinates(sl.x, sl.y, isAway, sl.r === 'GK');
+                    var taken = activeTeammates.some(function(p) {
+                        return Math.hypot(p.x - scaled.x, p.y - scaled.y) < 18;
+                    });
+                    if (!taken) {
+                        return { x: scaled.x, y: scaled.y, role: sl.r || 'POS' };
+                    }
+                }
+            }
+
+            return { x: PITCH.centerX, y: PITCH.centerY, role: 'POS' };
         }
 
         function enforceTeamPitchCap(team) {
@@ -829,7 +877,6 @@
                 p[field] = nxt;
             }
 
-            // Distinguish on-pitch dismissal (reduces team size) vs. bench dismissal (does not reduce on-pitch team)
             if (prevR === 0 && p.redCards === 1) {
                 p.wasOnPitchBeforeRed = prevOn;
                 p.sentOffFromPitch = prevOn;
@@ -906,9 +953,17 @@
                     showPitchToast("⚠️ Max players on pitch (" + currentOn + "/" + maxAllowed + "). Bench a player first or drag onto an active player to swap!");
                     return;
                 }
-                p.onPitch = true; p.x = PITCH.centerX; p.y = PITCH.centerY;
-                if (p.role === 'SUB') p.role = 'POS';
-            } else { p.onPitch = false; }
+                var targetSlot = claimVacatedSlot(p.team);
+                p.onPitch = true;
+                p.x = targetSlot.x;
+                p.y = targetSlot.y;
+                p.role = targetSlot.role || 'POS';
+            } else {
+                // Save Player A's pitch position and role before sending them to the bench
+                recordVacatedSlot(p.team, p.x, p.y, p.role);
+                p.onPitch = false;
+                p.role = 'SUB';
+            }
             repositionBenchedTeammatesInZones(); saveSquadData(); renderSquadBanks(); recalculateEqualTimeMatrix(); drawPitch();
         }
 
@@ -980,6 +1035,7 @@
                 var fmt = document.getElementById(fmtId).value || '9v9';
                 formType = (formatPlaybooks[fmt] && formatPlaybooks[fmt][0]) ? formatPlaybooks[fmt][0] : '2-4-2';
             }
+            LedgerState.vacatedSlots[team] = [];
             LedgerState.squad = LedgerState.squad.filter(function(p) { return p.team !== team; });
             var slots = formations[formType][team], isAway = (team === 'away'), baseId = Date.now() + (isAway ? 500 : 100);
             slots.forEach(function(slot, idx) {
@@ -996,6 +1052,7 @@
             BoardState.ball.x = PITCH.centerX; BoardState.ball.y = PITCH.centerY;
             LedgerState.statHistory = [];
             LedgerState.openActionPlayerId = null;
+            LedgerState.vacatedSlots = { home: [], away: [] };
             autoFillTeam('home'); autoFillTeam('away');
         }
 
@@ -1301,6 +1358,7 @@
 
         function changeFormation(team, value) {
             if (team === 'home') BoardState.homeFormation = value; else BoardState.awayFormation = value;
+            LedgerState.vacatedSlots[team] = [];
             saveFormationData(); enforceTeamPitchCap(team);
             if (value !== 'none' && formations[value]) ensureFormationSlotCount(team, value);
             repositionBenchedTeammatesInZones(); saveSquadData(); renderSquadBanks(); recalculateEqualTimeMatrix(); updateSidebarHeaderLabels(); drawPitch();
@@ -1315,7 +1373,15 @@
                 var clickedPlayer = LedgerState.squad.find(function(p) { return Number.isFinite(p.x) && Number.isFinite(p.y) && Math.hypot(c.x - p.x, c.y - p.y) < PLAYER_HIT_RADIUS; });
                 if (clickedPlayer) {
                     if ((Number(clickedPlayer.redCards) || 0) > 0) { showPitchToast("🟥 " + clickedPlayer.name + " has a Red Card and must remain on the bench."); return; }
-                    BoardState.selectedPlayer = clickedPlayer; BoardState.isDragging = true; return;
+                    BoardState.selectedPlayer = clickedPlayer;
+                    BoardState.dragOrigin = {
+                        x: clickedPlayer.x,
+                        y: clickedPlayer.y,
+                        role: clickedPlayer.role,
+                        onPitch: Boolean(clickedPlayer.onPitch)
+                    };
+                    BoardState.isDragging = true;
+                    return;
                 }
                 BoardState.selectedNote = BoardState.notes.find(function(n) {
                     ctx.font = 'bold 14px Arial'; var tw = ctx.measureText(n.text).width;
@@ -1368,15 +1434,26 @@
 
                     if (swapTarget && !sp.onPitch) {
                         var tx = swapTarget.x, ty = swapTarget.y, tr = swapTarget.role;
-                        swapTarget.onPitch = false; sp.onPitch = true; sp.x = tx; sp.y = ty; sp.role = tr;
+                        swapTarget.onPitch = false; swapTarget.role = 'SUB';
+                        sp.onPitch = true; sp.x = tx; sp.y = ty; sp.role = tr;
                     } else if (sp.onPitch && inBenchBox) {
+                        if (BoardState.dragOrigin && BoardState.dragOrigin.onPitch) {
+                            recordVacatedSlot(sp.team, BoardState.dragOrigin.x, BoardState.dragOrigin.y, BoardState.dragOrigin.role);
+                        }
                         sp.onPitch = false;
+                        sp.role = 'SUB';
                     } else if (!sp.onPitch) {
                         if (inBenchBox) { sp.onPitch = false; }
                         else if (getCurrentOnPitchCount(sp.team) >= getMaxAllowedOnPitch(sp.team)) {
                             sp.onPitch = false;
                             showPitchToast("⚠️ Max players on pitch (" + getCurrentOnPitchCount(sp.team) + "/" + getMaxAllowedOnPitch(sp.team) + "). Drag onto an active player on the pitch to swap!");
-                        } else { sp.onPitch = true; if (sp.role === 'SUB') sp.role = 'POS'; }
+                        } else {
+                            sp.onPitch = true;
+                            if (sp.role === 'SUB') {
+                                var claimed = claimVacatedSlot(sp.team);
+                                sp.role = claimed.role || 'POS';
+                            }
+                        }
                     }
 
                     var activeForm = sp.team === 'home' ? BoardState.homeFormation : BoardState.awayFormation;
@@ -1385,14 +1462,17 @@
                         formations[activeForm][sp.team].forEach(function(slot) {
                             var s = scalePlayingFieldCoordinates(slot.x, slot.y, sp.team === 'away', isGK);
                             var d = Math.hypot(sp.x - s.x, sp.y - s.y);
-                            if (d < minDist) { minDist = d; closest = s; }
+                            if (d < minDist) { minDist = d; closest = Object.assign({ r: slot.r }, s); }
                         });
-                        if (closest) { sp.x = closest.x; sp.y = closest.y; }
+                        if (closest) {
+                            sp.x = closest.x; sp.y = closest.y;
+                            if (closest.r && (sp.role === 'POS' || sp.role === 'SUB')) sp.role = closest.r;
+                        }
                     }
                     repositionBenchedTeammatesInZones(); saveSquadData(); renderSquadBanks(); recalculateEqualTimeMatrix();
                 }
             }
-            BoardState.isDragging = false; BoardState.selectedPlayer = null; BoardState.selectedNote = null; BoardState.arrowStart = null; BoardState.tempArrowEnd = null;
+            BoardState.isDragging = false; BoardState.selectedPlayer = null; BoardState.selectedNote = null; BoardState.arrowStart = null; BoardState.tempArrowEnd = null; BoardState.dragOrigin = null;
             drawPitch();
         }
 
@@ -1468,4 +1548,4 @@
     </script>
 </body>
 </html>
-<!-- END OF COACHCALC v0.67.10 -->
+<!-- END OF COACHCALC v0.67.11 -->
