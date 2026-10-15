@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.0)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.1)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -34,6 +34,26 @@
         .undo-stat-btn { background: rgba(255,255,255,0.12); color: #ecf0f1; border: 1px solid rgba(255,255,255,0.25); font-size: 11px; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .undo-stat-btn:hover:not(:disabled) { background: rgba(231, 76, 60, 0.85); border-color: #e74c3c; color: #fff; }
         .undo-stat-btn:disabled { opacity: 0.4; cursor: default; }
+
+        /* Compact Symbol Timer Transport Buttons */
+        .timer-icon-btn {
+            width: 36px;
+            height: 34px;
+            padding: 0;
+            justify-content: center;
+            align-items: center;
+            font-size: 15px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+            transition: transform 0.1s ease, opacity 0.2s ease;
+        }
+        .timer-icon-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.08); }
+        .timer-icon-btn:active:not(:disabled) { transform: translateY(0); }
+        .timer-icon-btn:disabled { opacity: 0.32; cursor: not-allowed; box-shadow: none; }
+
         .squad-list-container { display: flex; flex-direction: column; gap: 6px; max-height: 250px; overflow-y: auto; background: #fcfcfc; padding: 4px; border: 1px dashed #ddd; border-radius: 4px; }
         .squad-item { display: flex; flex-direction: column; padding: 6px 8px; background: #f8f9fa; border-radius: 4px; border-left: 5px solid #ccc; font-size: 13px; gap: 5px; }
         .squad-item.sent-off-card { background: #fdf2e9; border-left-color: #c0392b !important; }
@@ -81,7 +101,7 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.0)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.1)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -128,16 +148,22 @@
                     <button id="undoLastStatBtn" class="undo-stat-btn" onclick="undoLastStatAction()" disabled title="Undo the most recent Goal, Assist, or Card">↩️ Undo Last Stat/Card</button>
                 </div>
 
+                <!-- Unified Clock & Symbol Transport Bar -->
                 <div class="row" style="justify-content:space-between;">
-                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                         <label style="font-weight:bold; font-size:13px;">Game Length:</label>
-                        <input type="number" id="matchLengthInput" oninput="recalculateEqualTimeMatrix()" value="70" style="width:55px; padding:4px; text-align:center;">
+                        <input type="number" id="matchLengthInput" oninput="recalculateEqualTimeMatrix()" value="70" style="width:52px; padding:4px; text-align:center;">
                         <label style="font-weight:bold; font-size:13px;">Half Length:</label>
-                        <input type="number" id="halfLengthInput" oninput="updateClockDisplayStrings()" value="35" style="width:55px; padding:4px; text-align:center;">
+                        <input type="number" id="halfLengthInput" oninput="updateClockDisplayStrings()" value="35" style="width:52px; padding:4px; text-align:center;">
                     </div>
-                    <div style="display:flex; gap:8px; align-items:center;">
-                        <span id="currentHalfLabel" style="font-weight:bold; background:#ebd4ef; padding:4px 8px; border-radius:4px; font-size:13px; color:#6c3483;">1st Half</span>
-                        <span id="liveClockDisplay" style="font-family:monospace; font-size:26px; font-weight:bold; color:#2c3e50; background:#eaeded; padding:2px 10px; border-radius:4px; border:1px solid #bdc3c7; transition: background-color 0.2s ease, color 0.2s ease;">00:00</span>
+                    <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                        <span id="currentHalfLabel" style="font-weight:bold; background:#ebd4ef; padding:5px 8px; border-radius:4px; font-size:13px; color:#6c3483;">1st Half</span>
+                        <span id="liveClockDisplay" style="font-family:monospace; font-size:25px; font-weight:bold; color:#2c3e50; background:#eaeded; padding:2px 10px; border-radius:4px; border:1px solid #bdc3c7; transition: background-color 0.2s ease, color 0.2s ease;">00:00</span>
+                        <button id="startTimerBtn" class="timer-icon-btn" onclick="startMatchTimerEngine()" style="background-color:#27ae60;" title="Start Timer">▶</button>
+                        <button id="pauseTimerBtn" class="timer-icon-btn" onclick="pauseMatchTimerEngine()" style="background-color:#f39c12;" title="Pause Timer" disabled>⏸</button>
+                        <button id="nextHalfBtn" class="timer-icon-btn" onclick="advanceToNextHalf()" style="background-color:#8e44ad;" title="Advance to 2nd Half">⏭</button>
+                        <button class="timer-icon-btn" onclick="finishGameAndCompileReport()" style="background-color:#c0392b;" title="Force Finish &amp; View Match Summary">🏁</button>
+                        <button class="timer-icon-btn" onclick="startNewGame()" style="background-color:#2980b9;" title="New Game (Reset team names, timer, scores, cards, and squads)">🆕</button>
                     </div>
                 </div>
 
@@ -153,14 +179,6 @@
                         <div id="homeFairPlayTarget">Home Target: -- mins</div>
                         <div id="awayFairPlayTarget">Away Target: -- mins</div>
                     </div>
-                </div>
-
-                <div class="row" style="margin-top:2px;">
-                    <button id="startTimerBtn" onclick="startMatchTimerEngine()" style="background-color:#27ae60; color:white; font-weight:bold; border:none;">▶ Start Timer</button>
-                    <button id="pauseTimerBtn" onclick="pauseMatchTimerEngine()" style="background-color:#f39c12; color:white; font-weight:bold; border:none;" disabled>⏸ Pause Timer</button>
-                    <button id="nextHalfBtn" onclick="advanceToNextHalf()" style="background-color:#8e44ad; color:white; font-size:13px; font-weight:bold; border:none;">Next Half</button>
-                    <button onclick="startNewGame()" style="background-color:#2980b9; color:white; font-weight:bold; border:none; margin-left:auto;" title="Reset team names, timer, scores, cards, and squads to starting defaults">🆕 New Game</button>
-                    <button onclick="finishGameAndCompileReport()" style="background-color:#c0392b; color:white; font-weight:bold; border:none;">🏁 Force Finish Report</button>
                 </div>
 
                 <div class="row" style="border-top:1px dashed #ddd; padding-top:6px; margin-top:2px; align-items:center;">
@@ -252,11 +270,11 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.0 (Referee Whistle Alert Engine)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.1 (Compact Symbol Timer Controls)</p>
                 <ul>
-                    <li><strong>Referee Whistle Sound (Offline Web Audio):</strong> Automatically blows a two-blast whistle when 1st Half regulation time finishes (e.g., <code>35:00</code>) and a three-blast whistle when 2nd Half regulation time finishes (e.g., <code>70:00</code>).</li>
-                    <li><strong>True 105m × 68m Pitch Scale:</strong> Scaled pitch width, 18-yard boxes, 6-yard boxes, 11m penalty spots, and <code>9.1m</code> penalty "D" arcs.</li>
-                    <li><strong>Red Card Ejection &amp; On-Pitch Limits:</strong> Red cards automatically bench the player and reduce the team's on-pitch limit by 1.</li>
+                    <li><strong>Symbol Timer Controls:</strong> Converted Play (<code>▶</code>), Pause (<code>⏸</code>), Next Half (<code>⏭</code>), Finish Report (<code>🏁</code>), and New Game (<code>🆕</code>) into compact icon buttons alongside the live clock.</li>
+                    <li><strong>Referee Whistle Sound (Offline Web Audio):</strong> Automatically blows a two-blast whistle at Half-Time regulation and a three-blast whistle at Full-Time regulation.</li>
+                    <li><strong>True 105m × 68m Pitch Scale &amp; Card Rules:</strong> FIFA-proportioned markings, <code>9.1m</code> penalty "D" arcs, and automatic Red Card benching.</li>
                 </ul>
             </div>
         </div>
@@ -371,7 +389,6 @@
             masterGain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
             masterGain.connect(ac.destination);
 
-            // Dual detuned chambers (classic referee whistle frequencies)
             var osc1 = ac.createOscillator();
             var osc2 = ac.createOscillator();
             osc1.type = 'sine';
@@ -379,7 +396,6 @@
             osc1.frequency.setValueAtTime(2820, startTime);
             osc2.frequency.setValueAtTime(2985, startTime);
 
-            // Pea trill modulator (34 Hz cork ball vibration effect)
             var peaLfo = ac.createOscillator();
             var peaDepth = ac.createGain();
             peaLfo.type = 'sine';
@@ -413,16 +429,13 @@
                 if (!ac) return;
                 var now = ac.currentTime + 0.02;
                 if (pattern === 'half') {
-                    // Half-Time whistle: Short blast + Long blast (Peep — Peeeeeep!)
                     scheduleWhistleBlast(ac, now, 0.28);
                     scheduleWhistleBlast(ac, now + 0.40, 0.72);
                 } else if (pattern === 'full') {
-                    // Full-Time whistle: Two short blasts + Long blast (Peep — Peep — Peeeeeeeeep!)
                     scheduleWhistleBlast(ac, now, 0.22);
                     scheduleWhistleBlast(ac, now + 0.32, 0.22);
                     scheduleWhistleBlast(ac, now + 0.66, 0.88);
                 } else {
-                    // Single blast (Test)
                     scheduleWhistleBlast(ac, now, 0.42);
                 }
             } catch (e) {}
@@ -591,7 +604,10 @@
             var lbl = document.getElementById('currentHalfLabel');
             lbl.style.backgroundColor = "#fadbd8"; lbl.style.color = "#78281f"; lbl.innerText = "2nd Half";
             var halfBtn = document.getElementById('nextHalfBtn');
-            halfBtn.innerText = "🏁 Full Time: End Game"; halfBtn.style.backgroundColor = "#c0392b"; halfBtn.onclick = finishGameAndCompileReport;
+            halfBtn.innerText = "⏹";
+            halfBtn.title = "Full Time: End Game";
+            halfBtn.style.backgroundColor = "#c0392b";
+            halfBtn.onclick = finishGameAndCompileReport;
             updateClockDisplayStrings(); drawPitch();
         }
 
@@ -878,7 +894,11 @@
             document.getElementById('startTimerBtn').disabled = false;
             document.getElementById('pauseTimerBtn').disabled = true;
             var halfBtn = document.getElementById('nextHalfBtn');
-            halfBtn.disabled = false; halfBtn.innerText = "Next Half"; halfBtn.style.backgroundColor = "#8e44ad"; halfBtn.onclick = advanceToNextHalf;
+            halfBtn.disabled = false;
+            halfBtn.innerText = "⏭";
+            halfBtn.title = "Advance to 2nd Half";
+            halfBtn.style.backgroundColor = "#8e44ad";
+            halfBtn.onclick = advanceToNextHalf;
             LedgerState.homeTeamName = 'Home Squad'; LedgerState.awayTeamName = 'Away Squad';
             try { localStorage.setItem('pitchPadHomeTeamName', 'Home Squad'); localStorage.setItem('pitchPadAwayTeamName', 'Away Squad'); } catch (e) {}
             BoardState.drawings = []; BoardState.notes = [];
