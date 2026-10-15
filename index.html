@@ -3,386 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.66.2)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.66.4)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 15px 20px 80px 20px;
+            margin: 0; padding: 15px 20px 80px 20px;
             background-image: linear-gradient(rgba(26, 36, 43, 0.45), rgba(15, 23, 30, 0.9)), url('https://images.unsplash.com/photo-1577223625816-7546f13df25d?auto=format&fit=crop&w=1920&q=80');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            background-size: cover; background-position: center; background-attachment: fixed;
             background-color: #111822;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            user-select: none;
-            -webkit-user-select: none;
-            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+            user-select: none; -webkit-user-select: none; min-height: 100vh;
         }
-        h1 {
-            color: #ffffff;
-            font-size: clamp(32px, 4vw, 52px);
-            font-weight: 900;
-            letter-spacing: 1.5px;
-            line-height: 1.2;
-            text-shadow: 0 6px 14px rgba(0,0,0,0.9), 0 3px 6px rgba(0,0,0,0.7);
-            margin: 8px 0 4px 0;
-            text-align: center;
-        }
-        h2.subtitle {
-            color: #e2e8f0;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            font-size: 14px;
-            margin: 0 0 18px 0;
-            font-weight: normal;
-            text-align: center;
-        }
-        #main-layout {
-            display: flex;
-            gap: 16px;
-            align-items: flex-start;
-            max-width: 1480px;
-            width: 100%;
-            justify-content: center;
-        }
-        .sidebar {
-            flex: 0 1 300px;
-            min-width: 260px;
-            background: white;
-            padding: 14px;
-            border-radius: 8px;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .sidebar h3 {
-            display: flex;
-            align-items: center;
-            margin: 0 0 2px 0;
-            color: #2c3e50;
-            font-size: 17px;
-        }
-        .sidebar h4 {
-            margin: 5px 0 2px 0;
-            font-size: 12px;
-            text-transform: uppercase;
-            color: #7f8c8d;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 2px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .kit-badge {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            border: 1.5px solid #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-            margin-right: 8px;
-            flex-shrink: 0;
-        }
+        h1 { color: #fff; font-size: clamp(32px, 4vw, 52px); font-weight: 900; letter-spacing: 1.5px; line-height: 1.2; text-shadow: 0 6px 14px rgba(0,0,0,0.9), 0 3px 6px rgba(0,0,0,0.7); margin: 8px 0 4px 0; text-align: center; }
+        h2.subtitle { color: #e2e8f0; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-size: 14px; margin: 0 0 18px 0; font-weight: normal; text-align: center; }
+        #main-layout { display: flex; gap: 16px; align-items: flex-start; max-width: 1480px; width: 100%; justify-content: center; }
+        .sidebar { flex: 0 1 300px; min-width: 260px; background: #fff; padding: 14px; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 10px; }
+        .sidebar h3 { display: flex; align-items: center; margin: 0 0 2px 0; color: #2c3e50; font-size: 17px; }
+        .sidebar h4 { margin: 5px 0 2px 0; font-size: 12px; text-transform: uppercase; color: #7f8c8d; border-bottom: 1px solid #eee; padding-bottom: 2px; display: flex; justify-content: space-between; align-items: center; }
+        .kit-badge { display: inline-block; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.15); margin-right: 8px; flex-shrink: 0; }
         .kit-home { background: linear-gradient(to right, #27ae60 25%, #f1c40f 25% 50%, #27ae60 50% 75%, #f1c40f 75%); }
         .kit-away { background-color: #2980b9; }
-        .center-workspace {
-            flex: 1 1 560px;
-            max-width: 800px;
-            min-width: 300px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        #controls, #timer-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            background: white;
-            padding: 12px 15px;
-            border-radius: 8px;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-            width: 100%;
-        }
+        .center-workspace { flex: 1 1 560px; max-width: 800px; min-width: 300px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+        #controls, #timer-panel { display: flex; flex-direction: column; gap: 10px; background: #fff; padding: 12px 15px; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.3); width: 100%; }
         .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-
-        /* Live Scoreboard Banner */
-        .scoreboard-banner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(135deg, #1a242f, #2c3e50);
-            color: #ffffff;
-            padding: 8px 14px;
-            border-radius: 6px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .scoreboard-center {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            flex: 1;
-            min-width: 220px;
-        }
-        .score-team-label {
-            font-weight: 800;
-            font-size: 14px;
-            letter-spacing: 0.4px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .score-pill-box {
-            background: #111822;
-            border: 1px solid #4a607a;
-            border-radius: 6px;
-            padding: 3px 14px;
-            font-family: monospace;
-            font-size: 24px;
-            font-weight: 900;
-            color: #f1c40f;
-            letter-spacing: 2px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.35);
-        }
-        .undo-stat-btn {
-            background: rgba(255,255,255,0.12);
-            color: #ecf0f1;
-            border: 1px solid rgba(255,255,255,0.25);
-            font-size: 11px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .undo-stat-btn:hover:not(:disabled) {
-            background: rgba(231, 76, 60, 0.85);
-            border-color: #e74c3c;
-            color: white;
-        }
-        .undo-stat-btn:disabled {
-            opacity: 0.4;
-            cursor: default;
-        }
-
-        .squad-list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            max-height: 250px;
-            overflow-y: auto;
-            background: #fcfcfc;
-            padding: 4px;
-            border: 1px dashed #ddd;
-            border-radius: 4px;
-        }
-        .squad-item {
-            display: flex;
-            flex-direction: column;
-            padding: 6px 8px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            border-left: 5px solid #ccc;
-            font-size: 13px;
-            gap: 5px;
-        }
-        .squad-item.sent-off-card {
-            background: #fdf2e9;
-            border-left-color: #c0392b !important;
-        }
-        .squad-item-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 4px;
-        }
-        .squad-item-bottom {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .stat-group {
-            display: inline-flex;
-            align-items: center;
-            border-radius: 3px;
-            overflow: hidden;
-            border: 1px solid #d5dbdb;
-            background: #f2f4f4;
-        }
-        .stat-pill-btn {
-            background: transparent;
-            border: none;
-            padding: 2px 5px;
-            font-size: 11px;
-            cursor: pointer;
-            font-weight: bold;
-            color: #2c3e50;
-        }
+        .scoreboard-banner { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #1a242f, #2c3e50); color: #fff; padding: 8px 14px; border-radius: 6px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); gap: 10px; flex-wrap: wrap; }
+        .scoreboard-center { display: flex; align-items: center; justify-content: center; gap: 12px; flex: 1; min-width: 220px; }
+        .score-team-label { font-weight: 800; font-size: 14px; letter-spacing: 0.4px; display: flex; align-items: center; gap: 6px; }
+        .score-pill-box { background: #111822; border: 1px solid #4a607a; border-radius: 6px; padding: 3px 14px; font-family: monospace; font-size: 24px; font-weight: 900; color: #f1c40f; letter-spacing: 2px; box-shadow: 0 2px 6px rgba(0,0,0,0.35); }
+        .undo-stat-btn { background: rgba(255,255,255,0.12); color: #ecf0f1; border: 1px solid rgba(255,255,255,0.25); font-size: 11px; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .undo-stat-btn:hover:not(:disabled) { background: rgba(231, 76, 60, 0.85); border-color: #e74c3c; color: #fff; }
+        .undo-stat-btn:disabled { opacity: 0.4; cursor: default; }
+        .squad-list-container { display: flex; flex-direction: column; gap: 6px; max-height: 250px; overflow-y: auto; background: #fcfcfc; padding: 4px; border: 1px dashed #ddd; border-radius: 4px; }
+        .squad-item { display: flex; flex-direction: column; padding: 6px 8px; background: #f8f9fa; border-radius: 4px; border-left: 5px solid #ccc; font-size: 13px; gap: 5px; }
+        .squad-item.sent-off-card { background: #fdf2e9; border-left-color: #c0392b !important; }
+        .squad-item-top { display: flex; justify-content: space-between; align-items: center; gap: 4px; }
+        .squad-item-bottom { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+        .stat-group { display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; border: 1px solid #d5dbdb; background: #f2f4f4; }
+        .stat-pill-btn { background: transparent; border: none; padding: 2px 5px; font-size: 11px; cursor: pointer; font-weight: bold; color: #2c3e50; }
         .stat-pill-btn:hover { background: #e5e8e8; }
-        .stat-minus-btn {
-            background: #fdedec;
-            border: none;
-            border-left: 1px solid #d5dbdb;
-            color: #c0392b;
-            padding: 2px 5px;
-            font-size: 11px;
-            font-weight: 900;
-            cursor: pointer;
-            line-height: 1;
-        }
-        .stat-minus-btn:hover {
-            background: #e74c3c;
-            color: #ffffff;
-        }
-        .player-label-click {
-            cursor: pointer;
-            padding: 2px 4px;
-            border-radius: 3px;
-            transition: background 0.2s ease;
-        }
+        .stat-minus-btn { background: #fdedec; border: none; border-left: 1px solid #d5dbdb; color: #c0392b; padding: 2px 5px; font-size: 11px; font-weight: 900; cursor: pointer; line-height: 1; }
+        .stat-minus-btn:hover { background: #e74c3c; color: #fff; }
+        .player-label-click { cursor: pointer; padding: 2px 4px; border-radius: 3px; transition: background 0.2s ease; }
         .player-label-click:hover { background-color: #eaecee; }
-        .role-badge-click {
-            font-size: 10px;
-            background: #ebf5fb;
-            border: 1px solid #a9cce3;
-            padding: 1px 4px;
-            border-radius: 4px;
-            color: #2980b9;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .fairplay-matrix-box {
-            background: #f4f6f7;
-            border-left: 5px solid #8e44ad;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #2c3e50;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        button {
-            padding: 7px 11px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            background: #f8f9fa;
-            font-size: 13px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            touch-action: manipulation;
-        }
-        input, select {
-            padding: 6px 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            font-size: 13px;
-            cursor: pointer;
-        }
-        button.active {
-            background-color: #27ae60 !important;
-            color: white !important;
-            border-color: #1e8449 !important;
-            font-weight: bold;
-        }
-        #board-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 4 / 3;
-            box-shadow: 0 14px 28px rgba(0,0,0,0.4);
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: #2e7d32;
-            touch-action: none;
-        }
-        #pitchToast {
-            position: absolute;
-            top: 14px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(192, 57, 43, 0.96);
-            color: #ffffff;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: bold;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.45);
-            border: 1px solid #f5b7b1;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            z-index: 50;
-            text-align: center;
-            max-width: 90%;
-        }
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            cursor: crosshair;
-            touch-action: none;
-        }
-        #report-ledger-panel {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-            width: 100%;
-            display: none;
-            margin-top: 10px;
-        }
+        .role-badge-click { font-size: 10px; background: #ebf5fb; border: 1px solid #a9cce3; padding: 1px 4px; border-radius: 4px; color: #2980b9; font-weight: bold; cursor: pointer; }
+        .fairplay-matrix-box { background: #f4f6f7; border-left: 5px solid #8e44ad; padding: 8px 12px; border-radius: 4px; font-size: 12px; color: #2c3e50; display: flex; flex-direction: column; gap: 4px; }
+        button { padding: 7px 11px; border-radius: 4px; border: 1px solid #ccc; background: #f8f9fa; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; touch-action: manipulation; }
+        input, select { padding: 6px 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; cursor: pointer; }
+        button.active { background-color: #27ae60 !important; color: #fff !important; border-color: #1e8449 !important; font-weight: bold; }
+        #board-container { position: relative; width: 100%; aspect-ratio: 4 / 3; box-shadow: 0 14px 28px rgba(0,0,0,0.4); border-radius: 8px; overflow: hidden; background-color: #2e7d32; touch-action: none; }
+        #pitchToast { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); background: rgba(192, 57, 43, 0.96); color: #fff; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; box-shadow: 0 4px 14px rgba(0,0,0,0.45); border: 1px solid #f5b7b1; pointer-events: none; opacity: 0; transition: opacity 0.2s ease; z-index: 50; text-align: center; max-width: 90%; }
+        canvas { display: block; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+        #report-ledger-panel { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.3); width: 100%; display: none; margin-top: 10px; }
         .report-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .report-table th, .report-table td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
         .report-table th { background-color: #f2f4f4; font-weight: bold; }
         .bottom-right-dock-anchor { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
-        #infoBtn {
-            background-color: #2980b9;
-            color: white;
-            font-weight: bold;
-            font-size: 13px;
-            padding: 8px 16px;
-            border: 1px solid #1f618d;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .info-modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-        }
-        .info-modal-box {
-            background: white;
-            width: 90%;
-            max-width: 550px;
-            max-height: 80vh;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .info-modal-header {
-            background: #1a242b;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        #infoBtn { background-color: #2980b9; color: #fff; font-weight: bold; font-size: 13px; padding: 8px 16px; border: 1px solid #1f618d; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .info-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 10000; }
+        .info-modal-box { background: #fff; width: 90%; max-width: 550px; max-height: 80vh; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; }
+        .info-modal-header { background: #1a242b; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
         .info-modal-header h3 { margin: 0; font-size: 18px; }
-        .info-modal-close-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; }
+        .info-modal-close-btn { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 0; }
         .info-modal-body { padding: 20px; overflow-y: auto; color: #2c3e50; font-size: 14px; line-height: 1.5; }
         @media (max-width: 1160px) {
             #main-layout { flex-wrap: wrap; }
@@ -399,7 +81,7 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.66.2)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.66.4)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -429,7 +111,6 @@
 
         <div class="center-workspace" id="centerWorkspaceFrame">
             <div id="timer-panel">
-                <!-- Live Match Scoreboard Banner -->
                 <div class="scoreboard-banner">
                     <div class="scoreboard-center">
                         <span class="score-team-label">
@@ -459,6 +140,7 @@
                         <span id="liveClockDisplay" style="font-family:monospace; font-size:26px; font-weight:bold; color:#2c3e50; background:#eaeded; padding:2px 10px; border-radius:4px; border:1px solid #bdc3c7; transition: background-color 0.2s ease, color 0.2s ease;">00:00</span>
                     </div>
                 </div>
+
                 <div class="fairplay-matrix-box">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
                         <strong>🎯 Equal Play Guide (Target per Player):</strong>
@@ -472,6 +154,7 @@
                         <div id="awayFairPlayTarget">Away Target: -- mins</div>
                     </div>
                 </div>
+
                 <div class="row" style="margin-top:2px;">
                     <button id="startTimerBtn" onclick="startMatchTimerEngine()" style="background-color:#27ae60; color:white; font-weight:bold; border:none;">▶ Start Timer</button>
                     <button id="pauseTimerBtn" onclick="pauseMatchTimerEngine()" style="background-color:#f39c12; color:white; font-weight:bold; border:none;" disabled>⏸ Pause Timer</button>
@@ -479,6 +162,7 @@
                     <button onclick="startNewGame()" style="background-color:#2980b9; color:white; font-weight:bold; border:none; margin-left:auto;" title="Reset team names, timer, scores, cards, and squads to starting defaults">🆕 New Game</button>
                     <button onclick="finishGameAndCompileReport()" style="background-color:#c0392b; color:white; font-weight:bold; border:none;">🏁 Force Finish Report</button>
                 </div>
+
                 <div class="row" style="border-top:1px dashed #ddd; padding-top:6px; margin-top:2px; align-items:center;">
                     <span style="font-size:12px; font-weight:bold; color:#7f8c8d;">⏱️ Forgot to Start? Catch Up:</span>
                     <button onclick="injectRetroactiveMinutes(1)" style="padding:3px 8px; font-size:12px; background:#eaf2f8; color:#2980b9; border-color:#a9cce3;">➕ 1 Min</button>
@@ -566,30 +250,43 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.66.2 (Red Card Ejection &amp; On-Pitch Player Cap)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.66.4 (True FIFA Pitch Scale &amp; Card Rules)</p>
                 <ul>
-                    <li><strong>Red Card Ejection &amp; Team Reduction:</strong> Players receiving a Red Card (or 2nd Yellow) are automatically moved to the bench and reduce their team's maximum allowed on-pitch count by 1.</li>
-                    <li><strong>Match Size On-Pitch Limit:</strong> Prevents adding more players to the pitch than dictated by the match format (minus any red cards), while still allowing 1-for-1 drag-and-drop substitutions.</li>
+                    <li><strong>True 105m × 68m Pitch Scale:</strong> Scaled pitch width, 18-yard boxes (<code>16.46m × 40.23m</code>), 6-yard boxes (<code>5.49m × 18.29m</code>), penalty spots (<code>11m</code>), and <code>9.1m</code> penalty "D" arcs off the <code>760px = 105m</code> pitch length.</li>
+                    <li><strong>Red Card Ejection &amp; On-Pitch Limits:</strong> Red cards (or 2nd yellows) automatically bench the player and reduce the team's on-pitch limit by 1.</li>
                 </ul>
             </div>
         </div>
     </div>
 
     <script>
-        // ==========================================
-        // 1. ISOLATED STATE MODULES & FORMATIONS
-        // ==========================================
         var canvas = document.getElementById('pitch');
         var ctx = canvas.getContext('2d');
         var toastTimeoutId = null;
 
-        var TimerState = {
-            intervalId: null,
-            isRunning: false,
-            secondsElapsed: 0,
-            activeHalf: 1
+        // Exact Metre-to-Pixel Scaling: 105m = 760px (1m = 7.23809524px)
+        var METRE_SCALE = 760 / 105;
+        var PITCH = {
+            left: 20,
+            top: 14,
+            lengthPx: 760,                              // 105.00m
+            widthPx: 68 * METRE_SCALE,                  // 68.00m  -> 492.19px
+            sixYardDepthPx: 5.49 * METRE_SCALE,         // 5.49m   -> 39.74px
+            sixYardWidthPx: 18.29 * METRE_SCALE,        // 18.29m  -> 132.38px
+            eighteenYardDepthPx: 16.46 * METRE_SCALE,   // 16.46m  -> 119.14px
+            eighteenYardWidthPx: 40.23 * METRE_SCALE,   // 40.23m  -> 291.19px
+            penaltySpotDistPx: 11 * METRE_SCALE,        // 11.00m  -> 79.62px
+            penaltyArcRadiusPx: 9.1 * METRE_SCALE,      // 9.10m   -> 65.87px
+            centerCircleRadiusPx: 9.15 * METRE_SCALE,   // 9.15m   -> 66.23px
+            goalWidthPx: 7.32 * METRE_SCALE,            // 7.32m   -> 52.98px
+            penaltyArcHalfAngle: Math.acos((16.46 - 11) / 9.1)
         };
+        PITCH.right = PITCH.left + PITCH.lengthPx;
+        PITCH.bottom = PITCH.top + PITCH.widthPx;
+        PITCH.centerX = PITCH.left + PITCH.lengthPx / 2;
+        PITCH.centerY = PITCH.top + PITCH.widthPx / 2;
 
+        var TimerState = { intervalId: null, isRunning: false, secondsElapsed: 0, activeHalf: 1 };
         var LedgerState = {
             squad: [],
             statHistory: [],
@@ -599,31 +296,16 @@
 
         var keeperColors = ['#d35400', '#e67e22', '#9b59b6', '#e74c3c', '#1abc9c', '#fdcb6e', '#e84393'];
         var BoardState = {
-            drawings: [],
-            notes: [],
-            mode: 'move',
-            isDragging: false,
-            selectedPlayer: null,
-            selectedNote: null,
-            arrowStart: null,
-            tempArrowEnd: null,
-            hoveredPlayer: null,
-            homeFormation: '2-4-2',
-            awayFormation: '2-4-2',
-            snapping: true,
+            drawings: [], notes: [], mode: 'move', isDragging: false,
+            selectedPlayer: null, selectedNote: null, arrowStart: null, tempArrowEnd: null, hoveredPlayer: null,
+            homeFormation: '2-4-2', awayFormation: '2-4-2', snapping: true,
             labelMode: localStorage.getItem('pitchPadLabelMode') || 'names',
             pitchDesign: localStorage.getItem('pitchPadDesign') || 'stripes-v',
             awayGkColor: keeperColors[Math.floor(Math.random() * keeperColors.length)],
-            ball: { x: 400, y: 240, isDragging: false }
+            ball: { x: PITCH.centerX, y: PITCH.centerY, isDragging: false }
         };
 
-        var formatPlaybooks = {
-            '5v5': ['1-2-1'],
-            '7v7': ['2-3-1'],
-            '9v9': ['2-4-2', '3-3-2', '2-3-1-1', '3-3-1-1'],
-            '11v11': ['4-4-2']
-        };
-
+        var formatPlaybooks = { '5v5': ['1-2-1'], '7v7': ['2-3-1'], '9v9': ['2-4-2', '3-3-2', '2-3-1-1', '3-3-1-1'], '11v11': ['4-4-2'] };
         var formations = {
             '1-2-1': {
                 home: [{x:60,y:240,r:'GK'},{x:160,y:240,r:'CB'},{x:260,y:110,r:'LM'},{x:260,y:370,r:'RM'},{x:370,y:240,r:'ST'}],
@@ -655,18 +337,12 @@
             }
         };
 
-        // ==========================================
-        // 2. STORAGE, LIMITS & COORDINATE HELPERS
-        // ==========================================
         function showPitchToast(msg) {
             var toast = document.getElementById('pitchToast');
             if (!toast) return;
-            toast.innerText = msg;
-            toast.style.opacity = '1';
+            toast.innerText = msg; toast.style.opacity = '1';
             if (toastTimeoutId) clearTimeout(toastTimeoutId);
-            toastTimeoutId = setTimeout(function() {
-                toast.style.opacity = '0';
-            }, 3200);
+            toastTimeoutId = setTimeout(function() { toast.style.opacity = '0'; }, 3200);
         }
 
         function saveSquadData() {
@@ -684,14 +360,8 @@
             } catch (e) {}
         }
 
-        function getBenchZoneBoxes() {
-            return {
-                home: { x: 30, y: 505, w: 350, h: 75 },
-                away: { x: 420, y: 505, w: 350, h: 75 }
-            };
-        }
-
-        function getPitchCenterKickoffSpot() { return { x: 400, y: 240 }; }
+        function getBenchZoneBoxes() { return { home: { x: 30, y: 518, w: 350, h: 72 }, away: { x: 420, y: 518, w: 350, h: 72 } }; }
+        function getPitchCenterKickoffSpot() { return { x: PITCH.centerX, y: PITCH.centerY }; }
         function parseFormatInt(str) { return parseInt(String(str).split('v')[0], 10) || 9; }
         function formatSecondsToMinutes(sec) { return !sec ? "0m" : Math.floor(sec / 60) + " mins"; }
 
@@ -699,100 +369,54 @@
             var fmtNode = document.getElementById(team === 'home' ? 'homeFormatSelect' : 'awayFormatSelect');
             return parseFormatInt(fmtNode ? fmtNode.value : '9v9');
         }
-
         function getTeamRedCardCount(team) {
-            return LedgerState.squad.filter(function(p) {
-                return p.team === team && (Number(p.redCards) || 0) > 0;
-            }).length;
+            return LedgerState.squad.filter(function(p) { return p.team === team && (Number(p.redCards) || 0) > 0; }).length;
         }
-
-        // Maximum players allowed on the pitch = Match Size minus Red Cards on that team
-        function getMaxAllowedOnPitch(team) {
-            var baseSize = getTeamFormatBaseSize(team);
-            var reds = getTeamRedCardCount(team);
-            return Math.max(1, baseSize - reds);
-        }
-
+        function getMaxAllowedOnPitch(team) { return Math.max(1, getTeamFormatBaseSize(team) - getTeamRedCardCount(team)); }
         function getCurrentOnPitchCount(team) {
-            return LedgerState.squad.filter(function(p) {
-                return p.team === team && p.onPitch;
-            }).length;
+            return LedgerState.squad.filter(function(p) { return p.team === team && p.onPitch; }).length;
         }
 
-        // Ensures no red-carded players are on pitch and total on-pitch players never exceed getMaxAllowedOnPitch(team)
         function enforceTeamPitchCap(team) {
             LedgerState.squad.forEach(function(p) {
-                if (p.team === team && p.onPitch && (Number(p.redCards) || 0) > 0) {
-                    p.onPitch = false;
-                }
+                if (p.team === team && p.onPitch && (Number(p.redCards) || 0) > 0) p.onPitch = false;
             });
             var maxAllowed = getMaxAllowedOnPitch(team);
             var active = LedgerState.squad.filter(function(p) { return p.team === team && p.onPitch; });
-            while (active.length > maxAllowed) {
-                var removed = active.pop();
-                removed.onPitch = false;
-            }
+            while (active.length > maxAllowed) { active.pop().onPitch = false; }
         }
 
         function scalePlayingFieldCoordinates(rawX, rawY, isAway, isGK) {
-            if (isGK) return { x: rawX, y: 240 };
-            return { x: rawX, y: (rawY * 0.88) + 20 };
+            if (isGK) return { x: rawX, y: PITCH.centerY };
+            return { x: rawX, y: PITCH.centerY + ((rawY - 240) / 220) * (PITCH.widthPx * 0.44) };
         }
 
         function getCanvasCoordinates(e) {
             var rect = canvas.getBoundingClientRect();
             var cx = e.clientX, cy = e.clientY;
-            if (e.touches && e.touches.length > 0) {
-                cx = e.touches[0].clientX; cy = e.touches[0].clientY;
-            } else if (e.changedTouches && e.changedTouches.length > 0) {
-                cx = e.changedTouches[0].clientX; cy = e.changedTouches[0].clientY;
-            }
-            return {
-                x: ((cx - rect.left) / (rect.width || 800)) * canvas.width,
-                y: ((cy - rect.top) / (rect.height || 600)) * canvas.height
-            };
+            if (e.touches && e.touches.length > 0) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+            else if (e.changedTouches && e.changedTouches.length > 0) { cx = e.changedTouches[0].clientX; cy = e.changedTouches[0].clientY; }
+            return { x: ((cx - rect.left) / (rect.width || 800)) * canvas.width, y: ((cy - rect.top) / (rect.height || 600)) * canvas.height };
         }
 
         function traceRoundedRect(x, y, w, h, r) {
-            ctx.beginPath();
-            ctx.moveTo(x + r, y);
-            ctx.lineTo(x + w - r, y);
-            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-            ctx.lineTo(x + w, y + h - r);
-            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-            ctx.lineTo(x + r, y + h);
-            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-            ctx.lineTo(x, y + r);
-            ctx.quadraticCurveTo(x, y, x + r, y);
-            ctx.closePath();
+            ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
         }
 
-        // ==========================================
-        // 3. MATCH TIMER MODULE FUNCTIONS
-        // ==========================================
         function updateClockDisplayStrings() {
-            var mins = Math.floor(TimerState.secondsElapsed / 60);
-            var secs = TimerState.secondsElapsed % 60;
+            var mins = Math.floor(TimerState.secondsElapsed / 60), secs = TimerState.secondsElapsed % 60;
             var clockEl = document.getElementById('liveClockDisplay');
             if (!clockEl) return;
-
             clockEl.innerText = mins.toString().padStart(2, '0') + ":" + secs.toString().padStart(2, '0');
-
             var halfMins = parseFloat(document.getElementById('halfLengthInput').value) || 35;
             var matchMins = parseFloat(document.getElementById('matchLengthInput').value) || 70;
-            var isStoppageTime =
-                (TimerState.activeHalf === 1 && TimerState.secondsElapsed > halfMins * 60) ||
-                (TimerState.activeHalf >= 2 && TimerState.secondsElapsed > matchMins * 60);
-
-            if (isStoppageTime) {
-                clockEl.style.backgroundColor = '#c0392b';
-                clockEl.style.color = '#ffffff';
-                clockEl.style.borderColor = '#922b21';
-            } else {
-                clockEl.style.backgroundColor = '#eaeded';
-                clockEl.style.color = '#2c3e50';
-                clockEl.style.borderColor = '#bdc3c7';
-            }
+            var isStoppage = (TimerState.activeHalf === 1 && TimerState.secondsElapsed > halfMins * 60) ||
+                             (TimerState.activeHalf >= 2 && TimerState.secondsElapsed > matchMins * 60);
+            clockEl.style.backgroundColor = isStoppage ? '#c0392b' : '#eaeded';
+            clockEl.style.color = isStoppage ? '#ffffff' : '#2c3e50';
+            clockEl.style.borderColor = isStoppage ? '#922b21' : '#bdc3c7';
         }
 
         function updatePlayerTimeDomNodesOnly() {
@@ -807,12 +431,9 @@
             TimerState.isRunning = true;
             document.getElementById('startTimerBtn').disabled = true;
             document.getElementById('pauseTimerBtn').disabled = false;
-
             TimerState.intervalId = setInterval(function() {
                 TimerState.secondsElapsed++;
-                LedgerState.squad.forEach(function(p) {
-                    if (p.onPitch) p.timePlayed = (p.timePlayed || 0) + 1;
-                });
+                LedgerState.squad.forEach(function(p) { if (p.onPitch) p.timePlayed = (p.timePlayed || 0) + 1; });
                 updateClockDisplayStrings();
                 updatePlayerTimeDomNodesOnly();
                 if (TimerState.secondsElapsed % 5 === 0) saveSquadData();
@@ -831,12 +452,8 @@
         function injectRetroactiveMinutes(mins) {
             var addedSecs = mins * 60;
             TimerState.secondsElapsed += addedSecs;
-            LedgerState.squad.forEach(function(p) {
-                if (p.onPitch) p.timePlayed = (p.timePlayed || 0) + addedSecs;
-            });
-            saveSquadData();
-            updateClockDisplayStrings();
-            updatePlayerTimeDomNodesOnly();
+            LedgerState.squad.forEach(function(p) { if (p.onPitch) p.timePlayed = (p.timePlayed || 0) + addedSecs; });
+            saveSquadData(); updateClockDisplayStrings(); updatePlayerTimeDomNodesOnly();
         }
 
         function advanceToNextHalf() {
@@ -845,29 +462,18 @@
             TimerState.activeHalf = 2;
             var halfMins = parseInt(document.getElementById('halfLengthInput').value, 10) || 35;
             TimerState.secondsElapsed = halfMins * 60;
-
             var lbl = document.getElementById('currentHalfLabel');
-            lbl.style.backgroundColor = "#fadbd8";
-            lbl.style.color = "#78281f";
-            lbl.innerText = "2nd Half";
-
+            lbl.style.backgroundColor = "#fadbd8"; lbl.style.color = "#78281f"; lbl.innerText = "2nd Half";
             var halfBtn = document.getElementById('nextHalfBtn');
-            halfBtn.innerText = "🏁 Full Time: End Game";
-            halfBtn.style.backgroundColor = "#c0392b";
-            halfBtn.onclick = finishGameAndCompileReport;
-
-            updateClockDisplayStrings();
-            drawPitch();
+            halfBtn.innerText = "🏁 Full Time: End Game"; halfBtn.style.backgroundColor = "#c0392b"; halfBtn.onclick = finishGameAndCompileReport;
+            updateClockDisplayStrings(); drawPitch();
         }
 
         function recalculateEqualTimeMatrix() {
             var matchMins = parseFloat(document.getElementById('matchLengthInput').value) || 70;
             var mode = document.getElementById('gkRotationModeSelect').value;
-
             function calcForTeam(team) {
-                var roster = LedgerState.squad.filter(function(p) {
-                    return p.team === team && (Number(p.redCards) || 0) === 0;
-                });
+                var roster = LedgerState.squad.filter(function(p) { return p.team === team && (Number(p.redCards) || 0) === 0; });
                 var total = roster.length;
                 if (total <= 0) return "--";
                 var slots = getMaxAllowedOnPitch(team);
@@ -876,48 +482,27 @@
                 if (outPlayers <= 0 || outSlots <= 0) return matchMins;
                 return Math.round((matchMins * outSlots) / outPlayers);
             }
-
             document.getElementById('homeFairPlayTarget').innerText = "Home Target: " + calcForTeam('home') + " mins";
             document.getElementById('awayFairPlayTarget').innerText = "Away Target: " + calcForTeam('away') + " mins";
             updateClockDisplayStrings();
         }
 
-        // ==========================================
-        // 4. PLAYER LEDGER, SCOREBOARD & STAT/CARD UNDO
-        // ==========================================
         function getTeamScore(team) {
-            return LedgerState.squad
-                .filter(function(p) { return p.team === team; })
-                .reduce(function(sum, p) { return sum + (Number(p.goals) || 0); }, 0);
+            return LedgerState.squad.filter(function(p) { return p.team === team; }).reduce(function(s, p) { return s + (Number(p.goals) || 0); }, 0);
         }
 
         function updateScoreboardDisplay() {
-            var homeGoals = getTeamScore('home');
-            var awayGoals = getTeamScore('away');
-
-            var hGoalsNode = document.getElementById('scoreboardHomeGoals');
-            var aGoalsNode = document.getElementById('scoreboardAwayGoals');
-            var hNameNode = document.getElementById('scoreboardHomeName');
-            var aNameNode = document.getElementById('scoreboardAwayName');
-            var undoBtn = document.getElementById('undoLastStatBtn');
-            var hReportTitle = document.getElementById('homeReportRosterTitle');
-            var aReportTitle = document.getElementById('awayReportRosterTitle');
-
-            if (hGoalsNode) hGoalsNode.innerText = homeGoals;
-            if (aGoalsNode) aGoalsNode.innerText = awayGoals;
-            if (hNameNode) hNameNode.innerText = LedgerState.homeTeamName;
-            if (aNameNode) aNameNode.innerText = LedgerState.awayTeamName;
-            if (hReportTitle) hReportTitle.innerText = LedgerState.homeTeamName;
-            if (aReportTitle) aReportTitle.innerText = LedgerState.awayTeamName;
-            if (undoBtn) undoBtn.disabled = (LedgerState.statHistory.length === 0);
-
-            // Update On-Pitch capacity badges in both sidebars
+            document.getElementById('scoreboardHomeGoals').innerText = getTeamScore('home');
+            document.getElementById('scoreboardAwayGoals').innerText = getTeamScore('away');
+            document.getElementById('scoreboardHomeName').innerText = LedgerState.homeTeamName;
+            document.getElementById('scoreboardAwayName').innerText = LedgerState.awayTeamName;
+            document.getElementById('homeReportRosterTitle').innerText = LedgerState.homeTeamName;
+            document.getElementById('awayReportRosterTitle').innerText = LedgerState.awayTeamName;
+            document.getElementById('undoLastStatBtn').disabled = (LedgerState.statHistory.length === 0);
             ['home', 'away'].forEach(function(team) {
                 var badge = document.getElementById(team + 'OnPitchCountBadge');
                 if (!badge) return;
-                var cur = getCurrentOnPitchCount(team);
-                var max = getMaxAllowedOnPitch(team);
-                var reds = getTeamRedCardCount(team);
+                var cur = getCurrentOnPitchCount(team), max = getMaxAllowedOnPitch(team), reds = getTeamRedCardCount(team);
                 badge.innerText = cur + ' / ' + max + (reds > 0 ? ' • ' + reds + ' 🟥' : '');
                 badge.style.color = reds > 0 ? '#c0392b' : (team === 'home' ? '#27ae60' : '#2980b9');
             });
@@ -925,10 +510,8 @@
 
         function repositionBenchedTeammatesInZones() {
             var boxes = getBenchZoneBoxes();
-            var homeBench = LedgerState.squad.filter(function(p) { return p.team === 'home' && !p.onPitch; });
-            homeBench.forEach(function(p, i) { p.x = boxes.home.x + 22 + (i * 38); p.y = boxes.home.y + 44; });
-            var awayBench = LedgerState.squad.filter(function(p) { return p.team === 'away' && !p.onPitch; });
-            awayBench.forEach(function(p, i) { p.x = boxes.away.x + 22 + (i * 38); p.y = boxes.away.y + 44; });
+            LedgerState.squad.filter(function(p) { return p.team === 'home' && !p.onPitch; }).forEach(function(p, i) { p.x = boxes.home.x + 22 + (i * 38); p.y = boxes.home.y + 42; });
+            LedgerState.squad.filter(function(p) { return p.team === 'away' && !p.onPitch; }).forEach(function(p, i) { p.x = boxes.away.x + 22 + (i * 38); p.y = boxes.away.y + 42; });
         }
 
         function updateSidebarHeaderLabels() {
@@ -940,46 +523,24 @@
         }
 
         function renderSquadBanks() {
-            var homeActive = document.getElementById('home-active-list');
-            var homeBench = document.getElementById('home-bench-list');
-            var awayActive = document.getElementById('away-active-list');
-            var awayBench = document.getElementById('away-bench-list');
-            if (!homeActive || !homeBench || !awayActive || !awayBench) return;
-
-            homeActive.innerHTML = ''; homeBench.innerHTML = '';
-            awayActive.innerHTML = ''; awayBench.innerHTML = '';
+            var homeActive = document.getElementById('home-active-list'), homeBench = document.getElementById('home-bench-list');
+            var awayActive = document.getElementById('away-active-list'), awayBench = document.getElementById('away-bench-list');
+            homeActive.innerHTML = ''; homeBench.innerHTML = ''; awayActive.innerHTML = ''; awayBench.innerHTML = '';
 
             LedgerState.squad.forEach(function(player) {
-                var goals = Number(player.goals) || 0;
-                var assists = Number(player.assists) || 0;
-                var yellows = Number(player.yellowCards) || 0;
-                var reds = Number(player.redCards) || 0;
-                var isSentOff = reds > 0;
-
+                var g = Number(player.goals) || 0, a = Number(player.assists) || 0, y = Number(player.yellowCards) || 0, r = Number(player.redCards) || 0;
+                var isSentOff = r > 0;
                 var item = document.createElement('div');
                 item.className = 'squad-item' + (isSentOff ? ' sent-off-card' : '');
                 item.style.borderLeftColor = player.team === 'home' ? '#27ae60' : '#2980b9';
 
-                var goalMinusHtml = goals > 0
-                    ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ', \'goals\', -1)" title="Remove 1 Goal">−</button>'
-                    : '';
-                var assistMinusHtml = assists > 0
-                    ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ', \'assists\', -1)" title="Remove 1 Assist">−</button>'
-                    : '';
-                var yellowMinusHtml = yellows > 0
-                    ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ', \'yellowCards\', -1)" title="Remove 1 Yellow Card">−</button>'
-                    : '';
-                var redMinusHtml = reds > 0
-                    ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ', \'redCards\', -1)" title="Remove Red Card">−</button>'
-                    : '';
-
-                var actionBtnHtml = '';
-                if (isSentOff) {
-                    actionBtnHtml = '<button disabled style="padding:3px 7px; font-size:11px; background:#fdedec; color:#c0392b; border-color:#f5b7b1; font-weight:bold; cursor:not-allowed;" title="Player has a Red Card and cannot enter the pitch">🟥 Sent Off</button>';
-                } else {
-                    var toggleLabel = player.onPitch ? 'Bench' : 'Pitch';
-                    actionBtnHtml = '<button onclick="togglePlayerPitch(' + player.id + ')" style="padding:3px 7px; font-size:11px; background:#ebf5fb;">' + toggleLabel + '</button>';
-                }
+                var gMin = g > 0 ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ',\'goals\',-1)">−</button>' : '';
+                var aMin = a > 0 ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ',\'assists\',-1)">−</button>' : '';
+                var yMin = y > 0 ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ',\'yellowCards\',-1)">−</button>' : '';
+                var rMin = r > 0 ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ',\'redCards\',-1)">−</button>' : '';
+                var actBtn = isSentOff
+                    ? '<button disabled style="padding:3px 7px; font-size:11px; background:#fdedec; color:#c0392b; border-color:#f5b7b1; font-weight:bold; cursor:not-allowed;">🟥 Sent Off</button>'
+                    : '<button onclick="togglePlayerPitch(' + player.id + ')" style="padding:3px 7px; font-size:11px; background:#ebf5fb;">' + (player.onPitch ? 'Bench' : 'Pitch') + '</button>';
 
                 item.innerHTML =
                     '<div class="squad-item-top">' +
@@ -989,160 +550,81 @@
                         '</div>' +
                         '<div style="display:flex; align-items:center; gap:6px;">' +
                             '<span data-player-time="' + player.id + '" style="font-size:11px; color:#566573; font-weight:bold;">⏱️ ' + formatSecondsToMinutes(player.timePlayed) + '</span>' +
-                            actionBtnHtml +
+                            actBtn +
                         '</div>' +
                     '</div>' +
                     '<div class="squad-item-bottom">' +
-                        '<div class="stat-group">' +
-                            '<button class="stat-pill-btn" onclick="handleStatClick(event, ' + player.id + ', \'goals\')" oncontextmenu="handleStatRightClick(event, ' + player.id + ', \'goals\')" title="Click: +1 Goal | Right-click or Shift+Click: -1 Goal">⚽ G:' + goals + '</button>' +
-                            goalMinusHtml +
-                        '</div>' +
-                        '<div class="stat-group">' +
-                            '<button class="stat-pill-btn" onclick="handleStatClick(event, ' + player.id + ', \'assists\')" oncontextmenu="handleStatRightClick(event, ' + player.id + ', \'assists\')" title="Click: +1 Assist | Right-click or Shift+Click: -1 Assist">👟 A:' + assists + '</button>' +
-                            assistMinusHtml +
-                        '</div>' +
-                        '<div class="stat-group">' +
-                            '<button class="stat-pill-btn" onclick="handleStatClick(event, ' + player.id + ', \'yellowCards\')" oncontextmenu="handleStatRightClick(event, ' + player.id + ', \'yellowCards\')" title="Click: +1 Yellow Card (2 Yellows = Automatic Red & Bench) | Right-click or Shift+Click: -1">🟨 Y:' + yellows + '</button>' +
-                            yellowMinusHtml +
-                        '</div>' +
-                        '<div class="stat-group">' +
-                            '<button class="stat-pill-btn" onclick="handleStatClick(event, ' + player.id + ', \'redCards\')" oncontextmenu="handleStatRightClick(event, ' + player.id + ', \'redCards\')" title="Click: +1 Red Card (Sends player to Bench & reduces team by 1) | Right-click or Shift+Click: Remove Red">🟥 R:' + reds + '</button>' +
-                            redMinusHtml +
-                        '</div>' +
+                        '<div class="stat-group"><button class="stat-pill-btn" onclick="handleStatClick(event,' + player.id + ',\'goals\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'goals\')">⚽ G:' + g + '</button>' + gMin + '</div>' +
+                        '<div class="stat-group"><button class="stat-pill-btn" onclick="handleStatClick(event,' + player.id + ',\'assists\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'assists\')">👟 A:' + a + '</button>' + aMin + '</div>' +
+                        '<div class="stat-group"><button class="stat-pill-btn" onclick="handleStatClick(event,' + player.id + ',\'yellowCards\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'yellowCards\')">🟨 Y:' + y + '</button>' + yMin + '</div>' +
+                        '<div class="stat-group"><button class="stat-pill-btn" onclick="handleStatClick(event,' + player.id + ',\'redCards\')" oncontextmenu="handleStatRightClick(event,' + player.id + ',\'redCards\')">🟥 R:' + r + '</button>' + rMin + '</div>' +
                     '</div>';
 
-                if (player.team === 'home') {
-                    if (player.onPitch) homeActive.appendChild(item); else homeBench.appendChild(item);
-                } else {
-                    if (player.onPitch) awayActive.appendChild(item); else awayBench.appendChild(item);
-                }
+                if (player.team === 'home') { if (player.onPitch) homeActive.appendChild(item); else homeBench.appendChild(item); }
+                else { if (player.onPitch) awayActive.appendChild(item); else awayBench.appendChild(item); }
             });
-
             updateScoreboardDisplay();
         }
 
         function adjustPlayerStat(id, field, delta, skipHistory) {
             var p = LedgerState.squad.find(function(x) { return x.id === id; });
             if (!p) return;
-
-            var prevGoals = Number(p.goals) || 0;
-            var prevAssists = Number(p.assists) || 0;
-            var prevYellow = Number(p.yellowCards) || 0;
-            var prevRed = Number(p.redCards) || 0;
-            var prevOnPitch = Boolean(p.onPitch);
-            var prevX = p.x;
-            var prevY = p.y;
+            var prevG = Number(p.goals) || 0, prevA = Number(p.assists) || 0, prevY = Number(p.yellowCards) || 0, prevR = Number(p.redCards) || 0;
+            var prevOn = Boolean(p.onPitch), prevX = p.x, prevYCoord = p.y;
 
             if (field === 'redCards') {
-                var nextRed = Math.min(1, Math.max(0, prevRed + delta));
-                if (nextRed === prevRed) return;
-                p.redCards = nextRed;
-                if (delta < 0 && nextRed === 0 && prevYellow >= 2) {
-                    p.yellowCards = 1;
-                }
+                var nextR = Math.min(1, Math.max(0, prevR + delta));
+                if (nextR === prevR) return;
+                p.redCards = nextR;
+                if (delta < 0 && nextR === 0 && prevY >= 2) p.yellowCards = 1;
             } else if (field === 'yellowCards') {
-                var nextYellow = Math.min(2, Math.max(0, prevYellow + delta));
-                if (nextYellow === prevYellow) return;
-                p.yellowCards = nextYellow;
-
-                if (delta > 0 && nextYellow === 2) {
-                    p.redCards = 1;
-                } else if (delta < 0 && prevYellow === 2 && nextYellow === 1) {
-                    p.redCards = 0;
-                }
+                var nextY = Math.min(2, Math.max(0, prevY + delta));
+                if (nextY === prevY) return;
+                p.yellowCards = nextY;
+                if (delta > 0 && nextY === 2) p.redCards = 1;
+                else if (delta < 0 && prevY === 2 && nextY === 1) p.redCards = 0;
             } else {
-                var currentVal = Number(p[field]) || 0;
-                var nextVal = Math.max(0, currentVal + delta);
-                if (nextVal === currentVal) return;
-                p[field] = nextVal;
+                var cur = Number(p[field]) || 0, nxt = Math.max(0, cur + delta);
+                if (nxt === cur) return;
+                p[field] = nxt;
             }
 
-            // Handle Red Card Ejection or Restoration
-            if (prevRed === 0 && p.redCards === 1) {
-                p.wasOnPitchBeforeRed = prevOnPitch;
-                if (prevOnPitch) {
-                    p.lastPitchX = prevX;
-                    p.lastPitchY = prevY;
-                    p.onPitch = false;
-                }
-                enforceTeamPitchCap(p.team);
-                repositionBenchedTeammatesInZones();
-                var newMax = getMaxAllowedOnPitch(p.team);
-                showPitchToast("🟥 " + p.name + " sent off! " + (p.team === 'home' ? LedgerState.homeTeamName : LedgerState.awayTeamName) + " reduced to " + newMax + " players.");
-            } else if (prevRed === 1 && p.redCards === 0) {
+            if (prevR === 0 && p.redCards === 1) {
+                p.wasOnPitchBeforeRed = prevOn;
+                if (prevOn) { p.lastPitchX = prevX; p.lastPitchY = prevYCoord; p.onPitch = false; }
+                enforceTeamPitchCap(p.team); repositionBenchedTeammatesInZones();
+                showPitchToast("🟥 " + p.name + " sent off! " + (p.team === 'home' ? LedgerState.homeTeamName : LedgerState.awayTeamName) + " reduced to " + getMaxAllowedOnPitch(p.team) + " players.");
+            } else if (prevR === 1 && p.redCards === 0) {
                 if (p.wasOnPitchBeforeRed && getCurrentOnPitchCount(p.team) < getMaxAllowedOnPitch(p.team)) {
-                    p.onPitch = true;
-                    p.x = Number.isFinite(p.lastPitchX) ? p.lastPitchX : 400;
-                    p.y = Number.isFinite(p.lastPitchY) ? p.lastPitchY : 240;
+                    p.onPitch = true; p.x = Number.isFinite(p.lastPitchX) ? p.lastPitchX : PITCH.centerX; p.y = Number.isFinite(p.lastPitchY) ? p.lastPitchY : PITCH.centerY;
                 }
-                p.wasOnPitchBeforeRed = false;
-                repositionBenchedTeammatesInZones();
+                p.wasOnPitchBeforeRed = false; repositionBenchedTeammatesInZones();
             }
 
             if (!skipHistory && delta > 0) {
-                LedgerState.statHistory.push({
-                    playerId: id,
-                    field: field,
-                    prevGoals: prevGoals,
-                    prevAssists: prevAssists,
-                    prevYellow: prevYellow,
-                    prevRed: prevRed,
-                    prevOnPitch: prevOnPitch,
-                    prevX: prevX,
-                    prevY: prevY
-                });
+                LedgerState.statHistory.push({ playerId: id, field: field, prevG: prevG, prevA: prevA, prevY: prevY, prevR: prevR, prevOn: prevOn, prevX: prevX, prevYCoord: prevYCoord });
             } else if (!skipHistory && delta < 0) {
                 for (var i = LedgerState.statHistory.length - 1; i >= 0; i--) {
-                    if (LedgerState.statHistory[i].playerId === id && (LedgerState.statHistory[i].field === field || (field === 'redCards' && prevYellow === 2 && LedgerState.statHistory[i].field === 'yellowCards'))) {
-                        LedgerState.statHistory.splice(i, 1);
-                        break;
-                    }
+                    if (LedgerState.statHistory[i].playerId === id) { LedgerState.statHistory.splice(i, 1); break; }
                 }
             }
-
-            saveSquadData();
-            renderSquadBanks();
-            recalculateEqualTimeMatrix();
-            drawPitch();
+            saveSquadData(); renderSquadBanks(); recalculateEqualTimeMatrix(); drawPitch();
         }
 
-        function incrementPlayerStat(id, field) {
-            adjustPlayerStat(id, field, 1, false);
-        }
-
-        function handleStatClick(e, id, field) {
-            if (e && e.shiftKey) {
-                adjustPlayerStat(id, field, -1, false);
-            } else {
-                adjustPlayerStat(id, field, 1, false);
-            }
-        }
-
-        function handleStatRightClick(e, id, field) {
-            if (e) e.preventDefault();
-            adjustPlayerStat(id, field, -1, false);
-            return false;
-        }
+        function incrementPlayerStat(id, field) { adjustPlayerStat(id, field, 1, false); }
+        function handleStatClick(e, id, field) { adjustPlayerStat(id, field, (e && e.shiftKey) ? -1 : 1, false); }
+        function handleStatRightClick(e, id, field) { if (e) e.preventDefault(); adjustPlayerStat(id, field, -1, false); return false; }
 
         function undoLastStatAction() {
             while (LedgerState.statHistory.length > 0) {
                 var last = LedgerState.statHistory.pop();
                 var p = LedgerState.squad.find(function(x) { return x.id === last.playerId; });
                 if (p) {
-                    p.goals = last.prevGoals;
-                    p.assists = last.prevAssists;
-                    p.yellowCards = last.prevYellow;
-                    p.redCards = last.prevRed;
-                    if (last.prevOnPitch && p.redCards === 0 && getCurrentOnPitchCount(p.team) < getMaxAllowedOnPitch(p.team)) {
-                        p.onPitch = true;
-                        p.x = last.prevX;
-                        p.y = last.prevY;
+                    p.goals = last.prevG; p.assists = last.prevA; p.yellowCards = last.prevY; p.redCards = last.prevR;
+                    if (last.prevOn && p.redCards === 0 && getCurrentOnPitchCount(p.team) < getMaxAllowedOnPitch(p.team)) {
+                        p.onPitch = true; p.x = last.prevX; p.y = last.prevYCoord;
                     }
-                    repositionBenchedTeammatesInZones();
-                    saveSquadData();
-                    renderSquadBanks();
-                    recalculateEqualTimeMatrix();
-                    drawPitch();
+                    repositionBenchedTeammatesInZones(); saveSquadData(); renderSquadBanks(); recalculateEqualTimeMatrix(); drawPitch();
                     return;
                 }
             }
@@ -1152,75 +634,34 @@
         function createNewPlayer(team) {
             var input = document.getElementById(team === 'home' ? 'homePlayerName' : 'awayPlayerName');
             if (input && input.value.trim() !== "") {
-                LedgerState.squad.push({
-                    id: Date.now() + Math.floor(Math.random() * 1000),
-                    name: input.value.trim(),
-                    role: 'SUB',
-                    timePlayed: 0,
-                    goals: 0,
-                    assists: 0,
-                    yellowCards: 0,
-                    redCards: 0,
-                    x: 0,
-                    y: 0,
-                    team: team,
-                    onPitch: false
-                });
-                input.value = "";
-                repositionBenchedTeammatesInZones();
-                saveSquadData();
-                renderSquadBanks();
-                recalculateEqualTimeMatrix();
-                updateSidebarHeaderLabels();
-                drawPitch();
+                LedgerState.squad.push({ id: Date.now() + Math.floor(Math.random() * 1000), name: input.value.trim(), role: 'SUB', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, x: 0, y: 0, team: team, onPitch: false });
+                input.value = ""; repositionBenchedTeammatesInZones(); saveSquadData(); renderSquadBanks(); recalculateEqualTimeMatrix(); updateSidebarHeaderLabels(); drawPitch();
             }
         }
 
         function togglePlayerPitch(id) {
             var p = LedgerState.squad.find(function(x) { return x.id === id; });
             if (!p) return;
-
             if (!p.onPitch) {
-                if ((Number(p.redCards) || 0) > 0) {
-                    showPitchToast("🟥 " + p.name + " has a Red Card and cannot enter the pitch.");
-                    return;
-                }
-                var maxAllowed = getMaxAllowedOnPitch(p.team);
-                var currentOn = getCurrentOnPitchCount(p.team);
+                if ((Number(p.redCards) || 0) > 0) { showPitchToast("🟥 " + p.name + " has a Red Card and cannot enter the pitch."); return; }
+                var maxAllowed = getMaxAllowedOnPitch(p.team), currentOn = getCurrentOnPitchCount(p.team);
                 if (currentOn >= maxAllowed) {
                     showPitchToast("⚠️ Max players on pitch (" + currentOn + "/" + maxAllowed + "). Bench a player first or drag onto an active player to swap!");
                     return;
                 }
-                p.onPitch = true;
-                var spot = getPitchCenterKickoffSpot();
-                p.x = spot.x;
-                p.y = spot.y;
+                p.onPitch = true; p.x = PITCH.centerX; p.y = PITCH.centerY;
                 if (p.role === 'SUB') p.role = 'POS';
-            } else {
-                p.onPitch = false;
-            }
-
-            repositionBenchedTeammatesInZones();
-            saveSquadData();
-            renderSquadBanks();
-            recalculateEqualTimeMatrix();
-            drawPitch();
+            } else { p.onPitch = false; }
+            repositionBenchedTeammatesInZones(); saveSquadData(); renderSquadBanks(); recalculateEqualTimeMatrix(); drawPitch();
         }
 
         function promptRenameTeam(team) {
             var current = team === 'home' ? LedgerState.homeTeamName : LedgerState.awayTeamName;
             var updated = prompt("Enter custom name for team:", current);
             if (updated && updated.trim() !== "") {
-                if (team === 'home') {
-                    LedgerState.homeTeamName = updated.trim();
-                    localStorage.setItem('pitchPadHomeTeamName', LedgerState.homeTeamName);
-                } else {
-                    LedgerState.awayTeamName = updated.trim();
-                    localStorage.setItem('pitchPadAwayTeamName', LedgerState.awayTeamName);
-                }
-                renderSquadBanks();
-                updateSidebarHeaderLabels();
-                drawPitch();
+                if (team === 'home') { LedgerState.homeTeamName = updated.trim(); localStorage.setItem('pitchPadHomeTeamName', LedgerState.homeTeamName); }
+                else { LedgerState.awayTeamName = updated.trim(); localStorage.setItem('pitchPadAwayTeamName', LedgerState.awayTeamName); }
+                renderSquadBanks(); updateSidebarHeaderLabels(); drawPitch();
             }
         }
 
@@ -1228,27 +669,16 @@
             var p = LedgerState.squad.find(function(x) { return x.id === id; });
             if (p) {
                 var updated = prompt("Enter custom Name Label:", p.name);
-                if (updated !== null && updated.trim() !== "") {
-                    p.name = updated.trim();
-                    saveSquadData();
-                    renderSquadBanks();
-                    drawPitch();
-                }
+                if (updated !== null && updated.trim() !== "") { p.name = updated.trim(); saveSquadData(); renderSquadBanks(); drawPitch(); }
             }
         }
-
         function promptRenameTeamEdit(id) { promptPlayerNameEdit(id); }
 
         function promptPlayerRoleEdit(id) {
             var p = LedgerState.squad.find(function(x) { return x.id === id; });
             if (p) {
                 var updated = prompt("Enter Position Shorthand:", p.role || 'POS');
-                if (updated !== null && updated.trim() !== "") {
-                    p.role = updated.trim().toUpperCase();
-                    saveSquadData();
-                    renderSquadBanks();
-                    drawPitch();
-                }
+                if (updated !== null && updated.trim() !== "") { p.role = updated.trim().toUpperCase(); saveSquadData(); renderSquadBanks(); drawPitch(); }
             }
         }
 
@@ -1257,13 +687,10 @@
             if (!formKey || formKey === 'none' || !formations[formKey]) return;
             var slots = formations[formKey][team];
             if (!slots) return;
-
             var maxAllowed = Math.min(slots.length, getMaxAllowedOnPitch(team));
             var isAway = (team === 'away');
             var active = LedgerState.squad.filter(function(p) { return p.team === team && p.onPitch; });
-            var eligibleBench = LedgerState.squad.filter(function(p) {
-                return p.team === team && !p.onPitch && (Number(p.redCards) || 0) === 0;
-            });
+            var eligibleBench = LedgerState.squad.filter(function(p) { return p.team === team && !p.onPitch && (Number(p.redCards) || 0) === 0; });
 
             while (active.length < maxAllowed) {
                 var nextSlot = slots[active.length];
@@ -1274,31 +701,15 @@
                     active.push(promoted);
                 } else {
                     var idx = active.length;
-                    var created = {
-                        id: Date.now() + Math.floor(Math.random() * 10000) + idx,
-                        name: nextSlot.r === 'GK' ? 'GK' : (isAway ? 'Opp ' : 'Player ') + idx,
-                        role: nextSlot.r || 'POS',
-                        timePlayed: 0,
-                        goals: 0,
-                        assists: 0,
-                        yellowCards: 0,
-                        redCards: 0,
-                        x: 400,
-                        y: 240,
-                        team: team,
-                        onPitch: true
-                    };
-                    LedgerState.squad.push(created);
-                    active.push(created);
+                    var created = { id: Date.now() + Math.floor(Math.random() * 10000) + idx, name: nextSlot.r === 'GK' ? 'GK' : (isAway ? 'Opp ' : 'Player ') + idx, role: nextSlot.r || 'POS', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, x: PITCH.centerX, y: PITCH.centerY, team: team, onPitch: true };
+                    LedgerState.squad.push(created); active.push(created);
                 }
             }
-
             active.forEach(function(p, i) {
                 if (i < slots.length) {
                     var isGK = slots[i].r === 'GK' || String(p.name).toUpperCase() === 'GK';
                     var scaled = scalePlayingFieldCoordinates(slots[i].x, slots[i].y, isAway, isGK);
-                    p.x = scaled.x;
-                    p.y = scaled.y;
+                    p.x = scaled.x; p.y = scaled.y;
                     if (slots[i].r) p.role = slots[i].r;
                 }
             });
@@ -1312,100 +723,40 @@
                 var fmt = document.getElementById(fmtId).value || '9v9';
                 formType = (formatPlaybooks[fmt] && formatPlaybooks[fmt][0]) ? formatPlaybooks[fmt][0] : '2-4-2';
             }
-
             LedgerState.squad = LedgerState.squad.filter(function(p) { return p.team !== team; });
-            var slots = formations[formType][team];
-            var isAway = (team === 'away');
-            var baseId = Date.now() + (isAway ? 500 : 100);
-
+            var slots = formations[formType][team], isAway = (team === 'away'), baseId = Date.now() + (isAway ? 500 : 100);
             slots.forEach(function(slot, idx) {
-                var isGK = slot.r === 'GK';
-                var scaled = scalePlayingFieldCoordinates(slot.x, slot.y, isAway, isGK);
-                LedgerState.squad.push({
-                    id: baseId + idx,
-                    name: isGK ? 'GK' : (isAway ? 'Opp ' : 'Player ') + idx,
-                    role: slot.r || 'POS',
-                    timePlayed: 0,
-                    goals: 0,
-                    assists: 0,
-                    yellowCards: 0,
-                    redCards: 0,
-                    x: scaled.x,
-                    y: scaled.y,
-                    team: team,
-                    onPitch: true
-                });
+                var isGK = slot.r === 'GK', scaled = scalePlayingFieldCoordinates(slot.x, slot.y, isAway, isGK);
+                LedgerState.squad.push({ id: baseId + idx, name: isGK ? 'GK' : (isAway ? 'Opp ' : 'Player ') + idx, role: slot.r || 'POS', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, x: scaled.x, y: scaled.y, team: team, onPitch: true });
             });
-
             for (var b = 1; b <= 5; b++) {
-                LedgerState.squad.push({
-                    id: baseId + 50 + b,
-                    name: (isAway ? 'Away Sub ' : 'Sub ') + b,
-                    role: 'SUB',
-                    timePlayed: 0,
-                    goals: 0,
-                    assists: 0,
-                    yellowCards: 0,
-                    redCards: 0,
-                    x: 0,
-                    y: 0,
-                    team: team,
-                    onPitch: false
-                });
+                LedgerState.squad.push({ id: baseId + 50 + b, name: (isAway ? 'Away Sub ' : 'Sub ') + b, role: 'SUB', timePlayed: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, x: 0, y: 0, team: team, onPitch: false });
             }
-
-            repositionBenchedTeammatesInZones();
-            saveSquadData();
-            renderSquadBanks();
-            recalculateEqualTimeMatrix();
-            updateSidebarHeaderLabels();
-            drawPitch();
+            repositionBenchedTeammatesInZones(); saveSquadData(); renderSquadBanks(); recalculateEqualTimeMatrix(); updateSidebarHeaderLabels(); drawPitch();
         }
 
         function resetDefaultSquads() {
-            var spot = getPitchCenterKickoffSpot();
-            BoardState.ball.x = spot.x;
-            BoardState.ball.y = spot.y;
+            BoardState.ball.x = PITCH.centerX; BoardState.ball.y = PITCH.centerY;
             LedgerState.statHistory = [];
-            autoFillTeam('home');
-            autoFillTeam('away');
+            autoFillTeam('home'); autoFillTeam('away');
         }
 
         function startNewGame() {
             pauseMatchTimerEngine();
-
-            TimerState.secondsElapsed = 0;
-            TimerState.activeHalf = 1;
+            TimerState.secondsElapsed = 0; TimerState.activeHalf = 1;
             document.getElementById('matchLengthInput').value = 70;
             document.getElementById('halfLengthInput').value = 35;
-
             var lbl = document.getElementById('currentHalfLabel');
-            lbl.style.backgroundColor = "#ebd4ef";
-            lbl.style.color = "#6c3483";
-            lbl.innerText = "1st Half";
-
+            lbl.style.backgroundColor = "#ebd4ef"; lbl.style.color = "#6c3483"; lbl.innerText = "1st Half";
             document.getElementById('startTimerBtn').disabled = false;
             document.getElementById('pauseTimerBtn').disabled = true;
-
             var halfBtn = document.getElementById('nextHalfBtn');
-            halfBtn.disabled = false;
-            halfBtn.innerText = "Next Half";
-            halfBtn.style.backgroundColor = "#8e44ad";
-            halfBtn.onclick = advanceToNextHalf;
-
-            LedgerState.homeTeamName = 'Home Squad';
-            LedgerState.awayTeamName = 'Away Squad';
-            try {
-                localStorage.setItem('pitchPadHomeTeamName', 'Home Squad');
-                localStorage.setItem('pitchPadAwayTeamName', 'Away Squad');
-            } catch (e) {}
-
-            BoardState.drawings = [];
-            BoardState.notes = [];
+            halfBtn.disabled = false; halfBtn.innerText = "Next Half"; halfBtn.style.backgroundColor = "#8e44ad"; halfBtn.onclick = advanceToNextHalf;
+            LedgerState.homeTeamName = 'Home Squad'; LedgerState.awayTeamName = 'Away Squad';
+            try { localStorage.setItem('pitchPadHomeTeamName', 'Home Squad'); localStorage.setItem('pitchPadAwayTeamName', 'Away Squad'); } catch (e) {}
+            BoardState.drawings = []; BoardState.notes = [];
             document.getElementById('report-ledger-panel').style.display = 'none';
-
-            resetDefaultSquads();
-            updateClockDisplayStrings();
+            resetDefaultSquads(); updateClockDisplayStrings();
         }
 
         function finishGameAndCompileReport() {
@@ -1413,142 +764,79 @@
             document.getElementById('startTimerBtn').disabled = true;
             document.getElementById('pauseTimerBtn').disabled = true;
             document.getElementById('nextHalfBtn').disabled = true;
-            var hScore = getTeamScore('home');
-            var aScore = getTeamScore('away');
-            document.getElementById('ledgerTeamHeader').innerText =
-                LedgerState.homeTeamName + "  " + hScore + " - " + aScore + "  " + LedgerState.awayTeamName;
+            document.getElementById('ledgerTeamHeader').innerText = LedgerState.homeTeamName + "  " + getTeamScore('home') + " - " + getTeamScore('away') + "  " + LedgerState.awayTeamName;
             document.getElementById('homeReportRosterTitle').innerText = LedgerState.homeTeamName;
             document.getElementById('awayReportRosterTitle').innerText = LedgerState.awayTeamName;
-
             function buildRows(team) {
                 var html = "";
                 LedgerState.squad.filter(function(p) { return p.team === team; }).forEach(function(p) {
-                    html += '<tr>' +
-                        '<td><strong>' + p.name + '</strong></td>' +
-                        '<td><span class="role-badge-click">' + (p.role || 'POS') + '</span></td>' +
-                        '<td>' + formatSecondsToMinutes(p.timePlayed) + '</td>' +
-                        '<td>⚽ ' + (p.goals || 0) + '</td>' +
-                        '<td>👟 ' + (p.assists || 0) + '</td>' +
-                        '<td>🟨 ' + (p.yellowCards || 0) + '</td>' +
-                        '<td>🟥 ' + (p.redCards || 0) + '</td>' +
-                    '</tr>';
+                    html += '<tr><td><strong>' + p.name + '</strong></td><td><span class="role-badge-click">' + (p.role || 'POS') + '</span></td><td>' + formatSecondsToMinutes(p.timePlayed) + '</td><td>⚽ ' + (p.goals || 0) + '</td><td>👟 ' + (p.assists || 0) + '</td><td>🟨 ' + (p.yellowCards || 0) + '</td><td>🟥 ' + (p.redCards || 0) + '</td></tr>';
                 });
                 return html;
             }
-
             document.querySelector('#homeReportTable tbody').innerHTML = buildRows('home');
             document.querySelector('#awayReportTable tbody').innerHTML = buildRows('away');
             var panel = document.getElementById('report-ledger-panel');
-            panel.style.display = "block";
-            panel.scrollIntoView({ behavior: 'smooth' });
+            panel.style.display = "block"; panel.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ==========================================
-        // 5. PITCH CANVAS & TACTICAL BOARD FUNCTIONS
-        // ==========================================
         function drawMowedLawnPatterns() {
-            ctx.save();
-            ctx.fillStyle = '#226326';
+            ctx.save(); ctx.fillStyle = '#226326';
             if (BoardState.pitchDesign === 'stripes-v' || BoardState.pitchDesign === 'grid') {
-                var vWidth = 760 / 10;
-                for (var i = 0; i < 10; i++) {
-                    if (i % 2 === 1) ctx.fillRect(20 + (i * vWidth), 20, vWidth, 440);
-                }
+                var vWidth = PITCH.lengthPx / 10;
+                for (var i = 0; i < 10; i++) { if (i % 2 === 1) ctx.fillRect(PITCH.left + (i * vWidth), PITCH.top, vWidth, PITCH.widthPx); }
             }
             if (BoardState.pitchDesign === 'stripes-h' || BoardState.pitchDesign === 'grid') {
                 ctx.fillStyle = BoardState.pitchDesign === 'grid' ? 'rgba(34, 99, 38, 0.55)' : '#226326';
-                var hHeight = 440 / 8;
-                for (var j = 0; j < 8; j++) {
-                    if (j % 2 === 1) ctx.fillRect(20, 20 + (j * hHeight), 760, hHeight);
-                }
+                var hHeight = PITCH.widthPx / 8;
+                for (var j = 0; j < 8; j++) { if (j % 2 === 1) ctx.fillRect(PITCH.left, PITCH.top + (j * hHeight), PITCH.lengthPx, hHeight); }
             }
             ctx.restore();
         }
 
         function drawCornerFlag(x, y, flipH, flipV) {
-            ctx.save();
-            ctx.lineWidth = 2; ctx.strokeStyle = '#ffffff'; ctx.fillStyle = '#e74c3c';
+            ctx.save(); ctx.lineWidth = 2; ctx.strokeStyle = '#ffffff'; ctx.fillStyle = '#e74c3c';
             ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, flipV ? y + 14 : y - 14); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(x, flipV ? y + 14 : y - 14);
-            var midY = flipV ? y + 10.5 : y - 10.5, endY = flipV ? y + 7 : y - 7;
-            ctx.lineTo(flipH ? x - 9 : x + 9, midY);
-            ctx.lineTo(x, endY); ctx.closePath(); ctx.fill();
-            ctx.restore();
+            ctx.lineTo(flipH ? x - 9 : x + 9, flipV ? y + 10.5 : y - 10.5);
+            ctx.lineTo(x, flipV ? y + 7 : y - 7); ctx.closePath(); ctx.fill(); ctx.restore();
         }
 
         function drawArrow(start, end, style) {
             if (!start || !end) return;
-            ctx.save();
-            ctx.setLineDash(style === 'dashed' ? [8, 6] : []);
+            ctx.save(); ctx.setLineDash(style === 'dashed' ? [8, 6] : []);
             ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.lineCap = 'round';
             ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(end.x, end.y); ctx.stroke();
             var angle = Math.atan2(end.y - start.y, end.x - start.x);
-            ctx.setLineDash([]);
-            ctx.beginPath();
-            ctx.moveTo(end.x, end.y);
-            ctx.lineTo(end.x - 15 * Math.cos(angle - Math.PI / 6), end.y - 15 * Math.sin(angle - Math.PI / 6));
-            ctx.moveTo(end.x, end.y);
-            ctx.lineTo(end.x - 15 * Math.cos(angle + Math.PI / 6), end.y - 15 * Math.sin(angle + Math.PI / 6));
-            ctx.stroke();
-            ctx.restore();
+            ctx.setLineDash([]); ctx.beginPath();
+            ctx.moveTo(end.x, end.y); ctx.lineTo(end.x - 15 * Math.cos(angle - Math.PI / 6), end.y - 15 * Math.sin(angle - Math.PI / 6));
+            ctx.moveTo(end.x, end.y); ctx.lineTo(end.x - 15 * Math.cos(angle + Math.PI / 6), end.y - 15 * Math.sin(angle + Math.PI / 6));
+            ctx.stroke(); ctx.restore();
         }
 
         function drawRealisticFootball(bx, by) {
             var r = 11;
-            ctx.save();
-            ctx.setLineDash([]);
-
-            ctx.beginPath();
-            ctx.arc(bx + 1.5, by + 2, r, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.arc(bx, by, r, 0, Math.PI * 2);
-            ctx.clip();
-
+            ctx.save(); ctx.setLineDash([]);
+            ctx.beginPath(); ctx.arc(bx + 1.5, by + 2, r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0,0,0,0.42)'; ctx.fill();
+            ctx.beginPath(); ctx.arc(bx, by, r, 0, Math.PI * 2); ctx.clip();
             var grad = ctx.createRadialGradient(bx - r * 0.3, by - r * 0.3, r * 0.08, bx, by, r);
-            grad.addColorStop(0, '#ffffff');
-            grad.addColorStop(0.68, '#f4f6f7');
-            grad.addColorStop(1, '#bfc9ca');
-            ctx.fillStyle = grad;
-            ctx.fillRect(bx - r, by - r, r * 2, r * 2);
+            grad.addColorStop(0, '#ffffff'); grad.addColorStop(0.68, '#f4f6f7'); grad.addColorStop(1, '#bfc9ca');
+            ctx.fillStyle = grad; ctx.fillRect(bx - r, by - r, r * 2, r * 2);
 
-            var rInner = r * 0.41;
-            var rMid = r * 0.72;
-            var rRim = r * 0.96;
-            var spread = 0.34;
-
-            ctx.strokeStyle = '#2c3e50';
-            ctx.lineWidth = 1.05;
+            var rInner = r * 0.41, rMid = r * 0.72, rRim = r * 0.96, spread = 0.34;
+            ctx.strokeStyle = '#2c3e50'; ctx.lineWidth = 1.05;
             for (var i = 0; i < 5; i++) {
-                var ang = (i * 2 * Math.PI / 5) - Math.PI / 2;
-                var nextAng = ((i + 1) * 2 * Math.PI / 5) - Math.PI / 2;
-
-                ctx.beginPath();
-                ctx.moveTo(bx + rInner * Math.cos(ang), by + rInner * Math.sin(ang));
-                ctx.lineTo(bx + rMid * Math.cos(ang), by + rMid * Math.sin(ang));
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.moveTo(bx + rRim * Math.cos(ang + spread), by + rRim * Math.sin(ang + spread));
-                ctx.lineTo(bx + rRim * Math.cos(nextAng - spread), by + rRim * Math.sin(nextAng - spread));
-                ctx.stroke();
+                var ang = (i * 2 * Math.PI / 5) - Math.PI / 2, nextAng = ((i + 1) * 2 * Math.PI / 5) - Math.PI / 2;
+                ctx.beginPath(); ctx.moveTo(bx + rInner * Math.cos(ang), by + rInner * Math.sin(ang)); ctx.lineTo(bx + rMid * Math.cos(ang), by + rMid * Math.sin(ang)); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(bx + rRim * Math.cos(ang + spread), by + rRim * Math.sin(ang + spread)); ctx.lineTo(bx + rRim * Math.cos(nextAng - spread), by + rRim * Math.sin(nextAng - spread)); ctx.stroke();
             }
-
-            ctx.fillStyle = '#181f26';
-            ctx.beginPath();
+            ctx.fillStyle = '#181f26'; ctx.beginPath();
             for (var c = 0; c < 5; c++) {
                 var cAng = (c * 2 * Math.PI / 5) - Math.PI / 2;
-                var vx = bx + rInner * Math.cos(cAng);
-                var vy = by + rInner * Math.sin(cAng);
-                if (c === 0) ctx.moveTo(vx, vy);
-                else ctx.lineTo(vx, vy);
+                if (c === 0) ctx.moveTo(bx + rInner * Math.cos(cAng), by + rInner * Math.sin(cAng));
+                else ctx.lineTo(bx + rInner * Math.cos(cAng), by + rInner * Math.sin(cAng));
             }
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-
+            ctx.closePath(); ctx.fill(); ctx.stroke();
             for (var k = 0; k < 5; k++) {
                 var kAng = (k * 2 * Math.PI / 5) - Math.PI / 2;
                 ctx.beginPath();
@@ -1557,102 +845,87 @@
                 ctx.lineTo(bx + (r * 1.25) * Math.cos(kAng - spread * 0.65), by + (r * 1.25) * Math.sin(kAng - spread * 0.65));
                 ctx.lineTo(bx + (r * 1.25) * Math.cos(kAng + spread * 0.65), by + (r * 1.25) * Math.sin(kAng + spread * 0.65));
                 ctx.lineTo(bx + rRim * Math.cos(kAng + spread), by + rRim * Math.sin(kAng + spread));
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
+                ctx.closePath(); ctx.fill(); ctx.stroke();
             }
-
             ctx.restore();
-
-            ctx.save();
-            ctx.setLineDash([]);
-            ctx.beginPath();
-            ctx.arc(bx, by, r, 0, Math.PI * 2);
-            ctx.strokeStyle = '#111822';
-            ctx.lineWidth = 1.4;
-            ctx.stroke();
-            ctx.restore();
+            ctx.save(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(bx, by, r, 0, Math.PI * 2); ctx.strokeStyle = '#111822'; ctx.lineWidth = 1.4; ctx.stroke(); ctx.restore();
         }
 
         function drawPitch() {
             if (!ctx) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.setLineDash([]);
-            ctx.fillStyle = '#1e5221';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.setLineDash([]); ctx.fillStyle = '#1e5221'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Pitch turf, markings & goals
+            // 1. True-Scale Pitch Turf (105m x 68m -> 760px x 492.19px)
             ctx.save();
-            ctx.fillStyle = '#2e7d32';
-            ctx.fillRect(20, 20, 760, 440);
+            ctx.fillStyle = '#2e7d32'; ctx.fillRect(PITCH.left, PITCH.top, PITCH.lengthPx, PITCH.widthPx);
             drawMowedLawnPatterns();
+            ctx.strokeStyle = 'rgba(255,255,255,0.88)'; ctx.lineWidth = 3.5;
+            ctx.strokeRect(PITCH.left, PITCH.top, PITCH.lengthPx, PITCH.widthPx);
 
-            ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-            ctx.lineWidth = 4;
-            ctx.strokeRect(20, 20, 760, 440);
+            // 2. Goals (Centered on goal lines)
+            var goalTopY = PITCH.centerY - (PITCH.goalWidthPx / 2);
+            ctx.lineWidth = 2.5; ctx.strokeStyle = 'rgba(255,255,255,0.88)'; ctx.fillStyle = 'rgba(255,255,255,0.22)';
+            ctx.fillRect(2, goalTopY, PITCH.left - 2, PITCH.goalWidthPx); ctx.strokeRect(2, goalTopY, PITCH.left - 2, PITCH.goalWidthPx);
+            ctx.fillRect(PITCH.right, goalTopY, 18, PITCH.goalWidthPx); ctx.strokeRect(PITCH.right, goalTopY, 18, PITCH.goalWidthPx);
 
-            // Goals
-            ctx.lineWidth = 2.5;
-            ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-            ctx.fillStyle = 'rgba(255,255,255,0.22)';
-            ctx.fillRect(2, 200, 18, 80); ctx.strokeRect(2, 200, 18, 80);
-            ctx.fillRect(780, 200, 18, 80); ctx.strokeRect(780, 200, 18, 80);
+            // 3. Halfway Line, Centre Circle & Centre Spot
+            ctx.lineWidth = 3.5;
+            ctx.beginPath(); ctx.moveTo(PITCH.centerX, PITCH.top); ctx.lineTo(PITCH.centerX, PITCH.bottom); ctx.stroke();
+            ctx.beginPath(); ctx.arc(PITCH.centerX, PITCH.centerY, PITCH.centerCircleRadiusPx, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(PITCH.centerX, PITCH.centerY, 3.5, 0, Math.PI * 2); ctx.fillStyle = '#ffffff'; ctx.fill();
 
-            // Center line, circle & penalty boxes
-            ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.moveTo(400, 20); ctx.lineTo(400, 460); ctx.stroke();
-            ctx.beginPath(); ctx.arc(400, 240, 60, 0, Math.PI * 2); ctx.stroke();
-            ctx.beginPath(); ctx.arc(400, 240, 3.5, 0, Math.PI * 2); ctx.fillStyle = '#ffffff'; ctx.fill();
+            // 4. 18-Yard Boxes (16.46m x 40.23m) & 6-Yard Boxes (5.49m x 18.29m)
+            var eighteenTopY = PITCH.centerY - (PITCH.eighteenYardWidthPx / 2);
+            ctx.strokeRect(PITCH.left, eighteenTopY, PITCH.eighteenYardDepthPx, PITCH.eighteenYardWidthPx);
+            ctx.strokeRect(PITCH.right - PITCH.eighteenYardDepthPx, eighteenTopY, PITCH.eighteenYardDepthPx, PITCH.eighteenYardWidthPx);
 
-            ctx.strokeRect(20, 110, 90, 260); ctx.strokeRect(690, 110, 90, 260);
-            ctx.strokeRect(20, 180, 30, 120); ctx.strokeRect(750, 180, 30, 120);
+            var sixTopY = PITCH.centerY - (PITCH.sixYardWidthPx / 2);
+            ctx.strokeRect(PITCH.left, sixTopY, PITCH.sixYardDepthPx, PITCH.sixYardWidthPx);
+            ctx.strokeRect(PITCH.right - PITCH.sixYardDepthPx, sixTopY, PITCH.sixYardDepthPx, PITCH.sixYardWidthPx);
 
-            ctx.beginPath(); ctx.arc(73, 240, 3, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.arc(727, 240, 3, 0, Math.PI * 2); ctx.fill();
+            // 5. Penalty Spots (11m from goal line) & Penalty "D" Arcs (9.1m radius outside 18-yard box)
+            var leftPenSpotX = PITCH.left + PITCH.penaltySpotDistPx, rightPenSpotX = PITCH.right - PITCH.penaltySpotDistPx;
+            ctx.beginPath(); ctx.arc(leftPenSpotX, PITCH.centerY, 3.2, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(rightPenSpotX, PITCH.centerY, 3.2, 0, Math.PI * 2); ctx.fill();
 
-            drawCornerFlag(20, 20, false, false); drawCornerFlag(20, 460, false, true);
-            drawCornerFlag(780, 20, true, false); drawCornerFlag(780, 460, true, true);
+            var theta = PITCH.penaltyArcHalfAngle;
+            ctx.beginPath(); ctx.arc(leftPenSpotX, PITCH.centerY, PITCH.penaltyArcRadiusPx, -theta, theta, false); ctx.stroke();
+            ctx.beginPath(); ctx.arc(rightPenSpotX, PITCH.centerY, PITCH.penaltyArcRadiusPx, Math.PI - theta, Math.PI + theta, false); ctx.stroke();
+
+            drawCornerFlag(PITCH.left, PITCH.top, false, false); drawCornerFlag(PITCH.left, PITCH.bottom, false, true);
+            drawCornerFlag(PITCH.right, PITCH.top, true, false); drawCornerFlag(PITCH.right, PITCH.bottom, true, true);
             ctx.restore();
 
-            // Technical areas (benches)
+            // Technical areas
             var boxes = getBenchZoneBoxes();
-            ctx.save();
-            ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+            ctx.save(); ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
             ctx.strokeStyle = 'rgba(39, 174, 96, 0.55)'; ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
             traceRoundedRect(boxes.home.x, boxes.home.y, boxes.home.w, boxes.home.h, 6); ctx.fill(); ctx.stroke();
             ctx.strokeStyle = 'rgba(41, 128, 185, 0.55)';
             traceRoundedRect(boxes.away.x, boxes.away.y, boxes.away.w, boxes.away.h, 6); ctx.fill(); ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = 'bold 11px Arial'; ctx.textAlign = 'left';
-            ctx.fillText("📋 " + LedgerState.homeTeamName + " Technical Area", boxes.home.x + 10, boxes.home.y + 18);
-            ctx.fillText("📋 " + LedgerState.awayTeamName + " Technical Area", boxes.away.x + 10, boxes.away.y + 18);
+            ctx.setLineDash([]); ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = 'bold 11px Arial'; ctx.textAlign = 'left';
+            ctx.fillText("📋 " + LedgerState.homeTeamName + " Technical Area", boxes.home.x + 10, boxes.home.y + 16);
+            ctx.fillText("📋 " + LedgerState.awayTeamName + " Technical Area", boxes.away.x + 10, boxes.away.y + 16);
             ctx.restore();
 
             // Formation X markers
             [{ active: BoardState.homeFormation, team: 'home' }, { active: BoardState.awayFormation, team: 'away' }].forEach(function(cfg) {
                 if (cfg.active === 'none' || !formations[cfg.active]) return;
-                ctx.strokeStyle = cfg.team === 'home' ? 'rgba(46, 204, 113, 0.45)' : 'rgba(52, 152, 219, 0.45)';
-                ctx.lineWidth = 2;
+                ctx.strokeStyle = cfg.team === 'home' ? 'rgba(46, 204, 113, 0.45)' : 'rgba(52, 152, 219, 0.45)'; ctx.lineWidth = 2;
                 formations[cfg.active][cfg.team].forEach(function(slot) {
                     var m = scalePlayingFieldCoordinates(slot.x, slot.y, cfg.team === 'away', slot.r === 'GK');
-                    ctx.beginPath();
-                    ctx.moveTo(m.x - 5, m.y - 5); ctx.lineTo(m.x + 5, m.y + 5);
-                    ctx.moveTo(m.x + 5, m.y - 5); ctx.lineTo(m.x - 5, m.y + 5);
-                    ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(m.x - 5, m.y - 5); ctx.lineTo(m.x + 5, m.y + 5); ctx.moveTo(m.x + 5, m.y - 5); ctx.lineTo(m.x - 5, m.y + 5); ctx.stroke();
                 });
             });
 
-            // Arrows (Run & Pass lines)
             BoardState.drawings.forEach(function(a) { drawArrow(a.start, a.end, a.style); });
             if (BoardState.mode.indexOf('draw') === 0 && BoardState.isDragging && BoardState.arrowStart && BoardState.tempArrowEnd) {
                 drawArrow(BoardState.arrowStart, BoardState.tempArrowEnd, BoardState.mode === 'draw-dashed' ? 'dashed' : 'solid');
             }
-
-            // Text Notes
             BoardState.notes.forEach(function(n) {
                 ctx.font = 'bold 14px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fillText(n.text, n.x + 1, n.y + 1);
-                ctx.fillStyle = '#ffffff'; ctx.fillText(n.text, n.x, n.y);
+                ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fillText(n.text, n.x + 1, n.y + 1); ctx.fillStyle = '#ffffff'; ctx.fillText(n.text, n.x, n.y);
             });
 
             // Players
@@ -1660,80 +933,50 @@
                 if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return;
                 var isGK = String(p.name).toUpperCase() === 'GK' || String(p.role || '').toUpperCase() === 'GK';
                 var hasRed = (Number(p.redCards) || 0) > 0;
-
                 if (hasRed) {
-                    ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(192, 57, 43, 0.45)';
-                    ctx.fill();
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2); ctx.fillStyle = 'rgba(192, 57, 43, 0.45)'; ctx.fill();
                 } else if (p.team === 'away') {
                     ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2);
-                    ctx.fillStyle = isGK ? (p.onPitch ? BoardState.awayGkColor : 'rgba(120,120,120,0.45)') : (p.onPitch ? '#2980b9' : 'rgba(41,128,185,0.45)');
-                    ctx.fill();
+                    ctx.fillStyle = isGK ? (p.onPitch ? BoardState.awayGkColor : 'rgba(120,120,120,0.45)') : (p.onPitch ? '#2980b9' : 'rgba(41,128,185,0.45)'); ctx.fill();
                 } else if (isGK) {
-                    ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2);
-                    ctx.fillStyle = p.onPitch ? '#4a148c' : 'rgba(74,20,140,0.45)';
-                    ctx.fill();
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2); ctx.fillStyle = p.onPitch ? '#4a148c' : 'rgba(74,20,140,0.45)'; ctx.fill();
                 } else {
-                    ctx.save();
-                    ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2); ctx.clip();
+                    ctx.save(); ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2); ctx.clip();
                     if (p.onPitch) {
                         ctx.fillStyle = '#27ae60'; ctx.fillRect(p.x - 15, p.y - 15, 30, 30);
                         ctx.fillStyle = '#f1c40f'; ctx.fillRect(p.x - 7, p.y - 15, 7, 30); ctx.fillRect(p.x + 7, p.y - 15, 7, 30);
-                    } else {
-                        ctx.fillStyle = 'rgba(39,174,96,0.4)'; ctx.fillRect(p.x - 15, p.y - 15, 30, 30);
-                    }
+                    } else { ctx.fillStyle = 'rgba(39,174,96,0.4)'; ctx.fillRect(p.x - 15, p.y - 15, 30, 30); }
                     ctx.restore();
                 }
                 ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2);
-                ctx.strokeStyle = hasRed ? '#e74c3c' : (p.onPitch ? '#fff' : 'rgba(255,255,255,0.4)');
-                ctx.lineWidth = 1.5; ctx.stroke();
-                ctx.fillStyle = p.onPitch ? '#fff' : 'rgba(255,255,255,0.65)';
-                ctx.font = 'bold 9px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.strokeStyle = hasRed ? '#e74c3c' : (p.onPitch ? '#fff' : 'rgba(255,255,255,0.4)'); ctx.lineWidth = 1.5; ctx.stroke();
+                ctx.fillStyle = p.onPitch ? '#fff' : 'rgba(255,255,255,0.65)'; ctx.font = 'bold 9px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                 var label = BoardState.labelMode === 'names' ? String(p.name) : String(p.role || 'SUB');
                 if (label.length > 5) label = label.substring(0, 4) + '..';
                 ctx.fillText(label, p.x, p.y);
 
-                // Yellow / Red Card Badges on Player Token
-                var yCards = Number(p.yellowCards) || 0;
-                var rCards = Number(p.redCards) || 0;
+                var yCards = Number(p.yellowCards) || 0, rCards = Number(p.redCards) || 0;
                 if (yCards > 0 || rCards > 0) {
-                    ctx.save();
-                    ctx.lineWidth = 1;
-                    ctx.strokeStyle = '#111822';
-                    var badgeX = p.x + 8;
-                    var badgeY = p.y - 17;
-                    if (yCards > 0) {
-                        ctx.fillStyle = '#f1c40f';
-                        ctx.fillRect(badgeX, badgeY, 7, 10);
-                        ctx.strokeRect(badgeX, badgeY, 7, 10);
-                        badgeX += 5;
-                    }
-                    if (rCards > 0) {
-                        ctx.fillStyle = '#e74c3c';
-                        ctx.fillRect(badgeX, badgeY - 1, 7, 10);
-                        ctx.strokeRect(badgeX, badgeY - 1, 7, 10);
-                    }
+                    ctx.save(); ctx.lineWidth = 1; ctx.strokeStyle = '#111822';
+                    var bx = p.x + 8, by = p.y - 17;
+                    if (yCards > 0) { ctx.fillStyle = '#f1c40f'; ctx.fillRect(bx, by, 7, 10); ctx.strokeRect(bx, by, 7, 10); bx += 5; }
+                    if (rCards > 0) { ctx.fillStyle = '#e74c3c'; ctx.fillRect(bx, by - 1, 7, 10); ctx.strokeRect(bx, by - 1, 7, 10); }
                     ctx.restore();
                 }
             });
 
-            // Realistic Panelled Football
             drawRealisticFootball(BoardState.ball.x, BoardState.ball.y);
 
-            // Hover tooltip
             if (BoardState.hoveredPlayer) {
                 var hp = BoardState.hoveredPlayer;
                 ctx.save();
                 var statusTag = (Number(hp.redCards) || 0) > 0 ? 'SENT OFF' : (hp.onPitch ? 'PITCH' : 'BENCH');
                 var info = (BoardState.labelMode === 'names' ? hp.name : (hp.role || 'POS')) + " [" + statusTag + "]";
                 ctx.font = 'bold 12px Arial';
-                var bw = ctx.measureText(info).width + 16, bh = 24, bx = hp.x - bw / 2, by = hp.y - 34;
-                ctx.fillStyle = 'rgba(17,24,34,0.95)';
-                ctx.strokeStyle = (Number(hp.redCards) || 0) > 0 ? '#e74c3c' : (hp.team === 'home' ? '#27ae60' : '#2980b9');
-                ctx.lineWidth = 1.5;
-                traceRoundedRect(bx, by, bw, bh, 4); ctx.fill(); ctx.stroke();
-                ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.fillText(info, hp.x, by + 12);
+                var bw = ctx.measureText(info).width + 16, bh = 24, boxX = hp.x - bw / 2, boxY = hp.y - 34;
+                ctx.fillStyle = 'rgba(17,24,34,0.95)'; ctx.strokeStyle = (Number(hp.redCards) || 0) > 0 ? '#e74c3c' : (hp.team === 'home' ? '#27ae60' : '#2980b9'); ctx.lineWidth = 1.5;
+                traceRoundedRect(boxX, boxY, bw, bh, 4); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(info, hp.x, boxY + 12);
                 ctx.restore();
             }
         }
@@ -1753,11 +996,7 @@
             btn.innerText = BoardState.snapping ? "🧲 Snapping: ON" : "🔓 Snapping: OFF";
         }
 
-        function changePitchDesign(val) {
-            BoardState.pitchDesign = val;
-            localStorage.setItem('pitchPadDesign', val);
-            drawPitch();
-        }
+        function changePitchDesign(val) { BoardState.pitchDesign = val; localStorage.setItem('pitchPadDesign', val); drawPitch(); }
 
         function toggleGlobalLabelView(initFlag) {
             if (!initFlag) BoardState.labelMode = BoardState.labelMode === 'names' ? 'roles' : 'names';
@@ -1772,12 +1011,7 @@
             if (BoardState.drawings.length > 0) { BoardState.drawings.pop(); drawPitch(); return; }
             if (BoardState.notes.length > 0) { BoardState.notes.pop(); drawPitch(); }
         }
-
-        function clearDrawings() {
-            BoardState.drawings = [];
-            BoardState.notes = [];
-            drawPitch();
-        }
+        function clearDrawings() { BoardState.drawings = []; BoardState.notes = []; drawPitch(); }
 
         function updateFormationOptions(team, skipAutoFill) {
             var fmtNode = document.getElementById(team === 'home' ? 'homeFormatSelect' : 'awayFormatSelect');
@@ -1785,82 +1019,47 @@
             var fmtVal = formatPlaybooks[fmtNode.value] ? fmtNode.value : '9v9';
             fmtNode.value = fmtVal;
             localStorage.setItem(team === 'home' ? 'pitchPadHomeFormatSize' : 'pitchPadAwayFormatSize', fmtVal);
-
             selNode.innerHTML = '';
             var shapes = formatPlaybooks[fmtVal] || ['2-4-2'];
             shapes.forEach(function(f) {
-                var opt = document.createElement('option');
-                opt.value = f; opt.innerText = (team === 'home' ? 'Home: ' : 'Away: ') + f;
-                selNode.appendChild(opt);
+                var opt = document.createElement('option'); opt.value = f; opt.innerText = (team === 'home' ? 'Home: ' : 'Away: ') + f; selNode.appendChild(opt);
             });
-            var freeOpt = document.createElement('option');
-            freeOpt.value = 'none'; freeOpt.innerText = 'Freeform';
-            selNode.appendChild(freeOpt);
-
+            var freeOpt = document.createElement('option'); freeOpt.value = 'none'; freeOpt.innerText = 'Freeform'; selNode.appendChild(freeOpt);
             var current = team === 'home' ? BoardState.homeFormation : BoardState.awayFormation;
             var chosen = (skipAutoFill && (shapes.indexOf(current) !== -1 || current === 'none')) ? current : shapes[0];
             if (team === 'home') BoardState.homeFormation = chosen; else BoardState.awayFormation = chosen;
-            saveFormationData();
-            selNode.value = chosen;
-
+            saveFormationData(); selNode.value = chosen;
             if (!skipAutoFill) autoFillTeam(team);
-            recalculateEqualTimeMatrix();
-            updateSidebarHeaderLabels();
+            recalculateEqualTimeMatrix(); updateSidebarHeaderLabels();
         }
 
         function changeFormation(team, value) {
             if (team === 'home') BoardState.homeFormation = value; else BoardState.awayFormation = value;
-            saveFormationData();
-            enforceTeamPitchCap(team);
-            if (value !== 'none' && formations[value]) {
-                ensureFormationSlotCount(team, value);
-            }
-            repositionBenchedTeammatesInZones();
-            saveSquadData();
-            renderSquadBanks();
-            recalculateEqualTimeMatrix();
-            updateSidebarHeaderLabels();
-            drawPitch();
+            saveFormationData(); enforceTeamPitchCap(team);
+            if (value !== 'none' && formations[value]) ensureFormationSlotCount(team, value);
+            repositionBenchedTeammatesInZones(); saveSquadData(); renderSquadBanks(); recalculateEqualTimeMatrix(); updateSidebarHeaderLabels(); drawPitch();
         }
 
-        // ==========================================
-        // 6. POINTER / TOUCH INTERACTION HANDLERS
-        // ==========================================
         function handlePointerStart(e) {
             if (e.type === 'touchstart') e.preventDefault();
             var c = getCanvasCoordinates(e);
             if (BoardState.mode === 'move') {
-                if (Math.hypot(c.x - BoardState.ball.x, c.y - BoardState.ball.y) < 15) {
-                    BoardState.ball.isDragging = true; BoardState.isDragging = true; return;
-                }
-                var clickedPlayer = LedgerState.squad.find(function(p) {
-                    return Number.isFinite(p.x) && Number.isFinite(p.y) && Math.hypot(c.x - p.x, c.y - p.y) < 16;
-                });
+                if (Math.hypot(c.x - BoardState.ball.x, c.y - BoardState.ball.y) < 15) { BoardState.ball.isDragging = true; BoardState.isDragging = true; return; }
+                var clickedPlayer = LedgerState.squad.find(function(p) { return Number.isFinite(p.x) && Number.isFinite(p.y) && Math.hypot(c.x - p.x, c.y - p.y) < 16; });
                 if (clickedPlayer) {
-                    if ((Number(clickedPlayer.redCards) || 0) > 0) {
-                        showPitchToast("🟥 " + clickedPlayer.name + " has a Red Card and must remain on the bench.");
-                        return;
-                    }
-                    BoardState.selectedPlayer = clickedPlayer;
-                    BoardState.isDragging = true;
-                    return;
+                    if ((Number(clickedPlayer.redCards) || 0) > 0) { showPitchToast("🟥 " + clickedPlayer.name + " has a Red Card and must remain on the bench."); return; }
+                    BoardState.selectedPlayer = clickedPlayer; BoardState.isDragging = true; return;
                 }
                 BoardState.selectedNote = BoardState.notes.find(function(n) {
-                    ctx.font = 'bold 14px Arial';
-                    var tw = ctx.measureText(n.text).width;
+                    ctx.font = 'bold 14px Arial'; var tw = ctx.measureText(n.text).width;
                     return c.x >= n.x - tw / 2 - 10 && c.x <= n.x + tw / 2 + 10 && c.y >= n.y - 12 && c.y <= n.y + 12;
                 });
                 if (BoardState.selectedNote) { BoardState.isDragging = true; return; }
             } else if (BoardState.mode.indexOf('draw') === 0) {
-                BoardState.isDragging = true;
-                BoardState.arrowStart = { x: c.x, y: c.y };
-                BoardState.tempArrowEnd = { x: c.x, y: c.y };
+                BoardState.isDragging = true; BoardState.arrowStart = { x: c.x, y: c.y }; BoardState.tempArrowEnd = { x: c.x, y: c.y };
             } else if (BoardState.mode === 'text') {
                 var txt = prompt("Enter Note text:");
-                if (txt && txt.trim() !== "") {
-                    BoardState.notes.push({ x: c.x, y: c.y, text: txt.trim() });
-                    drawPitch();
-                }
+                if (txt && txt.trim() !== "") { BoardState.notes.push({ x: c.x, y: c.y, text: txt.trim() }); drawPitch(); }
             }
         }
 
@@ -1868,9 +1067,7 @@
             if (!e) return;
             var c = getCanvasCoordinates(e);
             if (!BoardState.isDragging) {
-                var hovered = LedgerState.squad.find(function(p) {
-                    return Number.isFinite(p.x) && Number.isFinite(p.y) && Math.hypot(c.x - p.x, c.y - p.y) < 16;
-                });
+                var hovered = LedgerState.squad.find(function(p) { return Number.isFinite(p.x) && Number.isFinite(p.y) && Math.hypot(c.x - p.x, c.y - p.y) < 16; });
                 if (hovered !== BoardState.hoveredPlayer) { BoardState.hoveredPlayer = hovered; drawPitch(); }
                 return;
             }
@@ -1880,68 +1077,44 @@
                 else if (BoardState.selectedPlayer) { BoardState.selectedPlayer.x = c.x; BoardState.selectedPlayer.y = c.y; }
                 else if (BoardState.selectedNote) { BoardState.selectedNote.x = c.x; BoardState.selectedNote.y = c.y; }
                 drawPitch();
-            } else if (BoardState.mode.indexOf('draw') === 0) {
-                BoardState.tempArrowEnd = { x: c.x, y: c.y };
-                drawPitch();
-            }
+            } else if (BoardState.mode.indexOf('draw') === 0) { BoardState.tempArrowEnd = { x: c.x, y: c.y }; drawPitch(); }
         }
 
         function handlePointerEnd(e) {
             if (!BoardState.isDragging) return;
             var c = getCanvasCoordinates(e);
-
             if (BoardState.mode.indexOf('draw') === 0 && BoardState.arrowStart && BoardState.tempArrowEnd) {
                 if (Math.hypot(BoardState.tempArrowEnd.x - BoardState.arrowStart.x, BoardState.tempArrowEnd.y - BoardState.arrowStart.y) > 6) {
-                    BoardState.drawings.push({
-                        start: { x: BoardState.arrowStart.x, y: BoardState.arrowStart.y },
-                        end: { x: BoardState.tempArrowEnd.x, y: BoardState.tempArrowEnd.y },
-                        style: BoardState.mode === 'draw-dashed' ? 'dashed' : 'solid'
-                    });
+                    BoardState.drawings.push({ start: { x: BoardState.arrowStart.x, y: BoardState.arrowStart.y }, end: { x: BoardState.tempArrowEnd.x, y: BoardState.tempArrowEnd.y }, style: BoardState.mode === 'draw-dashed' ? 'dashed' : 'solid' });
                 }
             } else if (BoardState.mode === 'move') {
                 if (BoardState.ball.isDragging) {
                     BoardState.ball.isDragging = false;
-                    if (BoardState.snapping && Math.hypot(BoardState.ball.x - 400, BoardState.ball.y - 240) < 22) {
-                        BoardState.ball.x = 400; BoardState.ball.y = 240;
+                    if (BoardState.snapping && Math.hypot(BoardState.ball.x - PITCH.centerX, BoardState.ball.y - PITCH.centerY) < 22) {
+                        BoardState.ball.x = PITCH.centerX; BoardState.ball.y = PITCH.centerY;
                     }
                     saveSquadData();
                 } else if (BoardState.selectedPlayer) {
-                    var sp = BoardState.selectedPlayer;
-                    var boxes = getBenchZoneBoxes();
-                    var box = sp.team === 'home' ? boxes.home : boxes.away;
+                    var sp = BoardState.selectedPlayer, boxes = getBenchZoneBoxes(), box = sp.team === 'home' ? boxes.home : boxes.away;
                     var inBenchBox = (c.x >= box.x && c.x <= box.x + box.w && c.y >= box.y && c.y <= box.y + box.h);
-                    var swapTarget = LedgerState.squad.find(function(p) {
-                        return p.id !== sp.id && p.team === sp.team && p.onPitch && Math.hypot(c.x - p.x, c.y - p.y) < 20;
-                    });
+                    var swapTarget = LedgerState.squad.find(function(p) { return p.id !== sp.id && p.team === sp.team && p.onPitch && Math.hypot(c.x - p.x, c.y - p.y) < 20; });
 
                     if (swapTarget && !sp.onPitch) {
-                        // 1-for-1 substitution swap keeps on-pitch count unchanged
                         var tx = swapTarget.x, ty = swapTarget.y, tr = swapTarget.role;
-                        swapTarget.onPitch = false;
-                        sp.onPitch = true;
-                        sp.x = tx; sp.y = ty; sp.role = tr;
+                        swapTarget.onPitch = false; sp.onPitch = true; sp.x = tx; sp.y = ty; sp.role = tr;
                     } else if (sp.onPitch && inBenchBox) {
                         sp.onPitch = false;
                     } else if (!sp.onPitch) {
-                        if (inBenchBox) {
+                        if (inBenchBox) { sp.onPitch = false; }
+                        else if (getCurrentOnPitchCount(sp.team) >= getMaxAllowedOnPitch(sp.team)) {
                             sp.onPitch = false;
-                        } else {
-                            var maxAllowed = getMaxAllowedOnPitch(sp.team);
-                            var currentOn = getCurrentOnPitchCount(sp.team);
-                            if (currentOn >= maxAllowed) {
-                                sp.onPitch = false;
-                                showPitchToast("⚠️ Max players on pitch (" + currentOn + "/" + maxAllowed + "). Drag onto an active player on the pitch to swap!");
-                            } else {
-                                sp.onPitch = true;
-                                if (sp.role === 'SUB') sp.role = 'POS';
-                            }
-                        }
+                            showPitchToast("⚠️ Max players on pitch (" + getCurrentOnPitchCount(sp.team) + "/" + getMaxAllowedOnPitch(sp.team) + "). Drag onto an active player on the pitch to swap!");
+                        } else { sp.onPitch = true; if (sp.role === 'SUB') sp.role = 'POS'; }
                     }
 
                     var activeForm = sp.team === 'home' ? BoardState.homeFormation : BoardState.awayFormation;
                     if (sp.onPitch && BoardState.snapping && activeForm !== 'none' && formations[activeForm]) {
-                        var closest = null, minDist = 35;
-                        var isGK = sp.role === 'GK' || String(sp.name).toUpperCase() === 'GK';
+                        var closest = null, minDist = 35, isGK = sp.role === 'GK' || String(sp.name).toUpperCase() === 'GK';
                         formations[activeForm][sp.team].forEach(function(slot) {
                             var s = scalePlayingFieldCoordinates(slot.x, slot.y, sp.team === 'away', isGK);
                             var d = Math.hypot(sp.x - s.x, sp.y - s.y);
@@ -1949,24 +1122,13 @@
                         });
                         if (closest) { sp.x = closest.x; sp.y = closest.y; }
                     }
-                    repositionBenchedTeammatesInZones();
-                    saveSquadData();
-                    renderSquadBanks();
-                    recalculateEqualTimeMatrix();
+                    repositionBenchedTeammatesInZones(); saveSquadData(); renderSquadBanks(); recalculateEqualTimeMatrix();
                 }
             }
-
-            BoardState.isDragging = false;
-            BoardState.selectedPlayer = null;
-            BoardState.selectedNote = null;
-            BoardState.arrowStart = null;
-            BoardState.tempArrowEnd = null;
+            BoardState.isDragging = false; BoardState.selectedPlayer = null; BoardState.selectedNote = null; BoardState.arrowStart = null; BoardState.tempArrowEnd = null;
             drawPitch();
         }
 
-        // ==========================================
-        // 7. MODAL & BOOTSTRAP INITIALIZATION
-        // ==========================================
         function openChangelogModalWindow() { document.getElementById('changelogOverlayModal').style.display = 'flex'; }
         function hideChangelogContainer() { document.getElementById('changelogOverlayModal').style.display = 'none'; }
         function closeChangelogModalWindow(e) { if (!e || e.target.id === 'changelogOverlayModal') hideChangelogContainer(); }
@@ -1975,54 +1137,41 @@
             try {
                 var rawSquad = localStorage.getItem('footballSquadTracker');
                 var parsed = rawSquad ? JSON.parse(rawSquad) : [];
-                LedgerState.squad = Array.isArray(parsed) ? parsed.filter(function(p) {
-                    return p && (p.team === 'home' || p.team === 'away');
-                }).map(function(p) {
+                LedgerState.squad = Array.isArray(parsed) ? parsed.filter(function(p) { return p && (p.team === 'home' || p.team === 'away'); }).map(function(p) {
                     p.yellowCards = Math.min(2, Math.max(0, Number(p.yellowCards) || 0));
                     p.redCards = Math.min(1, Math.max(0, Number(p.redCards) || 0));
                     if (p.yellowCards >= 2) p.redCards = 1;
                     if (p.redCards >= 1) p.onPitch = false;
                     return p;
                 }) : [];
-            } catch (e) {
-                LedgerState.squad = [];
-            }
+            } catch (e) { LedgerState.squad = []; }
 
-            var bx = parseFloat(localStorage.getItem('pitchPadBallX'));
-            var by = parseFloat(localStorage.getItem('pitchPadBallY'));
+            var bx = parseFloat(localStorage.getItem('pitchPadBallX')), by = parseFloat(localStorage.getItem('pitchPadBallY'));
             if (Number.isFinite(bx) && Number.isFinite(by)) {
-                BoardState.ball.x = bx; BoardState.ball.y = by;
+                if (Math.abs(bx - 400) < 1 && Math.abs(by - 240) < 1) { BoardState.ball.x = PITCH.centerX; BoardState.ball.y = PITCH.centerY; }
+                else { BoardState.ball.x = bx; BoardState.ball.y = by; }
             }
 
-            var hFmt = localStorage.getItem('pitchPadHomeFormatSize') || '9v9';
-            var aFmt = localStorage.getItem('pitchPadAwayFormatSize') || '9v9';
+            var hFmt = localStorage.getItem('pitchPadHomeFormatSize') || '9v9', aFmt = localStorage.getItem('pitchPadAwayFormatSize') || '9v9';
             if (!formatPlaybooks[hFmt]) hFmt = '9v9';
             if (!formatPlaybooks[aFmt]) aFmt = '9v9';
             document.getElementById('homeFormatSelect').value = hFmt;
             document.getElementById('awayFormatSelect').value = aFmt;
 
-            var hForm = localStorage.getItem('pitchPadHomeFormation');
+            var hForm = localStorage.getItem('pitchPadHomeFormation'), aForm = localStorage.getItem('pitchPadAwayFormation');
             BoardState.homeFormation = (hForm && (formations[hForm] || hForm === 'none')) ? hForm : formatPlaybooks[hFmt][0];
-            var aForm = localStorage.getItem('pitchPadAwayFormation');
             BoardState.awayFormation = (aForm && (formations[aForm] || aForm === 'none')) ? aForm : formatPlaybooks[aFmt][0];
 
-            updateFormationOptions('home', true);
-            updateFormationOptions('away', true);
+            updateFormationOptions('home', true); updateFormationOptions('away', true);
 
             var hasHome = LedgerState.squad.some(function(p) { return p.team === 'home'; });
             var hasAway = LedgerState.squad.some(function(p) { return p.team === 'away'; });
             if (!hasHome) autoFillTeam('home'); else ensureFormationSlotCount('home', BoardState.homeFormation);
             if (!hasAway) autoFillTeam('away'); else ensureFormationSlotCount('away', BoardState.awayFormation);
 
-            repositionBenchedTeammatesInZones();
-            renderSquadBanks();
-            saveSquadData();
-
+            repositionBenchedTeammatesInZones(); renderSquadBanks(); saveSquadData();
             document.getElementById('pitchDesignSelect').value = BoardState.pitchDesign;
-            toggleGlobalLabelView(true);
-            recalculateEqualTimeMatrix();
-            updateSidebarHeaderLabels();
-            drawPitch();
+            toggleGlobalLabelView(true); recalculateEqualTimeMatrix(); updateSidebarHeaderLabels(); drawPitch();
         }
 
         canvas.addEventListener('mousedown', handlePointerStart);
