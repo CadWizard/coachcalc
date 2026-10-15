@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.11)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.67.12)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -49,8 +49,33 @@
         .tactics-dropdown summary, .settings-dropdown summary { padding: 6px 11px; border-radius: 4px; border: 1px solid #2980b9; background: #ebf5fb; color: #1f618d; font-size: 12px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; list-style: none; }
         .settings-dropdown summary { border-color: #bdc3c7; background: #f4f6f7; color: #2c3e50; }
         .tactics-dropdown summary::-webkit-details-marker, .settings-dropdown summary::-webkit-details-marker { display: none; }
-        .tactics-dropdown summary.active-draw-mode { background-color: #27ae60 !important; color: #fff !important; border-color: #1e8449 !important; }
-        .tactics-dropdown-menu { position: absolute; top: calc(100% + 6px); left: 0; min-width: 215px; background: #fff; border: 1px solid #bdc3c7; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.28); padding: 6px; display: flex; flex-direction: column; gap: 4px; z-index: 200; }
+        .tactics-dropdown summary.active-draw-mode { border-color: #27ae60 !important; background-color: #e8f8f5 !important; color: #1e8449 !important; box-shadow: 0 0 0 1px rgba(39, 174, 96, 0.35); }
+        .active-tactic-pill {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            background: #27ae60;
+            color: #fff;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #1e8449;
+        }
+        .active-tactic-pill.visible { display: inline-flex; }
+        .active-tactic-exit-btn {
+            background: rgba(0,0,0,0.22);
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 1px 5px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1.1;
+        }
+        .active-tactic-exit-btn:hover { background: rgba(192, 57, 43, 0.9); }
+        .tactics-dropdown-menu { position: absolute; top: calc(100% + 6px); left: 0; min-width: 220px; background: #fff; border: 1px solid #bdc3c7; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.28); padding: 6px; display: flex; flex-direction: column; gap: 4px; z-index: 200; }
         .settings-dropdown-menu { position: absolute; top: calc(100% + 6px); right: 0; min-width: 255px; background: #fff; border: 1px solid #bdc3c7; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.28); padding: 10px; display: flex; flex-direction: column; gap: 8px; z-index: 200; }
         .tactics-dropdown-menu button { width: 100%; justify-content: flex-start; background: #f8f9fa; border: 1px solid #e5e8e8; font-size: 12px; font-weight: bold; color: #2c3e50; padding: 7px 10px; }
         .tactics-dropdown-menu button:hover { background: #eaf2f8; border-color: #a9cce3; }
@@ -142,7 +167,7 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.11)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.67.12)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -258,6 +283,12 @@
                         </div>
                     </details>
 
+                    <!-- Persistent Active Drawing Tool Indicator Pill -->
+                    <div id="activeTacticPill" class="active-tactic-pill" title="Active drawing tool (draw as many as you like, or click ✕ to return to Move mode)">
+                        <span id="activeTacticPillText">🏹 Run Line</span>
+                        <button class="active-tactic-exit-btn" onclick="setMode('move')" title="Exit drawing mode and return to Move">✕</button>
+                    </div>
+
                     <button id="labelToggleBtn" onclick="toggleGlobalLabelView()" style="background-color:#8e44ad; color:white; border:none;" title="Switch player token labels between Names and Positions">👁️ View: NAMES</button>
 
                     <div style="display:inline-flex; align-items:center; gap:4px; margin-left:auto;">
@@ -370,11 +401,11 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.11 (Smart Sub Position Memory)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.67.12 (Tactics Menu Label &amp; Multi-Draw Persistence)</p>
                 <ul>
-                    <li><strong>Smart Sub Position Memory:</strong> When an on-pitch player is sent to the bench, their exact pitch coordinates and position role are stored so the next substitute brought onto the pitch automatically takes their vacated spot and role.</li>
-                    <li><strong>Bench Red Card Rule Fix:</strong> Substitutes sent off on the bench are locked as <code>🟥 Sent Off</code> without reducing the active on-pitch team size.</li>
-                    <li><strong>Bench Goal/Assist Lock &amp; Collapsible Benches:</strong> Full match-day suite.</li>
+                    <li><strong>Fixed <code>✏️ Tactics &amp; Drawing ▾</code> Label:</strong> The menu button now permanently keeps its <code>✏️ Tactics &amp; Drawing ▾</code> title while displaying a separate green active-tool pill (with a quick <code>✕</code> exit button) so you can draw multiple arrows or notes consecutively without confusion.</li>
+                    <li><strong>Smart Sub Position Memory:</strong> Bringing a substitute onto the pitch automatically places them in the exact coordinates and role of the last player sent to the bench.</li>
+                    <li><strong>Bench Red Card &amp; Goal/Assist Rules:</strong> Full Laws of the Game compliance for bench dismissals and on-pitch scoring.</li>
                 </ul>
             </div>
         </div>
@@ -569,7 +600,6 @@
             return LedgerState.squad.filter(function(p) { return p.team === team && p.onPitch; }).length;
         }
 
-        // Stores the pitch coordinates and role of a player sent to the bench
         function recordVacatedSlot(team, x, y, role) {
             if (!LedgerState.vacatedSlots[team]) LedgerState.vacatedSlots[team] = [];
             if (Number.isFinite(x) && Number.isFinite(y) && y <= PITCH.bottom + 15) {
@@ -581,7 +611,6 @@
             }
         }
 
-        // Returns the most recently vacated slot (or an open formation slot) for a substitute entering the pitch
         function claimVacatedSlot(team) {
             var stack = LedgerState.vacatedSlots[team] || [];
             var activeTeammates = LedgerState.squad.filter(function(p) { return p.team === team && p.onPitch; });
@@ -596,7 +625,6 @@
                 }
             }
 
-            // Fallback: check active formation for any unoccupied slot
             var activeForm = team === 'home' ? BoardState.homeFormation : BoardState.awayFormation;
             if (activeForm && activeForm !== 'none' && formations[activeForm] && formations[activeForm][team]) {
                 var slots = formations[activeForm][team];
@@ -959,7 +987,6 @@
                 p.y = targetSlot.y;
                 p.role = targetSlot.role || 'POS';
             } else {
-                // Save Player A's pitch position and role before sending them to the bench
                 recordVacatedSlot(p.team, p.x, p.y, p.role);
                 p.onPitch = false;
                 p.role = 'SUB';
@@ -1236,7 +1263,6 @@
                 ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fillText(n.text, n.x + 1, n.y + 1); ctx.fillStyle = '#ffffff'; ctx.fillText(n.text, n.x, n.y);
             });
 
-            // 10% Larger Player Tokens (PLAYER_RADIUS = 16.5px, diameter = 33px)
             var pr = PLAYER_RADIUS;
             var pd = pr * 2;
             LedgerState.squad.forEach(function(p) {
@@ -1301,12 +1327,29 @@
             document.getElementById('runLineBtn').classList.toggle('active', mode === 'draw-solid');
             document.getElementById('passLineBtn').classList.toggle('active', mode === 'draw-dashed');
             document.getElementById('textBtn').classList.toggle('active', mode === 'text');
-            var summaryEl = document.getElementById('tacticsDropdownSummary'), labelEl = document.getElementById('tacticsDropdownLabel');
-            if (summaryEl && labelEl) {
-                if (mode === 'draw-solid') { summaryEl.classList.add('active-draw-mode'); labelEl.innerText = '🏹 Run Line'; }
-                else if (mode === 'draw-dashed') { summaryEl.classList.add('active-draw-mode'); labelEl.innerText = '⚽ Pass Line'; }
-                else if (mode === 'text') { summaryEl.classList.add('active-draw-mode'); labelEl.innerText = '📝 Pitch Note'; }
-                else { summaryEl.classList.remove('active-draw-mode'); labelEl.innerText = '✏️ Tactics & Drawing'; }
+
+            // Keep menu title permanently as "✏️ Tactics & Drawing" and show/hide the active tool pill next to it
+            var summaryEl = document.getElementById('tacticsDropdownSummary');
+            var pillEl = document.getElementById('activeTacticPill');
+            var pillTextEl = document.getElementById('activeTacticPillText');
+
+            if (summaryEl && pillEl && pillTextEl) {
+                if (mode === 'draw-solid') {
+                    summaryEl.classList.add('active-draw-mode');
+                    pillTextEl.innerText = '🏹 Run Line';
+                    pillEl.classList.add('visible');
+                } else if (mode === 'draw-dashed') {
+                    summaryEl.classList.add('active-draw-mode');
+                    pillTextEl.innerText = '⚽ Pass Line';
+                    pillEl.classList.add('visible');
+                } else if (mode === 'text') {
+                    summaryEl.classList.add('active-draw-mode');
+                    pillTextEl.innerText = '📝 Pitch Note';
+                    pillEl.classList.add('visible');
+                } else {
+                    summaryEl.classList.remove('active-draw-mode');
+                    pillEl.classList.remove('visible');
+                }
             }
         }
 
@@ -1536,6 +1579,14 @@
             if (sd && sd.hasAttribute('open') && !sd.contains(e.target)) sd.removeAttribute('open');
         });
 
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeTacticsDropdown();
+                closeSettingsDropdown();
+                if (BoardState.mode !== 'move') setMode('move');
+            }
+        });
+
         canvas.addEventListener('mousedown', handlePointerStart);
         canvas.addEventListener('mousemove', handlePointerMove);
         window.addEventListener('mouseup', handlePointerEnd);
@@ -1548,4 +1599,4 @@
     </script>
 </body>
 </html>
-<!-- END OF COACHCALC v0.67.11 -->
+<!-- END OF COACHCALC v0.67.12 -->
