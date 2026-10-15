@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PitchPad - Live Match Time Tracker (Stable v0.65.3)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.66.1)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -44,13 +44,13 @@
             display: flex;
             gap: 16px;
             align-items: flex-start;
-            max-width: 1450px;
+            max-width: 1480px;
             width: 100%;
             justify-content: center;
         }
         .sidebar {
-            flex: 0 1 285px;
-            min-width: 245px;
+            flex: 0 1 300px;
+            min-width: 260px;
             background: white;
             padding: 14px;
             border-radius: 8px;
@@ -172,7 +172,7 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            max-height: 220px;
+            max-height: 250px;
             overflow-y: auto;
             background: #fcfcfc;
             padding: 4px;
@@ -181,14 +181,25 @@
         }
         .squad-item {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px;
+            flex-direction: column;
+            padding: 6px 8px;
             background: #f8f9fa;
             border-radius: 4px;
             border-left: 5px solid #ccc;
             font-size: 13px;
+            gap: 5px;
+        }
+        .squad-item-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             gap: 4px;
+        }
+        .squad-item-bottom {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            flex-wrap: wrap;
         }
         .stat-group {
             display: inline-flex;
@@ -346,7 +357,7 @@
         .info-modal-header h3 { margin: 0; font-size: 18px; }
         .info-modal-close-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; }
         .info-modal-body { padding: 20px; overflow-y: auto; color: #2c3e50; font-size: 14px; line-height: 1.5; }
-        @media (max-width: 1120px) {
+        @media (max-width: 1160px) {
             #main-layout { flex-wrap: wrap; }
             .center-workspace { order: 1; flex: 1 1 100%; max-width: 800px; }
             #sidebar-left { order: 2; flex: 1 1 320px; }
@@ -360,8 +371,8 @@
 </head>
 <body>
 
-    <h1>📋 PitchPad</h1>
-    <h2 class="subtitle">Live Match Time Tracker & Whiteboard Tactics (Stable v0.65.3)</h2>
+    <h1>📋 CoachCalc</h1>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.66.1)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
@@ -403,7 +414,7 @@
                             <span class="kit-badge kit-away" style="width:14px; height:14px; margin-left:2px; margin-right:0;"></span>
                         </span>
                     </div>
-                    <button id="undoLastStatBtn" class="undo-stat-btn" onclick="undoLastStatAction()" disabled title="Undo the most recent Goal or Assist">↩️ Undo Last Goal/Assist</button>
+                    <button id="undoLastStatBtn" class="undo-stat-btn" onclick="undoLastStatAction()" disabled title="Undo the most recent Goal, Assist, or Card">↩️ Undo Last Stat/Card</button>
                 </div>
 
                 <div class="row" style="justify-content:space-between;">
@@ -435,7 +446,7 @@
                     <button id="startTimerBtn" onclick="startMatchTimerEngine()" style="background-color:#27ae60; color:white; font-weight:bold; border:none;">▶ Start Timer</button>
                     <button id="pauseTimerBtn" onclick="pauseMatchTimerEngine()" style="background-color:#f39c12; color:white; font-weight:bold; border:none;" disabled>⏸ Pause Timer</button>
                     <button id="nextHalfBtn" onclick="advanceToNextHalf()" style="background-color:#8e44ad; color:white; font-size:13px; font-weight:bold; border:none;">Next Half</button>
-                    <button onclick="startNewGame()" style="background-color:#2980b9; color:white; font-weight:bold; border:none; margin-left:auto;" title="Reset team names, timer, scores, and squads to starting defaults">🆕 New Game</button>
+                    <button onclick="startNewGame()" style="background-color:#2980b9; color:white; font-weight:bold; border:none; margin-left:auto;" title="Reset team names, timer, scores, cards, and squads to starting defaults">🆕 New Game</button>
                     <button onclick="finishGameAndCompileReport()" style="background-color:#c0392b; color:white; font-weight:bold; border:none;">🏁 Force Finish Report</button>
                 </div>
                 <div class="row" style="border-top:1px dashed #ddd; padding-top:6px; margin-top:2px; align-items:center;">
@@ -475,12 +486,12 @@
                 <div style="font-weight:bold; font-size:16px; margin-bottom:10px; color:#1a242f;" id="ledgerTeamHeader"></div>
                 <h4 id="homeReportRosterTitle">Home Squad</h4>
                 <table class="report-table" id="homeReportTable">
-                    <thead><tr><th>Player Name</th><th>Position</th><th>Total Game Time</th><th>Goals</th><th>Assists</th></tr></thead>
+                    <thead><tr><th>Player Name</th><th>Position</th><th>Total Game Time</th><th>Goals</th><th>Assists</th><th>Yellow Cards</th><th>Red Cards</th></tr></thead>
                     <tbody></tbody>
                 </table>
                 <h4 id="awayReportRosterTitle" style="margin-top:20px;">Away Squad</h4>
                 <table class="report-table" id="awayReportTable">
-                    <thead><tr><th>Player Name</th><th>Position</th><th>Total Game Time</th><th>Goals</th><th>Assists</th></tr></thead>
+                    <thead><tr><th>Player Name</th><th>Position</th><th>Total Game Time</th><th>Goals</th><th>Assists</th><th>Yellow Cards</th><th>Red Cards</th></tr></thead>
                     <tbody></tbody>
                 </table>
                 <button onclick="window.print()" style="margin-top:15px; background:#34495e; color:white; border:none; padding:8px 15px; font-weight:bold;">🖨️ Print Statistics Report</button>
@@ -517,15 +528,15 @@
     <div id="changelogOverlayModal" class="info-modal-overlay" onclick="closeChangelogModalWindow(event)">
         <div class="info-modal-box" onclick="event.stopPropagation()">
             <div class="info-modal-header">
-                <h3>📋 PitchPad Change Log & Notes</h3>
+                <h3>📋 CoachCalc Change Log &amp; Notes</h3>
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.65.3 (Realistic Panelled Football & Stoppage Time Threshold)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.66.1 (Card Rules Refinement)</p>
                 <ul>
-                    <li>Updated tactical football rendering to a classic Telstar-style black-and-white panelled design with 3D shading, center pentagon, 5 outer black pentagon panels, and hexagonal seam lines.</li>
-                    <li>Adjusted stoppage time red clock trigger to activate strictly after regulation half/full time (e.g., <code>35:01</code> and <code>70:01</code>).</li>
-                    <li>Includes <strong>🆕 New Game</strong> button and dynamic <strong>Match Summary</strong> team headings.</li>
+                    <li>Capped Red Cards at a maximum of <strong>1 per player</strong> (and Yellow Cards at 2).</li>
+                    <li>Assigning a <strong>2nd Yellow Card</strong> now automatically assigns a <strong>Red Card</strong> (and removing the 2nd Yellow automatically removes the Red Card).</li>
+                    <li>Rebranded to <strong>CoachCalc</strong> with full Match Summary card columns and on-pitch card badges.</li>
                 </ul>
             </div>
         </div>
@@ -788,7 +799,7 @@
         }
 
         // ==========================================
-        // 4. PLAYER LEDGER, SCOREBOARD & STAT UNDO
+        // 4. PLAYER LEDGER, SCOREBOARD & STAT/CARD UNDO
         // ==========================================
         function getTeamScore(team) {
             return LedgerState.squad
@@ -850,6 +861,8 @@
                 var toggleLabel = player.onPitch ? 'Bench' : 'Pitch';
                 var goals = Number(player.goals) || 0;
                 var assists = Number(player.assists) || 0;
+                var yellows = Number(player.yellowCards) || 0;
+                var reds = Number(player.redCards) || 0;
 
                 var goalMinusHtml = goals > 0
                     ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ', \'goals\', -1)" title="Remove 1 Goal">−</button>'
@@ -857,16 +870,25 @@
                 var assistMinusHtml = assists > 0
                     ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ', \'assists\', -1)" title="Remove 1 Assist">−</button>'
                     : '';
+                var yellowMinusHtml = yellows > 0
+                    ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ', \'yellowCards\', -1)" title="Remove 1 Yellow Card">−</button>'
+                    : '';
+                var redMinusHtml = reds > 0
+                    ? '<button class="stat-minus-btn" onclick="adjustPlayerStat(' + player.id + ', \'redCards\', -1)" title="Remove Red Card">−</button>'
+                    : '';
 
                 item.innerHTML =
-                    '<div style="display:flex; flex-direction:column; gap:2px;">' +
-                        '<div style="display:flex; align-items:center; gap:5px;">' +
+                    '<div class="squad-item-top">' +
+                        '<div style="display:flex; align-items:center; gap:5px; min-width:0;">' +
                             '<span class="player-label-click" onclick="promptRenameTeamEdit(' + player.id + ')"><strong>' + player.name + '</strong></span>' +
                             '<span class="role-badge-click" onclick="promptPlayerRoleEdit(' + player.id + ')">' + (player.role || 'POS') + '</span>' +
                         '</div>' +
-                        '<div data-player-time="' + player.id + '" style="font-size:11px; color:#566573; font-weight:bold;">⏱️ ' + formatSecondsToMinutes(player.timePlayed) + '</div>' +
+                        '<div style="display:flex; align-items:center; gap:6px;">' +
+                            '<span data-player-time="' + player.id + '" style="font-size:11px; color:#566573; font-weight:bold;">⏱️ ' + formatSecondsToMinutes(player.timePlayed) + '</span>' +
+                            '<button onclick="togglePlayerPitch(' + player.id + ')" style="padding:3px 7px; font-size:11px; background:#ebf5fb;">' + toggleLabel + '</button>' +
+                        '</div>' +
                     '</div>' +
-                    '<div style="display:flex; gap:4px; align-items:center;">' +
+                    '<div class="squad-item-bottom">' +
                         '<div class="stat-group">' +
                             '<button class="stat-pill-btn" onclick="handleStatClick(event, ' + player.id + ', \'goals\')" oncontextmenu="handleStatRightClick(event, ' + player.id + ', \'goals\')" title="Click: +1 Goal | Right-click or Shift+Click: -1 Goal">⚽ G:' + goals + '</button>' +
                             goalMinusHtml +
@@ -875,7 +897,14 @@
                             '<button class="stat-pill-btn" onclick="handleStatClick(event, ' + player.id + ', \'assists\')" oncontextmenu="handleStatRightClick(event, ' + player.id + ', \'assists\')" title="Click: +1 Assist | Right-click or Shift+Click: -1 Assist">👟 A:' + assists + '</button>' +
                             assistMinusHtml +
                         '</div>' +
-                        '<button onclick="togglePlayerPitch(' + player.id + ')" style="padding:4px 6px; font-size:11px; background:#ebf5fb;">' + toggleLabel + '</button>' +
+                        '<div class="stat-group">' +
+                            '<button class="stat-pill-btn" onclick="handleStatClick(event, ' + player.id + ', \'yellowCards\')" oncontextmenu="handleStatRightClick(event, ' + player.id + ', \'yellowCards\')" title="Click: +1 Yellow Card (2 Yellows = Automatic Red) | Right-click or Shift+Click: -1">🟨 Y:' + yellows + '</button>' +
+                            yellowMinusHtml +
+                        '</div>' +
+                        '<div class="stat-group">' +
+                            '<button class="stat-pill-btn" onclick="handleStatClick(event, ' + player.id + ', \'redCards\')" oncontextmenu="handleStatRightClick(event, ' + player.id + ', \'redCards\')" title="Click: +1 Red Card (Max 1) | Right-click or Shift+Click: Remove Red">🟥 R:' + reds + '</button>' +
+                            redMinusHtml +
+                        '</div>' +
                     '</div>';
 
                 if (player.team === 'home') {
@@ -891,23 +920,62 @@
         function adjustPlayerStat(id, field, delta, skipHistory) {
             var p = LedgerState.squad.find(function(x) { return x.id === id; });
             if (!p) return;
-            var currentVal = Number(p[field]) || 0;
-            var nextVal = Math.max(0, currentVal + delta);
-            if (nextVal === currentVal) return;
 
-            p[field] = nextVal;
+            var prevGoals = Number(p.goals) || 0;
+            var prevAssists = Number(p.assists) || 0;
+            var prevYellow = Number(p.yellowCards) || 0;
+            var prevRed = Number(p.redCards) || 0;
+
+            if (field === 'redCards') {
+                // Max 1 Red Card per player
+                var nextRed = Math.min(1, Math.max(0, prevRed + delta));
+                if (nextRed === prevRed) return;
+                p.redCards = nextRed;
+                // If removing a Red Card while the player had 2 Yellows, drop Yellows back to 1
+                if (delta < 0 && nextRed === 0 && prevYellow >= 2) {
+                    p.yellowCards = 1;
+                }
+            } else if (field === 'yellowCards') {
+                // Max 2 Yellow Cards per player; 2nd Yellow automatically grants 1 Red Card
+                var nextYellow = Math.min(2, Math.max(0, prevYellow + delta));
+                if (nextYellow === prevYellow) return;
+                p.yellowCards = nextYellow;
+
+                if (delta > 0 && nextYellow === 2) {
+                    p.redCards = 1;
+                } else if (delta < 0 && prevYellow === 2 && nextYellow === 1) {
+                    // Removing the 2nd Yellow automatically removes the Red Card
+                    p.redCards = 0;
+                }
+            } else {
+                // Goals or Assists
+                var currentVal = Number(p[field]) || 0;
+                var nextVal = Math.max(0, currentVal + delta);
+                if (nextVal === currentVal) return;
+                p[field] = nextVal;
+            }
+
             if (!skipHistory && delta > 0) {
-                LedgerState.statHistory.push({ playerId: id, field: field });
+                LedgerState.statHistory.push({
+                    playerId: id,
+                    field: field,
+                    prevGoals: prevGoals,
+                    prevAssists: prevAssists,
+                    prevYellow: prevYellow,
+                    prevRed: prevRed
+                });
             } else if (!skipHistory && delta < 0) {
                 for (var i = LedgerState.statHistory.length - 1; i >= 0; i--) {
-                    if (LedgerState.statHistory[i].playerId === id && LedgerState.statHistory[i].field === field) {
+                    if (LedgerState.statHistory[i].playerId === id && (LedgerState.statHistory[i].field === field || (field === 'redCards' && prevYellow === 2 && LedgerState.statHistory[i].field === 'yellowCards'))) {
                         LedgerState.statHistory.splice(i, 1);
                         break;
                     }
                 }
             }
+
             saveSquadData();
             renderSquadBanks();
+            drawPitch();
         }
 
         function incrementPlayerStat(id, field) {
@@ -932,10 +1000,14 @@
             while (LedgerState.statHistory.length > 0) {
                 var last = LedgerState.statHistory.pop();
                 var p = LedgerState.squad.find(function(x) { return x.id === last.playerId; });
-                if (p && (Number(p[last.field]) || 0) > 0) {
-                    p[last.field] = Number(p[last.field]) - 1;
+                if (p) {
+                    p.goals = last.prevGoals;
+                    p.assists = last.prevAssists;
+                    p.yellowCards = last.prevYellow;
+                    p.redCards = last.prevRed;
                     saveSquadData();
                     renderSquadBanks();
+                    drawPitch();
                     return;
                 }
             }
@@ -952,6 +1024,8 @@
                     timePlayed: 0,
                     goals: 0,
                     assists: 0,
+                    yellowCards: 0,
+                    redCards: 0,
                     x: 0,
                     y: 0,
                     team: team,
@@ -1053,6 +1127,8 @@
                         timePlayed: 0,
                         goals: 0,
                         assists: 0,
+                        yellowCards: 0,
+                        redCards: 0,
                         x: 400,
                         y: 240,
                         team: team,
@@ -1098,6 +1174,8 @@
                     timePlayed: 0,
                     goals: 0,
                     assists: 0,
+                    yellowCards: 0,
+                    redCards: 0,
                     x: scaled.x,
                     y: scaled.y,
                     team: team,
@@ -1113,6 +1191,8 @@
                     timePlayed: 0,
                     goals: 0,
                     assists: 0,
+                    yellowCards: 0,
+                    redCards: 0,
                     x: 0,
                     y: 0,
                     team: team,
@@ -1189,7 +1269,15 @@
             function buildRows(team) {
                 var html = "";
                 LedgerState.squad.filter(function(p) { return p.team === team; }).forEach(function(p) {
-                    html += '<tr><td><strong>' + p.name + '</strong></td><td><span class="role-badge-click">' + (p.role || 'POS') + '</span></td><td>' + formatSecondsToMinutes(p.timePlayed) + '</td><td>⚽ ' + (p.goals || 0) + '</td><td>👟 ' + (p.assists || 0) + '</td></tr>';
+                    html += '<tr>' +
+                        '<td><strong>' + p.name + '</strong></td>' +
+                        '<td><span class="role-badge-click">' + (p.role || 'POS') + '</span></td>' +
+                        '<td>' + formatSecondsToMinutes(p.timePlayed) + '</td>' +
+                        '<td>⚽ ' + (p.goals || 0) + '</td>' +
+                        '<td>👟 ' + (p.assists || 0) + '</td>' +
+                        '<td>🟨 ' + (p.yellowCards || 0) + '</td>' +
+                        '<td>🟥 ' + (p.redCards || 0) + '</td>' +
+                    '</tr>';
                 });
                 return html;
             }
@@ -1251,24 +1339,20 @@
             ctx.restore();
         }
 
-        // Renders a classic Telstar-style black-and-white panelled football
         function drawRealisticFootball(bx, by) {
             var r = 11;
             ctx.save();
             ctx.setLineDash([]);
 
-            // 1. Subtle ground shadow
             ctx.beginPath();
             ctx.arc(bx + 1.5, by + 2, r, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
             ctx.fill();
 
-            // 2. Clip to the spherical ball boundary
             ctx.beginPath();
             ctx.arc(bx, by, r, 0, Math.PI * 2);
             ctx.clip();
 
-            // 3. 3D shaded white leather base (forms the 5 white hexagonal panels)
             var grad = ctx.createRadialGradient(bx - r * 0.3, by - r * 0.3, r * 0.08, bx, by, r);
             grad.addColorStop(0, '#ffffff');
             grad.addColorStop(0.68, '#f4f6f7');
@@ -1276,33 +1360,28 @@
             ctx.fillStyle = grad;
             ctx.fillRect(bx - r, by - r, r * 2, r * 2);
 
-            // Geometry for center pentagon + 5 outer rim black pentagons
-            var rInner = r * 0.41; // Center black pentagon radius
-            var rMid = r * 0.72;   // Seam length to inner point of outer black pentagons
-            var rRim = r * 0.96;   // Side wing vertices of outer black pentagons
-            var spread = 0.34;     // Angular half-width of outer black pentagons
+            var rInner = r * 0.41;
+            var rMid = r * 0.72;
+            var rRim = r * 0.96;
+            var spread = 0.34;
 
-            // 4. Seam lines (drawn beneath black panels for crisp joints)
             ctx.strokeStyle = '#2c3e50';
             ctx.lineWidth = 1.05;
             for (var i = 0; i < 5; i++) {
                 var ang = (i * 2 * Math.PI / 5) - Math.PI / 2;
                 var nextAng = ((i + 1) * 2 * Math.PI / 5) - Math.PI / 2;
 
-                // Spoke seam from center pentagon vertex to outer black pentagon tip
                 ctx.beginPath();
                 ctx.moveTo(bx + rInner * Math.cos(ang), by + rInner * Math.sin(ang));
                 ctx.lineTo(bx + rMid * Math.cos(ang), by + rMid * Math.sin(ang));
                 ctx.stroke();
 
-                // Rim hexagon seam connecting adjacent outer black panels
                 ctx.beginPath();
                 ctx.moveTo(bx + rRim * Math.cos(ang + spread), by + rRim * Math.sin(ang + spread));
                 ctx.lineTo(bx + rRim * Math.cos(nextAng - spread), by + rRim * Math.sin(nextAng - spread));
                 ctx.stroke();
             }
 
-            // 5. Center black pentagon panel
             ctx.fillStyle = '#181f26';
             ctx.beginPath();
             for (var c = 0; c < 5; c++) {
@@ -1316,7 +1395,6 @@
             ctx.fill();
             ctx.stroke();
 
-            // 6. Five outer black pentagon panels around the circumference
             for (var k = 0; k < 5; k++) {
                 var kAng = (k * 2 * Math.PI / 5) - Math.PI / 2;
                 ctx.beginPath();
@@ -1332,7 +1410,6 @@
 
             ctx.restore();
 
-            // 7. Outer ball casing outline
             ctx.save();
             ctx.setLineDash([]);
             ctx.beginPath();
@@ -1454,6 +1531,29 @@
                 var label = BoardState.labelMode === 'names' ? String(p.name) : String(p.role || 'SUB');
                 if (label.length > 5) label = label.substring(0, 4) + '..';
                 ctx.fillText(label, p.x, p.y);
+
+                // Yellow / Red Card Badges on Player Token
+                var yCards = Number(p.yellowCards) || 0;
+                var rCards = Number(p.redCards) || 0;
+                if (yCards > 0 || rCards > 0) {
+                    ctx.save();
+                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = '#111822';
+                    var badgeX = p.x + 8;
+                    var badgeY = p.y - 17;
+                    if (yCards > 0) {
+                        ctx.fillStyle = '#f1c40f';
+                        ctx.fillRect(badgeX, badgeY, 7, 10);
+                        ctx.strokeRect(badgeX, badgeY, 7, 10);
+                        badgeX += 5;
+                    }
+                    if (rCards > 0) {
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillRect(badgeX, badgeY - 1, 7, 10);
+                        ctx.strokeRect(badgeX, badgeY - 1, 7, 10);
+                    }
+                    ctx.restore();
+                }
             });
 
             // Realistic Panelled Football
@@ -1690,6 +1790,11 @@
                 var parsed = rawSquad ? JSON.parse(rawSquad) : [];
                 LedgerState.squad = Array.isArray(parsed) ? parsed.filter(function(p) {
                     return p && (p.team === 'home' || p.team === 'away');
+                }).map(function(p) {
+                    p.yellowCards = Math.min(2, Math.max(0, Number(p.yellowCards) || 0));
+                    p.redCards = Math.min(1, Math.max(0, Number(p.redCards) || 0));
+                    if (p.yellowCards >= 2) p.redCards = 1;
+                    return p;
                 }) : [];
             } catch (e) {
                 LedgerState.squad = [];
