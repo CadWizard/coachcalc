@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoachCalc - Live Match Time Tracker (Stable v0.68.1)</title>
+    <title>CoachCalc - Live Match Time Tracker (Stable v0.68.2)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -210,35 +210,35 @@
         .bottom-right-dock-anchor { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
         #infoBtn { background-color: #2980b9; color: #fff; font-weight: bold; font-size: 13px; padding: 8px 16px; border: 1px solid #1f618d; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .info-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 10000; }
-        .info-modal-box { background: #fff; width: 90%; max-width: 550px; max-height: 80vh; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; }
+        .info-modal-box { background: #fff; width: 90%; max-width: 550px; max-height: 85vh; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; }
         .info-modal-header { background: #1a242b; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
         .info-modal-header h3 { margin: 0; font-size: 18px; }
         .info-modal-close-btn { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 0; }
-        .info-modal-body { padding: 20px; overflow-y: auto; color: #2c3e50; font-size: 14px; line-height: 1.5; }
+        .info-modal-body { padding: 18px 20px; overflow-y: auto; color: #2c3e50; font-size: 14px; line-height: 1.5; }
 
         /* Kit & Shirt Designer Modal Styles */
         .kit-preview-stage {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 28px;
+            gap: 24px;
             background: linear-gradient(135deg, #1e5221, #2e7d32);
-            padding: 16px;
+            padding: 14px;
             border-radius: 8px;
             border: 2px solid #1a242b;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             box-shadow: inset 0 2px 8px rgba(0,0,0,0.35);
         }
         .kit-pattern-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 6px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
         .kit-pattern-btn {
             flex-direction: column;
             justify-content: center;
-            padding: 8px 4px;
+            padding: 7px 4px;
             font-size: 11px;
             font-weight: bold;
             border: 2px solid #d5dbdb;
@@ -256,9 +256,9 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             background: #f8f9f9;
-            padding: 10px 12px;
+            padding: 8px 12px;
             border-radius: 6px;
             border: 1px solid #e5e8e8;
         }
@@ -269,8 +269,8 @@
             align-items: center;
         }
         .kit-swatch {
-            width: 24px;
-            height: 24px;
+            width: 23px;
+            height: 23px;
             border-radius: 50%;
             border: 2px solid #bdc3c7;
             cursor: pointer;
@@ -295,12 +295,12 @@
 <body>
 
     <h1>📋 CoachCalc</h1>
-    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.68.1)</h2>
+    <h2 class="subtitle">Live Match Time Tracker &amp; Fair-Play Tactics Board (Stable v0.68.2)</h2>
     
     <div id="main-layout">
         <div id="sidebar-left" class="sidebar">
             <h3>
-                <button id="homeSidebarShirtBtn" class="shirt-icon-btn" onclick="openKitDesigner('home')" title="Click to customize Home shirt design &amp; colors"></button>
+                <button id="homeSidebarShirtBtn" class="shirt-icon-btn" onclick="openKitDesigner('home')" title="Click to customize Home shirt &amp; GK colours"></button>
                 <span id="homeTeamTitleText" class="player-label-click" onclick="promptRenameTeam('home')" title="Click to rename team">Home Squad</span>
             </h3>
             <div style="display:flex; gap:4px;">
@@ -338,7 +338,7 @@
                 <div class="scoreboard-banner">
                     <div class="scoreboard-center">
                         <span class="score-team-label">
-                            <button id="scoreboardHomeShirtBtn" class="shirt-icon-btn scoreboard-shirt-btn" onclick="openKitDesigner('home')" title="Customize Home Kit"></button>
+                            <button id="scoreboardHomeShirtBtn" class="shirt-icon-btn scoreboard-shirt-btn" onclick="openKitDesigner('home')" title="Customize Home &amp; GK Kit"></button>
                             <span id="scoreboardHomeName">Home Squad</span>
                         </span>
                         <div class="score-pill-box">
@@ -346,7 +346,7 @@
                         </div>
                         <span class="score-team-label">
                             <span id="scoreboardAwayName">Away Squad</span>
-                            <button id="scoreboardAwayShirtBtn" class="shirt-icon-btn scoreboard-shirt-btn" onclick="openKitDesigner('away')" title="Customize Away Kit"></button>
+                            <button id="scoreboardAwayShirtBtn" class="shirt-icon-btn scoreboard-shirt-btn" onclick="openKitDesigner('away')" title="Customize Away &amp; GK Kit"></button>
                         </span>
                     </div>
                     <button id="undoLastStatBtn" class="undo-stat-btn" onclick="undoLastStatAction()" disabled title="Undo the most recent Goal, Assist, or Card">↩️ Undo Last Stat/Card</button>
@@ -484,7 +484,7 @@
 
         <div id="sidebar-right" class="sidebar">
             <h3>
-                <button id="awaySidebarShirtBtn" class="shirt-icon-btn" onclick="openKitDesigner('away')" title="Click to customize Away shirt design &amp; colors"></button>
+                <button id="awaySidebarShirtBtn" class="shirt-icon-btn" onclick="openKitDesigner('away')" title="Click to customize Away shirt &amp; GK colours"></button>
                 <span id="awayTeamTitleText" class="player-label-click" onclick="promptRenameTeam('away')" title="Click to rename team">Away Squad</span>
             </h3>
             <div style="display:flex; gap:4px;">
@@ -520,7 +520,7 @@
 
     <!-- Custom Kit & Shirt Designer Modal -->
     <div id="kitDesignerModal" class="info-modal-overlay" onclick="closeKitDesignerModal(event)">
-        <div class="info-modal-box" style="max-width:440px;" onclick="event.stopPropagation()">
+        <div class="info-modal-box" style="max-width:460px;" onclick="event.stopPropagation()">
             <div class="info-modal-header">
                 <h3 id="kitDesignerHeaderTitle">👕 Customize Team Kit</h3>
                 <button class="info-modal-close-btn" onclick="hideKitDesignerModal()">✕</button>
@@ -529,15 +529,19 @@
                 <div class="kit-preview-stage">
                     <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
                         <div id="kitDesignerShirtPreview"></div>
-                        <span style="font-size:11px; color:#e2e8f0; font-weight:bold;">Shirt Icon</span>
+                        <span style="font-size:11px; color:#e2e8f0; font-weight:bold;">Outfield Shirt</span>
                     </div>
                     <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
-                        <canvas id="kitDesignerTokenCanvas" width="56" height="56" style="cursor:default;"></canvas>
-                        <span style="font-size:11px; color:#e2e8f0; font-weight:bold;">Pitch Counter</span>
+                        <canvas id="kitDesignerTokenCanvas" width="52" height="52" style="cursor:default;"></canvas>
+                        <span style="font-size:11px; color:#e2e8f0; font-weight:bold;">Outfield Counter</span>
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+                        <canvas id="kitDesignerGkCanvas" width="52" height="52" style="cursor:default;"></canvas>
+                        <span style="font-size:11px; color:#e2e8f0; font-weight:bold;">GK Counter</span>
                     </div>
                 </div>
 
-                <div style="font-size:12px; font-weight:bold; color:#2c3e50; margin-bottom:6px;">1. Select Shirt Pattern:</div>
+                <div style="font-size:12px; font-weight:bold; color:#2c3e50; margin-bottom:6px;">1. Outfield Shirt Pattern:</div>
                 <div class="kit-pattern-grid">
                     <button id="kitPat_solid" class="kit-pattern-btn" onclick="selectKitPattern('solid')">Solid</button>
                     <button id="kitPat_stripes" class="kit-pattern-btn" onclick="selectKitPattern('stripes')">Stripes</button>
@@ -548,21 +552,29 @@
 
                 <div class="kit-color-section">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:12px; font-weight:bold;">2. Primary Colour:</span>
-                        <input type="color" id="kitPrimaryColorPicker" oninput="updateKitColor('primary', this.value)" style="width:42px; height:28px; padding:1px; cursor:pointer;">
+                        <span style="font-size:12px; font-weight:bold;">2. Outfield Primary Colour:</span>
+                        <input type="color" id="kitPrimaryColorPicker" oninput="updateKitColor('primary', this.value)" style="width:42px; height:26px; padding:1px; cursor:pointer;">
                     </div>
                     <div class="kit-swatch-row" id="kitPrimarySwatches"></div>
                 </div>
 
                 <div class="kit-color-section" id="kitSecondaryColorSection">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span id="kitSecondaryLabel" style="font-size:12px; font-weight:bold;">3. Secondary / Stripe Colour:</span>
-                        <input type="color" id="kitSecondaryColorPicker" oninput="updateKitColor('secondary', this.value)" style="width:42px; height:28px; padding:1px; cursor:pointer;">
+                        <span id="kitSecondaryLabel" style="font-size:12px; font-weight:bold;">3. Outfield Secondary / Stripe Colour:</span>
+                        <input type="color" id="kitSecondaryColorPicker" oninput="updateKitColor('secondary', this.value)" style="width:42px; height:26px; padding:1px; cursor:pointer;">
                     </div>
                     <div class="kit-swatch-row" id="kitSecondarySwatches"></div>
                 </div>
 
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px;">
+                <div class="kit-color-section">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:12px; font-weight:bold;">4. Goalkeeper Shirt Colour (Solid):</span>
+                        <input type="color" id="kitGkColorPicker" oninput="updateKitColor('gkColor', this.value)" style="width:42px; height:26px; padding:1px; cursor:pointer;">
+                    </div>
+                    <div class="kit-swatch-row" id="kitGkSwatches"></div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
                     <button onclick="resetTeamKitToDefault()" style="background:#f2f4f4; color:#566573; border-color:#bdc3c7; font-weight:bold;">↺ Reset Default</button>
                     <button onclick="hideKitDesignerModal()" style="background:#27ae60; color:#fff; border:none; padding:8px 20px; font-weight:bold;">✓ Done</button>
                 </div>
@@ -581,11 +593,11 @@
                 <button class="info-modal-close-btn" onclick="hideChangelogContainer()">✕</button>
             </div>
             <div class="info-modal-body">
-                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.68.1 (Inline Equal Playing Time Dropdown)</p>
+                <p style="margin-top:0; font-weight:bold; color:#34495e;">Current Version: v0.68.2 (Custom Goalkeeper Kit Colour)</p>
                 <ul>
-                    <li><strong>Condensed Inline Equal Playing Time:</strong> Moved <code>🎯 Equal Playing Time</code> onto the main clock row next to the transport controls, displaying the Home team target minutes with a popover GK rotation rule selector.</li>
-                    <li><strong>Interactive Mini Shirt Icons &amp; Kit Designer:</strong> Clickable Home and Away shirt icons with 5 patterns and dual custom colours.</li>
-                    <li><strong>Smart Sub Position Memory &amp; Tactics Persistence:</strong> Full match-day suite.</li>
+                    <li><strong>Goalkeeper Kit Colour Selector:</strong> Added a solid colour selector and quick-pick swatches for each team's Goalkeeper inside the Kit Designer modal, complete with a live GK Counter preview.</li>
+                    <li><strong>Condensed Inline Equal Playing Time:</strong> Located next to the transport controls on the main clock row.</li>
+                    <li><strong>Interactive Mini Shirt Icons &amp; Kit Designer:</strong> Clickable Home and Away shirt icons with 5 patterns and custom colours.</li>
                 </ul>
             </div>
         </div>
@@ -621,25 +633,27 @@
         PITCH.centerY = PITCH.top + PITCH.widthPx / 2;
 
         var DEFAULT_KITS = {
-            home: { pattern: 'stripes', primary: '#27ae60', secondary: '#f1c40f' },
-            away: { pattern: 'solid', primary: '#2980b9', secondary: '#ffffff' }
+            home: { pattern: 'stripes', primary: '#27ae60', secondary: '#f1c40f', gkColor: '#4a148c' },
+            away: { pattern: 'solid', primary: '#2980b9', secondary: '#ffffff', gkColor: '#d35400' }
         };
         var KIT_SWATCH_COLORS = ['#27ae60', '#2980b9', '#c0392b', '#f1c40f', '#ffffff', '#1a242f', '#8e44ad', '#e67e22', '#5dade2', '#7b241c'];
+        var GK_SWATCH_COLORS = ['#4a148c', '#d35400', '#f39c12', '#1abc9c', '#e84393', '#2ecc71', '#e74c3c', '#34495e', '#f1c40f', '#111822'];
 
         function loadSavedKit(team) {
             var key = team === 'home' ? 'pitchPadHomeKit' : 'pitchPadAwayKit';
             var def = DEFAULT_KITS[team];
             try {
                 var raw = localStorage.getItem(key);
-                if (!raw) return { pattern: def.pattern, primary: def.primary, secondary: def.secondary };
+                if (!raw) return { pattern: def.pattern, primary: def.primary, secondary: def.secondary, gkColor: def.gkColor };
                 var parsed = JSON.parse(raw);
                 return {
                     pattern: ['solid', 'stripes', 'hoops', 'halves', 'quarters'].indexOf(parsed.pattern) !== -1 ? parsed.pattern : def.pattern,
                     primary: typeof parsed.primary === 'string' ? parsed.primary : def.primary,
-                    secondary: typeof parsed.secondary === 'string' ? parsed.secondary : def.secondary
+                    secondary: typeof parsed.secondary === 'string' ? parsed.secondary : def.secondary,
+                    gkColor: typeof parsed.gkColor === 'string' ? parsed.gkColor : def.gkColor
                 };
             } catch (e) {
-                return { pattern: def.pattern, primary: def.primary, secondary: def.secondary };
+                return { pattern: def.pattern, primary: def.primary, secondary: def.secondary, gkColor: def.gkColor };
             }
         }
 
@@ -652,7 +666,6 @@
             awayTeamName: localStorage.getItem('pitchPadAwayTeamName') || 'Away Squad'
         };
 
-        var keeperColors = ['#d35400', '#e67e22', '#9b59b6', '#e74c3c', '#1abc9c', '#fdcb6e', '#e84393'];
         var BoardState = {
             drawings: [], notes: [], mode: 'move', isDragging: false,
             selectedPlayer: null, selectedNote: null, arrowStart: null, tempArrowEnd: null, hoveredPlayer: null,
@@ -660,7 +673,6 @@
             homeFormation: '2-4-2', awayFormation: '2-4-2', snapping: true,
             labelMode: localStorage.getItem('pitchPadLabelMode') || 'names',
             pitchDesign: localStorage.getItem('pitchPadDesign') || 'stripes-v',
-            awayGkColor: keeperColors[Math.floor(Math.random() * keeperColors.length)],
             ball: { x: PITCH.centerX, y: PITCH.centerY, isDragging: false },
             kits: {
                 home: loadSavedKit('home'),
@@ -809,15 +821,15 @@
             var kit = BoardState.kits[team];
 
             var shirtPrev = document.getElementById('kitDesignerShirtPreview');
-            if (shirtPrev) shirtPrev.innerHTML = buildShirtSvgMarkup(kit, 58, 54, 'modalPrev');
+            if (shirtPrev) shirtPrev.innerHTML = buildShirtSvgMarkup(kit, 54, 50, 'modalPrev');
 
             var pCanvas = document.getElementById('kitDesignerTokenCanvas');
             if (pCanvas) {
                 var pCtx = pCanvas.getContext('2d');
-                pCtx.clearRect(0, 0, 56, 56);
-                drawPlayerKitFillOnCanvas(pCtx, 28, 28, 21, kit, 1);
+                pCtx.clearRect(0, 0, 52, 52);
+                drawPlayerKitFillOnCanvas(pCtx, 26, 26, 20, kit, 1);
                 pCtx.beginPath();
-                pCtx.arc(28, 28, 21, 0, Math.PI * 2);
+                pCtx.arc(26, 26, 20, 0, Math.PI * 2);
                 pCtx.strokeStyle = '#ffffff';
                 pCtx.lineWidth = 2;
                 pCtx.stroke();
@@ -826,9 +838,30 @@
                 pCtx.textBaseline = 'middle';
                 pCtx.lineWidth = 2.5;
                 pCtx.strokeStyle = 'rgba(17, 24, 34, 0.85)';
-                pCtx.strokeText('P1', 28, 28);
+                pCtx.strokeText('P1', 26, 26);
                 pCtx.fillStyle = '#ffffff';
-                pCtx.fillText('P1', 28, 28);
+                pCtx.fillText('P1', 26, 26);
+            }
+
+            var gkCanvas = document.getElementById('kitDesignerGkCanvas');
+            if (gkCanvas) {
+                var gCtx = gkCanvas.getContext('2d');
+                gCtx.clearRect(0, 0, 52, 52);
+                gCtx.beginPath();
+                gCtx.arc(26, 26, 20, 0, Math.PI * 2);
+                gCtx.fillStyle = kit.gkColor || (team === 'away' ? '#d35400' : '#4a148c');
+                gCtx.fill();
+                gCtx.strokeStyle = '#ffffff';
+                gCtx.lineWidth = 2;
+                gCtx.stroke();
+                gCtx.font = 'bold 11px Arial';
+                gCtx.textAlign = 'center';
+                gCtx.textBaseline = 'middle';
+                gCtx.lineWidth = 2.5;
+                gCtx.strokeStyle = 'rgba(17, 24, 34, 0.85)';
+                gCtx.strokeText('GK', 26, 26);
+                gCtx.fillStyle = '#ffffff';
+                gCtx.fillText('GK', 26, 26);
             }
 
             ['solid', 'stripes', 'hoops', 'halves', 'quarters'].forEach(function(pat) {
@@ -838,21 +871,25 @@
 
             var pPicker = document.getElementById('kitPrimaryColorPicker');
             var sPicker = document.getElementById('kitSecondaryColorPicker');
+            var gkPicker = document.getElementById('kitGkColorPicker');
             if (pPicker) pPicker.value = kit.primary;
             if (sPicker) sPicker.value = kit.secondary;
+            if (gkPicker) gkPicker.value = kit.gkColor || (team === 'away' ? '#d35400' : '#4a148c');
 
             var secLabel = document.getElementById('kitSecondaryLabel');
             if (secLabel) {
-                secLabel.innerText = kit.pattern === 'solid' ? '3. Collar Trim Colour:' : '3. Secondary / Stripe Colour:';
+                secLabel.innerText = kit.pattern === 'solid' ? '3. Outfield Collar Trim Colour:' : '3. Outfield Secondary / Stripe Colour:';
             }
         }
 
         function buildKitSwatchesDom() {
             var priRow = document.getElementById('kitPrimarySwatches');
             var secRow = document.getElementById('kitSecondarySwatches');
-            if (!priRow || !secRow) return;
+            var gkRow = document.getElementById('kitGkSwatches');
+            if (!priRow || !secRow || !gkRow) return;
             priRow.innerHTML = '';
             secRow.innerHTML = '';
+            gkRow.innerHTML = '';
 
             KIT_SWATCH_COLORS.forEach(function(hex) {
                 var s1 = document.createElement('button');
@@ -868,6 +905,15 @@
                 s2.title = hex;
                 s2.onclick = function() { updateKitColor('secondary', hex); };
                 secRow.appendChild(s2);
+            });
+
+            GK_SWATCH_COLORS.forEach(function(hex) {
+                var sg = document.createElement('button');
+                sg.className = 'kit-swatch';
+                sg.style.backgroundColor = hex;
+                sg.title = hex;
+                sg.onclick = function() { updateKitColor('gkColor', hex); };
+                gkRow.appendChild(sg);
             });
         }
 
@@ -911,7 +957,7 @@
         function resetTeamKitToDefault() {
             var team = BoardState.editingKitTeam;
             var def = DEFAULT_KITS[team];
-            BoardState.kits[team] = { pattern: def.pattern, primary: def.primary, secondary: def.secondary };
+            BoardState.kits[team] = { pattern: def.pattern, primary: def.primary, secondary: def.secondary, gkColor: def.gkColor };
             saveKitData();
             renderKitDesignerPreview();
             refreshAllKitBadgesUI();
@@ -1529,8 +1575,8 @@
             var halfBtn = document.getElementById('nextHalfBtn');
             halfBtn.disabled = false; halfBtn.innerText = "⏭"; halfBtn.title = "Advance to 2nd Half"; halfBtn.style.backgroundColor = "#8e44ad"; halfBtn.onclick = advanceToNextHalf;
             LedgerState.homeTeamName = 'Home Squad'; LedgerState.awayTeamName = 'Away Squad';
-            BoardState.kits.home = { pattern: DEFAULT_KITS.home.pattern, primary: DEFAULT_KITS.home.primary, secondary: DEFAULT_KITS.home.secondary };
-            BoardState.kits.away = { pattern: DEFAULT_KITS.away.pattern, primary: DEFAULT_KITS.away.primary, secondary: DEFAULT_KITS.away.secondary };
+            BoardState.kits.home = { pattern: DEFAULT_KITS.home.pattern, primary: DEFAULT_KITS.home.primary, secondary: DEFAULT_KITS.home.secondary, gkColor: DEFAULT_KITS.home.gkColor };
+            BoardState.kits.away = { pattern: DEFAULT_KITS.away.pattern, primary: DEFAULT_KITS.away.primary, secondary: DEFAULT_KITS.away.secondary, gkColor: DEFAULT_KITS.away.gkColor };
             saveKitData();
             try { localStorage.setItem('pitchPadHomeTeamName', 'Home Squad'); localStorage.setItem('pitchPadAwayTeamName', 'Away Squad'); } catch (e) {}
             BoardState.drawings = []; BoardState.notes = [];
@@ -1699,7 +1745,7 @@
                 ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fillText(n.text, n.x + 1, n.y + 1); ctx.fillStyle = '#ffffff'; ctx.fillText(n.text, n.x, n.y);
             });
 
-            // 10% Larger Player Tokens with Custom Kit Rendering
+            // 10% Larger Player Tokens with Custom Outfield & Goalkeeper Kit Rendering
             var pr = PLAYER_RADIUS;
             LedgerState.squad.forEach(function(p) {
                 if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return;
@@ -1710,13 +1756,12 @@
                 if (hasRed) {
                     ctx.beginPath(); ctx.arc(p.x, p.y, pr, 0, Math.PI * 2); ctx.fillStyle = 'rgba(192, 57, 43, 0.45)'; ctx.fill();
                 } else if (isGK) {
+                    ctx.save();
                     ctx.beginPath(); ctx.arc(p.x, p.y, pr, 0, Math.PI * 2);
-                    if (p.team === 'away') {
-                        ctx.fillStyle = p.onPitch ? BoardState.awayGkColor : 'rgba(120,120,120,0.45)';
-                    } else {
-                        ctx.fillStyle = p.onPitch ? '#4a148c' : 'rgba(74,20,140,0.45)';
-                    }
+                    ctx.globalAlpha = p.onPitch ? 1.0 : 0.42;
+                    ctx.fillStyle = teamKit.gkColor || (p.team === 'away' ? '#d35400' : '#4a148c');
                     ctx.fill();
+                    ctx.restore();
                 } else {
                     drawPlayerKitFillOnCanvas(ctx, p.x, p.y, pr, teamKit, p.onPitch ? 1.0 : 0.42);
                 }
@@ -2048,4 +2093,4 @@
     </script>
 </body>
 </html>
-<!-- END OF COACHCALC v0.68.1 -->
+<!-- END OF COACHCALC v0.68.2 -->
